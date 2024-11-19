@@ -34,4 +34,12 @@ public class EnterpriseHonorPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 名称 */
+    @ApiModelProperty(value = "名称")
+    private String name;
+
+    /** 类型 */
+    @ApiModelProperty(value = "类型")
+    private String type;
+
 }

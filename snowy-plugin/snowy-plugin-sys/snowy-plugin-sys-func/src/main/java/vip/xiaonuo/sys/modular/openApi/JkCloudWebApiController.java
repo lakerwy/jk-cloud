@@ -13,6 +13,12 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManagePageParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
+import vip.xiaonuo.sys.modular.hr.honorAward.entity.EnterpriseHonor;
+import vip.xiaonuo.sys.modular.hr.honorAward.entity.HonorAward;
+import vip.xiaonuo.sys.modular.hr.honorAward.param.EnterpriseHonorPageParam;
+import vip.xiaonuo.sys.modular.hr.honorAward.param.HonorAwardPageParam;
+import vip.xiaonuo.sys.modular.hr.honorAward.service.EnterpriseHonorService;
+import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
@@ -43,6 +49,12 @@ public class JkCloudWebApiController {
 
     @Resource
     private JkAssetManageService jkAssetManageService;
+
+    @Resource
+    private EnterpriseHonorService enterpriseHonorService;
+
+    @Resource
+    private HonorAwardService honorAwardService;
 
     /**
      * 获取业务表-人事档案分页(对外免token接口)
@@ -84,5 +96,33 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/assetManageFlow/page")
     public CommonResult<Page<JkAssetManage>> page(JkAssetManagePageParam jkAssetManagePageParam) {
         return CommonResult.data(jkAssetManageService.page(jkAssetManagePageParam));
+    }
+
+    /**
+     * 获取企业荣誉分页
+     *
+     * @author pzh
+     * @date  2024/11/19 11:01
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("获取企业荣誉分页")
+//    @SaCheckPermission("/openApi/sys/enterpriseHonor/page")
+    @GetMapping("/openApi/sys/enterpriseHonor/page")
+    public CommonResult<Page<EnterpriseHonor>> page(EnterpriseHonorPageParam enterpriseHonorPageParam) {
+        return CommonResult.data(enterpriseHonorService.page(enterpriseHonorPageParam));
+    }
+
+    /**
+     * 获取荣誉奖项分页
+     *
+     * @author pzh
+     * @date  2024/11/19 11:10
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取荣誉奖项分页")
+    // @SaCheckPermission("/openApi/sys/honorAward/page")
+    @GetMapping("/openApi/sys/honorAward/page")
+    public CommonResult<Page<HonorAward>> page(HonorAwardPageParam honorAwardPageParam) {
+        return CommonResult.data(honorAwardService.page(honorAwardPageParam));
     }
 }

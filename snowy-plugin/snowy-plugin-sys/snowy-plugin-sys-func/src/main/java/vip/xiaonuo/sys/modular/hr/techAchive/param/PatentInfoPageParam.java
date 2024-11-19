@@ -32,6 +32,10 @@ public class PatentInfoPageParam {
     @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
     private String sortOrder;
 
+    /** 人员Id */
+    @ApiModelProperty(value = "人员Id")
+    private String personnelId;
+
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;

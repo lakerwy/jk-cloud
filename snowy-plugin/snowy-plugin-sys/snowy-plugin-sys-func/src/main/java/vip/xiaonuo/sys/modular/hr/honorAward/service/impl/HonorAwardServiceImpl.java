@@ -43,20 +43,25 @@ public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAw
     @Override
     public Page<HonorAward> page(HonorAwardPageParam honorAwardPageParam) {
         QueryWrapper<HonorAward> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(HonorAward::getType, honorAwardPageParam.getType());
         if(ObjectUtil.isNotEmpty(honorAwardPageParam.getPersonnelId())){
             queryWrapper.lambda().like(HonorAward::getCompletedPersonnelId, honorAwardPageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(honorAwardPageParam.getType())){
             queryWrapper.lambda().eq(HonorAward::getType, honorAwardPageParam.getType());
         }
+        if(ObjectUtil.isNotEmpty(honorAwardPageParam.getPrjName())){
+            queryWrapper.lambda().like(HonorAward::getPrjName, honorAwardPageParam.getPrjName());
+        }
+        if(ObjectUtil.isNotEmpty(honorAwardPageParam.getProfession())){
+            queryWrapper.lambda().eq(HonorAward::getProfession, honorAwardPageParam.getProfession());
+        }
+        if(ObjectUtil.isNotEmpty(honorAwardPageParam.getLevel())){
+            queryWrapper.lambda().eq(HonorAward::getLevel, honorAwardPageParam.getLevel());
+        }
         if(ObjectUtil.isNotEmpty(honorAwardPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(HonorAward::getPrjName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getActivityName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getAwardingOrg,honorAwardPageParam.getSearchKey())
-                    .or().like(HonorAward::getProfession,honorAwardPageParam.getSearchKey())
-                    .or().like(HonorAward::getAwardLevel,honorAwardPageParam.getSearchKey())
-                    .or().like(HonorAward::getLevel,honorAwardPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(honorAwardPageParam.getSortField(), honorAwardPageParam.getSortOrder())) {

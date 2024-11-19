@@ -43,6 +43,10 @@ public class PatentInfoAddParam {
     @ApiModelProperty(value = "发明人", position = 6)
     private String inventor;
 
+    /** 发明人 */
+    @ApiModelProperty(value = "发明人Id", position = 6)
+    private String inventorId;
+
     /** 申请日期 */
     @ApiModelProperty(value = "申请日期", position = 7)
     private Date applyDate;

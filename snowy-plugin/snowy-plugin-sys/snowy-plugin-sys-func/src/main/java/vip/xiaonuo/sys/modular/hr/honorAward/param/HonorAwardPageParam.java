@@ -42,4 +42,16 @@ public class HonorAwardPageParam {
     @ApiModelProperty(value = "人员Id")
     private String personnelId;
 
+    /** 名称 */
+    @ApiModelProperty(value = "名称")
+    private String prjName;
+
+    /** 专业 */
+    @ApiModelProperty(value = "专业")
+    private String profession;
+
+    /** 级别 */
+    @ApiModelProperty(value = "级别")
+    private String level;
+
 }

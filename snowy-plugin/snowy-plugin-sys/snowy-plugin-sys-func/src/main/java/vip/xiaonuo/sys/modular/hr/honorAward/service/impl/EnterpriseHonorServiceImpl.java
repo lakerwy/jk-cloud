@@ -15,6 +15,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.honorAward.entity.EnterpriseHonor;
+import vip.xiaonuo.sys.modular.hr.honorAward.entity.HonorAward;
 import vip.xiaonuo.sys.modular.hr.honorAward.mapper.EnterpriseHonorMapper;
 import vip.xiaonuo.sys.modular.hr.honorAward.param.EnterpriseHonorAddParam;
 import vip.xiaonuo.sys.modular.hr.honorAward.param.EnterpriseHonorEditParam;
@@ -35,20 +36,19 @@ import java.util.List;
 public class EnterpriseHonorServiceImpl extends ServiceImpl<EnterpriseHonorMapper, EnterpriseHonor> implements EnterpriseHonorService {
 
     @Resource
-    private CommonCacheOperator commonCacheOperator;
-
-    @Resource
-    FlwCommonApi flwCommonApi;
-
-    @Resource
     private EnterpriseHonorMapper enterpriseHonorMapper;
 
     @Override
     public Page<EnterpriseHonor> page(EnterpriseHonorPageParam enterpriseHonorPageParam) {
         QueryWrapper<EnterpriseHonor> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(enterpriseHonorPageParam.getType())){
+            queryWrapper.eq("a.TYPE",enterpriseHonorPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(enterpriseHonorPageParam.getName())){
+            queryWrapper.like("a.NAME", enterpriseHonorPageParam.getName());
+        }
         if(ObjectUtil.isNotEmpty(enterpriseHonorPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.NAME",enterpriseHonorPageParam.getSearchKey())
-                    .or().like("a.TYPE",enterpriseHonorPageParam.getSearchKey())
                     .or().like("a.CERT_NO",enterpriseHonorPageParam.getSearchKey())
                     .or().like("a.AWARDING_ORG",enterpriseHonorPageParam.getSearchKey())
             );
