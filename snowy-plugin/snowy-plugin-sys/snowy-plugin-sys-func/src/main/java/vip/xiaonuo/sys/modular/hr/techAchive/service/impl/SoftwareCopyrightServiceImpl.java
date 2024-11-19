@@ -34,6 +34,9 @@ public class SoftwareCopyrightServiceImpl extends ServiceImpl<SoftwareCopyrightM
     @Override
     public Page<SoftwareCopyright> page(SoftwareCopyrightPageParam softwareCopyrightPageParam) {
         QueryWrapper<SoftwareCopyright> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(softwareCopyrightPageParam.getName())){
+            queryWrapper.lambda().eq(SoftwareCopyright::getName, softwareCopyrightPageParam.getName());
+        }
         if(ObjectUtil.isNotEmpty(softwareCopyrightPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SoftwareCopyright::getName,softwareCopyrightPageParam.getSearchKey())
                     .or().like(SoftwareCopyright::getOwner,softwareCopyrightPageParam.getSearchKey())

@@ -34,12 +34,23 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     @Override
     public Page<PatentInfo> page(PatentInfoPageParam patentInfoPageParam) {
         QueryWrapper<PatentInfo> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(patentInfoPageParam.getName())){
+            queryWrapper.lambda().like(PatentInfo::getName, patentInfoPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(patentInfoPageParam.getApplyType())){
+            queryWrapper.lambda().like(PatentInfo::getApplyType, patentInfoPageParam.getApplyType());
+        }
+        if(ObjectUtil.isNotEmpty(patentInfoPageParam.getPatentStatus())){
+            queryWrapper.lambda().like(PatentInfo::getPatentStatus, patentInfoPageParam.getPatentStatus());
+        }
+        if(ObjectUtil.isNotEmpty(patentInfoPageParam.getName())){
+            queryWrapper.lambda().like(PatentInfo::getName, patentInfoPageParam.getName());
+        }
         if(ObjectUtil.isNotEmpty(patentInfoPageParam.getPersonnelId())){
             queryWrapper.lambda().like(PatentInfo::getInventorId, patentInfoPageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(patentInfoPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(PatentInfo::getName,patentInfoPageParam.getSearchKey())
-                    .or().like(PatentInfo::getApplyType,patentInfoPageParam.getSearchKey())
                     .or().like(PatentInfo::getApplyNo,patentInfoPageParam.getSearchKey())
                     .or().like(PatentInfo::getPatentNo,patentInfoPageParam.getSearchKey())
                     .or().like(PatentInfo::getInventor,patentInfoPageParam.getSearchKey())

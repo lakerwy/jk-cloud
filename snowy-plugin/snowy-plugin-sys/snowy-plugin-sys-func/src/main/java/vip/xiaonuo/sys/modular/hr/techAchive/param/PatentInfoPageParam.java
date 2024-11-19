@@ -40,4 +40,15 @@ public class PatentInfoPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 专利名称 */
+    @ApiModelProperty(value = "专利名称")
+    private String name;
+
+    /** 申请类型 */
+    @ApiModelProperty(value = "申请类型")
+    private String applyType;
+
+    /** 专利状态 */
+    @ApiModelProperty(value = "专利状态")
+    private String patentStatus;
 }

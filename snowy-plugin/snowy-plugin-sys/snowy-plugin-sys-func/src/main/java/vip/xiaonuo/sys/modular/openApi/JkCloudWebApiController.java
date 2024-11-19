@@ -22,6 +22,12 @@ import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright;
+import vip.xiaonuo.sys.modular.hr.techAchive.param.PatentInfoPageParam;
+import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightPageParam;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.PatentInfoService;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.SoftwareCopyrightService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.SysOrgPageParam;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -56,6 +62,12 @@ public class JkCloudWebApiController {
     @Resource
     private HonorAwardService honorAwardService;
 
+    @Resource
+    private PatentInfoService patentInfoService;
+
+    @Resource
+    private SoftwareCopyrightService softwareCopyrightService;
+
     /**
      * 获取业务表-人事档案分页(对外免token接口)
      *
@@ -66,7 +78,7 @@ public class JkCloudWebApiController {
     @ApiOperation("获取业务表-人事档案分页")
 //    @SaCheckPermission("/openApi/sys/personnel/pageList")
     @GetMapping("/openApi/sys/personnel/pageList")
-    public CommonResult<Page<PersonnelListDetailVo>> publicPageList(PersonnelPageParam personnelPageParam) {
+    public CommonResult<Page<PersonnelListDetailVo>> pageList(PersonnelPageParam personnelPageParam) {
         return CommonResult.data(personnelService.pageListWithDetail(personnelPageParam));
     }
 
@@ -124,5 +136,33 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/honorAward/page")
     public CommonResult<Page<HonorAward>> page(HonorAwardPageParam honorAwardPageParam) {
         return CommonResult.data(honorAwardService.page(honorAwardPageParam));
+    }
+
+    /**
+     * 获取专利信息分页
+     *
+     * @author pzh
+     * @date  2024/11/19 15:00
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取专利信息分页")
+    // @SaCheckPermission("/openApi/sys/techAchive/patentInfo/page")
+    @GetMapping("/openApi/sys/techAchive/patentInfo/page")
+    public CommonResult<Page<PatentInfo>> page(PatentInfoPageParam patentInfoPageParam) {
+        return CommonResult.data(patentInfoService.page(patentInfoPageParam));
+    }
+
+    /**
+     * 获取软著信息分页
+     *
+     * @author pzh
+     * @date  2024/11/19 16:26
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取软著信息分页")
+    // @SaCheckPermission("/openApi/sys/techAchive/softwareCopyright/page")
+    @GetMapping("/openApi/sys/techAchive/softwareCopyright/page")
+    public CommonResult<Page<SoftwareCopyright>> page(SoftwareCopyrightPageParam softwareCopyrightPageParam) {
+        return CommonResult.data(softwareCopyrightService.page(softwareCopyrightPageParam));
     }
 }

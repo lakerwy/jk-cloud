@@ -36,4 +36,8 @@ public class SoftwareCopyrightPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 软著名称 */
+    @ApiModelProperty(value = "软著名称")
+    private String name;
+
 }
