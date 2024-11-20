@@ -36,4 +36,8 @@ public class NoveltySearchPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 项目名称 */
+    @ApiModelProperty(value = "项目名称")
+    private String prjName;
+
 }

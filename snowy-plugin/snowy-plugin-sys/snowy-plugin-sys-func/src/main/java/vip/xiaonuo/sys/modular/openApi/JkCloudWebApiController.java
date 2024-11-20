@@ -22,15 +22,15 @@ import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.NoveltySearch;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.Standard;
+import vip.xiaonuo.sys.modular.hr.techAchive.param.NoveltySearchPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.PatentInfoPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.StandardPageParam;
-import vip.xiaonuo.sys.modular.hr.techAchive.service.PatentInfoService;
-import vip.xiaonuo.sys.modular.hr.techAchive.service.SoftwareCopyrightService;
-import vip.xiaonuo.sys.modular.hr.techAchive.service.StandardService;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.*;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.SysOrgPageParam;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -73,6 +73,13 @@ public class JkCloudWebApiController {
 
     @Resource
     private StandardService standardService;
+
+    @Resource
+    private NoveltySearchService noveltySearchService;
+
+    @Resource
+    private OtherTechAchiveService otherTechAchiveService;
+
 
     /**
      * 获取业务表-人事档案分页(对外免token接口)
@@ -184,5 +191,19 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/techAchive/standard/page")
     public CommonResult<Page<Standard>> page(StandardPageParam standardPageParam) {
         return CommonResult.data(standardService.page(standardPageParam));
+    }
+
+    /**
+     * 获取查新分页
+     *
+     * @author pzh
+     * @date  2024/11/20 09:35
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("获取查新分页")
+    // @SaCheckPermission("/openApi/sys/techAchive/noveltySearch/page")
+    @GetMapping("/openApi/sys/techAchive/noveltySearch/page")
+    public CommonResult<Page<NoveltySearch>> page(NoveltySearchPageParam noveltySearchPageParam) {
+        return CommonResult.data(noveltySearchService.page(noveltySearchPageParam));
     }
 }

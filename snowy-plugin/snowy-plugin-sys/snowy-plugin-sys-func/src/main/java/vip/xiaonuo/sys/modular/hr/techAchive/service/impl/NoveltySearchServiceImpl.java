@@ -34,6 +34,9 @@ public class NoveltySearchServiceImpl extends ServiceImpl<NoveltySearchMapper, N
     @Override
     public Page<NoveltySearch> page(NoveltySearchPageParam noveltySearchPageParam) {
         QueryWrapper<NoveltySearch> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(noveltySearchPageParam.getPrjName())){
+            queryWrapper.lambda().like(NoveltySearch::getPrjName, noveltySearchPageParam.getPrjName());
+        }
         if(ObjectUtil.isNotEmpty(noveltySearchPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(NoveltySearch::getPrjName,noveltySearchPageParam.getSearchKey())
                     .or().like(NoveltySearch::getReportNo,noveltySearchPageParam.getSearchKey())
