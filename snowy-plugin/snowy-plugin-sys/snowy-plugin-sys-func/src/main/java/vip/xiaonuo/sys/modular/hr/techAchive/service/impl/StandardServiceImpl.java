@@ -34,6 +34,15 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, Standard> i
     @Override
     public Page<Standard> page(StandardPageParam standardPageParam) {
         QueryWrapper<Standard> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(standardPageParam.getName())){
+            queryWrapper.lambda().like(Standard::getName, standardPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(standardPageParam.getStandardType())){
+            queryWrapper.lambda().eq(Standard::getStandardType, standardPageParam.getStandardType());
+        }
+        if(ObjectUtil.isNotEmpty(standardPageParam.getPersonnelId())){
+            queryWrapper.lambda().like(Standard::getParticipantsId, standardPageParam.getPersonnelId());
+        }
         if(ObjectUtil.isNotEmpty(standardPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Standard::getName,standardPageParam.getSearchKey())
                     .or().like(Standard::getType,standardPageParam.getSearchKey())

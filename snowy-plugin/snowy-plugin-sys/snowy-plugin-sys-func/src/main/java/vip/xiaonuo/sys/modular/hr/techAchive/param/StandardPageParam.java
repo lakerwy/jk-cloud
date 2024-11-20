@@ -36,4 +36,15 @@ public class StandardPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 标准名称 */
+    @ApiModelProperty(value = "标准名称")
+    private String name;
+
+    /** 标准类型 */
+    @ApiModelProperty(value = "标准类型")
+    private String standardType;
+
+    /** 人员Id */
+    @ApiModelProperty(value = "人员Id")
+    private String personnelId;
 }

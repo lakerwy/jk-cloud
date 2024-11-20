@@ -24,10 +24,13 @@ import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.Standard;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.PatentInfoPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightPageParam;
+import vip.xiaonuo.sys.modular.hr.techAchive.param.StandardPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.service.PatentInfoService;
 import vip.xiaonuo.sys.modular.hr.techAchive.service.SoftwareCopyrightService;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.StandardService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.SysOrgPageParam;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -67,6 +70,9 @@ public class JkCloudWebApiController {
 
     @Resource
     private SoftwareCopyrightService softwareCopyrightService;
+
+    @Resource
+    private StandardService standardService;
 
     /**
      * 获取业务表-人事档案分页(对外免token接口)
@@ -164,5 +170,19 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/techAchive/softwareCopyright/page")
     public CommonResult<Page<SoftwareCopyright>> page(SoftwareCopyrightPageParam softwareCopyrightPageParam) {
         return CommonResult.data(softwareCopyrightService.page(softwareCopyrightPageParam));
+    }
+
+    /**
+     * 获取标准规范分页
+     *
+     * @author pzh
+     * @date  2024/11/20 08:40
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取标准规范分页")
+    // @SaCheckPermission("/openApi/sys/techAchive/standard/page")
+    @GetMapping("/openApi/sys/techAchive/standard/page")
+    public CommonResult<Page<Standard>> page(StandardPageParam standardPageParam) {
+        return CommonResult.data(standardService.page(standardPageParam));
     }
 }

@@ -35,6 +35,10 @@ public class StandardAddParam {
     @ApiModelProperty(value = "参编人员", position = 5)
     private String participants;
 
+    /** 参编人员Id */
+    @ApiModelProperty(value = "参编人员Id", position = 5)
+    private String participantsId;
+
     /** 发布日期 */
     @ApiModelProperty(value = "发布日期", position = 6)
     private Date publishDate;
