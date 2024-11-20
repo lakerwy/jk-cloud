@@ -34,6 +34,9 @@ public class OtherTechAchiveServiceImpl extends ServiceImpl<OtherTechAchiveMappe
     @Override
     public Page<OtherTechAchive> page(OtherTechAchivePageParam otherTechAchivePageParam) {
         QueryWrapper<OtherTechAchive> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(otherTechAchivePageParam.getName())){
+            queryWrapper.lambda().like(OtherTechAchive::getName, otherTechAchivePageParam.getName());
+        }
         if(ObjectUtil.isNotEmpty(otherTechAchivePageParam.getPersonnelId())){
             queryWrapper.lambda().like(OtherTechAchive::getCompletedPersonnelId, otherTechAchivePageParam.getPersonnelId());
         }

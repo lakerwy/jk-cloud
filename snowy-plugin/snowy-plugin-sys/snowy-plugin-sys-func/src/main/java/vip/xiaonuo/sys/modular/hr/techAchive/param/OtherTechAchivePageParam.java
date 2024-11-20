@@ -40,4 +40,8 @@ public class OtherTechAchivePageParam {
     @ApiModelProperty(value = "人员Id")
     private String personnelId;
 
+    /** 名称 */
+    @ApiModelProperty(value = "名称", position = 2)
+    private String name;
+
 }

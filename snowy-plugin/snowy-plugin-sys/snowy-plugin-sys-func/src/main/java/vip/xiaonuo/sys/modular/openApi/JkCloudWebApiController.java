@@ -22,14 +22,8 @@ import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
-import vip.xiaonuo.sys.modular.hr.techAchive.entity.NoveltySearch;
-import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
-import vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright;
-import vip.xiaonuo.sys.modular.hr.techAchive.entity.Standard;
-import vip.xiaonuo.sys.modular.hr.techAchive.param.NoveltySearchPageParam;
-import vip.xiaonuo.sys.modular.hr.techAchive.param.PatentInfoPageParam;
-import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightPageParam;
-import vip.xiaonuo.sys.modular.hr.techAchive.param.StandardPageParam;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.*;
+import vip.xiaonuo.sys.modular.hr.techAchive.param.*;
 import vip.xiaonuo.sys.modular.hr.techAchive.service.*;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.SysOrgPageParam;
@@ -205,5 +199,19 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/techAchive/noveltySearch/page")
     public CommonResult<Page<NoveltySearch>> page(NoveltySearchPageParam noveltySearchPageParam) {
         return CommonResult.data(noveltySearchService.page(noveltySearchPageParam));
+    }
+
+    /**
+     * 获取其他（科技成果）分页
+     *
+     * @author pzh
+     * @date  2024/11/20 10:00
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取其他（科技成果）分页")
+    // @SaCheckPermission("/openApi/sys/techAchive/otherTechAchive/page")
+    @GetMapping("/openApi/sys/techAchive/otherTechAchive/page")
+    public CommonResult<Page<OtherTechAchive>> page(OtherTechAchivePageParam otherTechAchivePageParam) {
+        return CommonResult.data(otherTechAchiveService.page(otherTechAchivePageParam));
     }
 }
