@@ -44,10 +44,6 @@ public class SoftwareCopyrightEditParam {
     @ApiModelProperty(value = "首次发表日期", position = 9)
     private Date firstPublishDate;
 
-    /** 软著状态 */
-    @ApiModelProperty(value = "软著状态", position = 10)
-    private String copyrightStatus;
-
     /** 有效期至 */
     @ApiModelProperty(value = "有效期至", position = 11)
     private Date invalidDate;

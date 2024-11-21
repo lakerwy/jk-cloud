@@ -20,6 +20,7 @@ import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightIdParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.param.SoftwareCopyrightPageParam;
 import vip.xiaonuo.sys.modular.hr.techAchive.service.SoftwareCopyrightService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -31,16 +32,19 @@ import java.util.List;
 @Service
 public class SoftwareCopyrightServiceImpl extends ServiceImpl<SoftwareCopyrightMapper, SoftwareCopyright> implements SoftwareCopyrightService {
 
+    @Resource
+    private SoftwareCopyrightMapper softwareCopyrightMapper;
+
     @Override
     public Page<SoftwareCopyright> page(SoftwareCopyrightPageParam softwareCopyrightPageParam) {
         QueryWrapper<SoftwareCopyright> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(softwareCopyrightPageParam.getName())){
-            queryWrapper.lambda().eq(SoftwareCopyright::getName, softwareCopyrightPageParam.getName());
+            queryWrapper.eq("a.NAME", softwareCopyrightPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(softwareCopyrightPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(SoftwareCopyright::getName,softwareCopyrightPageParam.getSearchKey())
-                    .or().like(SoftwareCopyright::getOwner,softwareCopyrightPageParam.getSearchKey())
-                    .or().like(SoftwareCopyright::getRegisterNo,softwareCopyrightPageParam.getSearchKey())
+            queryWrapper.and(q->q.like("a.NAME",softwareCopyrightPageParam.getSearchKey())
+                    .or().like("a.OWNER",softwareCopyrightPageParam.getSearchKey())
+                    .or().like("a.REGISTER_NO",softwareCopyrightPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(softwareCopyrightPageParam.getSortField(), softwareCopyrightPageParam.getSortOrder())) {
@@ -48,9 +52,9 @@ public class SoftwareCopyrightServiceImpl extends ServiceImpl<SoftwareCopyrightM
             queryWrapper.orderBy(true, softwareCopyrightPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(softwareCopyrightPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SoftwareCopyright::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return softwareCopyrightMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -82,7 +86,7 @@ public class SoftwareCopyrightServiceImpl extends ServiceImpl<SoftwareCopyrightM
 
     @Override
     public SoftwareCopyright queryEntity(String id) {
-        SoftwareCopyright softwareCopyright = this.getById(id);
+        SoftwareCopyright softwareCopyright = softwareCopyrightMapper.getDetailById(id);
         if(ObjectUtil.isEmpty(softwareCopyright)) {
             throw new CommonException("软著信息不存在，id值为：{}", id);
         }

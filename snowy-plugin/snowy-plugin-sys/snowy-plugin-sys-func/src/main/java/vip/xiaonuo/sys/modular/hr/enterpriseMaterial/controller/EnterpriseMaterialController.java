@@ -31,7 +31,7 @@ import javax.validation.constraints.NotEmpty;
  * @author pzh
  * @date  2024/09/18 14:57
  */
-@Api(tags = "企业宣传资料控制器1")
+@Api(tags = "企业宣传资料控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated

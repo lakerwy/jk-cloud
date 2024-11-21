@@ -43,8 +43,9 @@ public class SoftwareCopyright {
     @ApiModelProperty(value = "首次发表日期", position = 9)
     private Date firstPublishDate;
 
-    /** 软著状态 */
-    @ApiModelProperty(value = "软著状态", position = 10)
+    /** 软著状态（正常|失效） */
+    @ApiModelProperty(value = "软著状态（正常|失效）", position = 10)
+    @TableField(exist = false)
     private String copyrightStatus;
 
     /** 有效期至 */

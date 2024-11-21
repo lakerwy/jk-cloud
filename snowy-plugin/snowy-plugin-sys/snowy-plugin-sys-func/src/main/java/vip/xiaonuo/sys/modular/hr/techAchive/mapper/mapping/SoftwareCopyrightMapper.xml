@@ -2,4 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.techAchive.mapper.SoftwareCopyrightMapper">
 
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright">
+        select a.*
+        from (select b.*,
+                     CASE WHEN b.INVALID_DATE IS NOT NULL AND  b.INVALID_DATE &lt; DATE(NOW()) then '失效'
+                      ELSE '正常'  END AS copyrightStatus
+              from SOFTWARE_COPYRIGHT b where b.DELETE_FLAG='NOT_DELETE') a
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.techAchive.entity.SoftwareCopyright">
+        select a.*
+        from (select b.*,
+                     CASE WHEN b.INVALID_DATE IS NOT NULL AND  b.INVALID_DATE &lt; DATE(NOW()) then '失效'
+                      ELSE '正常'  END AS copyrightStatus
+              from SOFTWARE_COPYRIGHT b where b.DELETE_FLAG='NOT_DELETE') a
+        where a.ID = #{id}
+    </select>
+
 </mapper>

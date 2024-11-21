@@ -41,7 +41,7 @@ public class OtherTechAchivePageParam {
     private String personnelId;
 
     /** 名称 */
-    @ApiModelProperty(value = "名称", position = 2)
+    @ApiModelProperty(value = "名称")
     private String name;
 
 }
