@@ -99,5 +99,7 @@ public interface PersonnelService extends IService<Personnel> {
 
     List<Map<String, Object>> getAllUser();
 
-    Page<PersonnelListDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam);
+    Page<PersonnelDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam);
+
+    PersonnelDetailVo detail2(PersonnelIdParam personnelIdParam);
 }

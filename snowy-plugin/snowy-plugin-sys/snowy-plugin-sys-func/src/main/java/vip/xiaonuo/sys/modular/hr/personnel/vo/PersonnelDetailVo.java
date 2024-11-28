@@ -13,66 +13,30 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PersonnelListDetailVo {
+public class PersonnelDetailVo {
+
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /** 图像 */
-    @ApiModelProperty(value = "图像", position = 2)
-    private String image;
-
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 3)
     private String name;
-
-    /** 学历 */
-    @ApiModelProperty(value = "学历", position = 4)
-    private String highestEducation;
-
-    /** 民族 */
-    @ApiModelProperty(value = "民族", position = 5)
-    private String nation;
-
-    /** 性别 */
-    @ApiModelProperty(value = "性别", position = 9)
-    private String sex;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 10)
     private String idNumber;
 
-    /** 籍贯 */
-    @ApiModelProperty(value = "籍贯", position = 11)
-    private String origo;
-
     /** 年龄 */
     @ApiModelProperty(value = "年龄", position = 12)
     private Integer age;
 
-    /** 入职司龄(自动算) */
-    @ApiModelProperty(value = "入职司龄(自动算)", position = 14)
-    private String enterage;
-
-    /** 现居住地址 */
-    @ApiModelProperty(value = "现居住地址", position = 16)
-    private String address;
-
-    /** 工作城市 */
-    /** 养老保险个人编号 */
-
-    /** 手机 */
-    @ApiModelProperty(value = "手机", position = 18)
-    private String phone;
-
-    /** E-Mail */
-    @ApiModelProperty(value = "E-Mail", position = 19)
-    private String email;
-
-    /** 部门 */
-    @ApiModelProperty(value = "部门", position = 20)
-    private String dept;
+    /** 出生日期 */
+    @ApiModelProperty(value = "出生日期", position = 48)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birth;
 
     /**
      * 第一学历
@@ -182,15 +146,10 @@ public class PersonnelListDetailVo {
     @ApiModelProperty(value = "第三学历备注", position = 47)
     private String thirdNote;
 
-    /** 出生日期 */
-    @ApiModelProperty(value = "出生日期", position = 48)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birth;
-
     @ApiModelProperty(value = "证书信息列表", position = 80)
     private List<PersonnelFileCert> personnelCertList;
 
     @ApiModelProperty(value = "职称信息列表", position = 81)
     private List<PersonnelFileTitle> personnelTitleList;
+
 }

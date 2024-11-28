@@ -606,7 +606,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     }
 
     @Override
-    public Page<PersonnelListDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam) {
+    public Page<PersonnelDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam) {
         QueryWrapper<Personnel> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(personnelPageParam.getDeptId())){
             queryWrapper.lambda().eq(Personnel::getDeptId, personnelPageParam.getDeptId());
@@ -625,18 +625,27 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         } else {
             queryWrapper.lambda().orderByDesc(Personnel::getCreateTime);
         }
+        queryWrapper.lambda().select(Personnel::getId,Personnel::getName,Personnel::getIdNumber,Personnel::getBirth,Personnel::getAge);
         Page<Personnel> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        Page<PersonnelListDetailVo> newpage = new Page<>();
+        Page<PersonnelDetailVo> newpage = new Page<>();
         BeanUtil.copyProperties(page, newpage,"records");
-        newpage.setRecords(BeanUtil.copyToList(page.getRecords(), PersonnelListDetailVo.class));
-        for(PersonnelListDetailVo vo : newpage.getRecords()){
-            Map<String, Object> columnMap = new HashMap<>();
-            columnMap.put("FILE_ID", vo.getId());
-            columnMap.put("DELETE_FLAG", "NOT_DELETE");
-            vo.setPersonnelCertList(personnelFileCertService.listByMap(columnMap));
-            vo.setPersonnelTitleList(personnelFileTitleService.listByMap(columnMap));
-        }
+        newpage.setRecords(BeanUtil.copyToList(page.getRecords(), PersonnelDetailVo.class));
         return newpage;
+    }
+
+    @Override
+    public PersonnelDetailVo detail2(PersonnelIdParam personnelIdParam) {
+        Personnel personnel = this.queryEntity(personnelIdParam.getId());
+        if(ObjectUtil.isEmpty(personnel)){
+            throw new CommonException("该员工信息不存在，id值为：{}",personnelIdParam.getId());
+        }
+        PersonnelDetailVo personnelDetailVo = BeanUtil.toBean(personnel, PersonnelDetailVo.class);
+        Map<String, Object> columnMap = new HashMap<>();
+        columnMap.put("FILE_ID", personnel.getId());
+        columnMap.put("DELETE_FLAG", "NOT_DELETE");
+        personnelDetailVo.setPersonnelCertList(personnelFileCertService.listByMap(columnMap));
+        personnelDetailVo.setPersonnelTitleList(personnelFileTitleService.listByMap(columnMap));
+        return personnelDetailVo;
     }
 
 }
