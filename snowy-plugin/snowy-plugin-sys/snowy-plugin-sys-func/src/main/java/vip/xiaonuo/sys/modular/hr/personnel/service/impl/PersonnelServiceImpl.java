@@ -608,6 +608,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public Page<PersonnelDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam) {
         QueryWrapper<Personnel> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getStatus())){
+            queryWrapper.lambda().eq(Personnel::getStatus, personnelPageParam.getStatus());
+        }else {
+            queryWrapper.lambda().eq(Personnel::getStatus, "0");
+        }
         if(ObjectUtil.isNotEmpty(personnelPageParam.getDeptId())){
             queryWrapper.lambda().eq(Personnel::getDeptId, personnelPageParam.getDeptId());
         }
