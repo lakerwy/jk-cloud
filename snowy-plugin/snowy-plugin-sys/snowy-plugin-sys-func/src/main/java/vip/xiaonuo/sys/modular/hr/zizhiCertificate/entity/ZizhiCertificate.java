@@ -47,6 +47,11 @@ public class ZizhiCertificate {
     @ApiModelProperty(value = "有效期至", position = 7)
     private Date validity;
 
+    /** 有效期状态（正常|已过期|临近1个月） */
+    @ApiModelProperty(value = "有效期状态（正常|已过期|临近1个月）", position = 7)
+    @TableField(exist = false)
+    private String validityStatus;
+
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 8)
     private String attachment;

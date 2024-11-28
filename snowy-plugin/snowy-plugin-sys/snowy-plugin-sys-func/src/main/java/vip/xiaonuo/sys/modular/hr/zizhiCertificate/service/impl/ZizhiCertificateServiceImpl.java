@@ -34,16 +34,18 @@ import java.util.List;
 @Service
 public class ZizhiCertificateServiceImpl extends ServiceImpl<ZizhiCertificateMapper, ZizhiCertificate> implements ZizhiCertificateService {
 
+    @Resource
+    private ZizhiCertificateMapper zizhiCertificateMapper;
+
     @Override
     public Page<ZizhiCertificate> page(ZizhiCertificatePageParam zizhiCertificatePageParam) {
         QueryWrapper<ZizhiCertificate> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(zizhiCertificatePageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(ZizhiCertificate::getZiZhiName,zizhiCertificatePageParam.getSearchKey())
-                    .or().like(ZizhiCertificate::getZiZhiName,zizhiCertificatePageParam.getSearchKey())
-                    .or().like(ZizhiCertificate::getType,zizhiCertificatePageParam.getSearchKey())
-                    .or().like(ZizhiCertificate::getCertNo,zizhiCertificatePageParam.getSearchKey())
-                    .or().like(ZizhiCertificate::getIssueOrg,zizhiCertificatePageParam.getSearchKey())
-                    .or().like(ZizhiCertificate::getBusinessScope,zizhiCertificatePageParam.getSearchKey())
+            queryWrapper.and(q->q.like("a.ZI_ZHI_NAME",zizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.TYPE",zizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.CERT_NO",zizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.ISSUE_ORG",zizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.BUSINESS_SCOPE",zizhiCertificatePageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(zizhiCertificatePageParam.getSortField(), zizhiCertificatePageParam.getSortOrder())) {
@@ -51,9 +53,9 @@ public class ZizhiCertificateServiceImpl extends ServiceImpl<ZizhiCertificateMap
             queryWrapper.orderBy(true, zizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(zizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(ZizhiCertificate::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return zizhiCertificateMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
