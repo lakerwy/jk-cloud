@@ -48,8 +48,8 @@ public class ZizhiCertificateController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取资质证照分页")
-    // @SaCheckPermission("/ai/zizhiCertificate/page")
-    @GetMapping("/ai/zizhiCertificate/page")
+    // @SaCheckPermission("/sys/zizhiCertificate/page")
+    @GetMapping("/sys/zizhiCertificate/page")
     public CommonResult<Page<ZizhiCertificate>> page(ZizhiCertificatePageParam zizhiCertificatePageParam) {
         return CommonResult.data(zizhiCertificateService.page(zizhiCertificatePageParam));
     }
@@ -63,8 +63,8 @@ public class ZizhiCertificateController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加资质证照")
     @CommonLog("添加资质证照")
-    // @SaCheckPermission("/ai/zizhiCertificate/add")
-    @PostMapping("/ai/zizhiCertificate/add")
+    // @SaCheckPermission("/sys/zizhiCertificate/add")
+    @PostMapping("/sys/zizhiCertificate/add")
     public CommonResult<String> add(@RequestBody @Valid ZizhiCertificateAddParam zizhiCertificateAddParam) {
         zizhiCertificateService.add(zizhiCertificateAddParam);
         return CommonResult.ok();
@@ -79,8 +79,8 @@ public class ZizhiCertificateController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑资质证照")
     @CommonLog("编辑资质证照")
-    // @SaCheckPermission("/ai/zizhiCertificate/edit")
-    @PostMapping("/ai/zizhiCertificate/edit")
+    // @SaCheckPermission("/sys/zizhiCertificate/edit")
+    @PostMapping("/sys/zizhiCertificate/edit")
     public CommonResult<String> edit(@RequestBody @Valid ZizhiCertificateEditParam zizhiCertificateEditParam) {
         zizhiCertificateService.edit(zizhiCertificateEditParam);
         return CommonResult.ok();
@@ -95,8 +95,8 @@ public class ZizhiCertificateController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除资质证照")
     @CommonLog("删除资质证照")
-    // @SaCheckPermission("/ai/zizhiCertificate/delete")
-    @PostMapping("/ai/zizhiCertificate/delete")
+    // @SaCheckPermission("/sys/zizhiCertificate/delete")
+    @PostMapping("/sys/zizhiCertificate/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                        CommonValidList<ZizhiCertificateIdParam> zizhiCertificateIdParamList) {
         zizhiCertificateService.delete(zizhiCertificateIdParamList);
@@ -111,8 +111,8 @@ public class ZizhiCertificateController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取资质证照详情")
-    // @SaCheckPermission("/ai/zizhiCertificate/detail")
-    @GetMapping("/ai/zizhiCertificate/detail")
+    // @SaCheckPermission("/sys/zizhiCertificate/detail")
+    @GetMapping("/sys/zizhiCertificate/detail")
     public CommonResult<ZizhiCertificate> detail(@Valid ZizhiCertificateIdParam zizhiCertificateIdParam) {
         return CommonResult.data(zizhiCertificateService.detail(zizhiCertificateIdParam));
     }
