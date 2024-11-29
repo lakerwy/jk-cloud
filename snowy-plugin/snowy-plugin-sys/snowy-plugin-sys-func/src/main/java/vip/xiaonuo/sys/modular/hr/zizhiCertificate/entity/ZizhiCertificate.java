@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
+
 import java.util.Date;
 
 /**
@@ -54,7 +54,7 @@ public class ZizhiCertificate {
 
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 8)
-    private String attachment;
+    private String attachments;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 9)
