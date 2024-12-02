@@ -71,7 +71,9 @@ public class CommonDownloadUtil {
             response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
             response.setContentType("application/octet-stream;charset=UTF-8");
             outputStream = response.getOutputStream();
-            IoUtil.write(outputStream, true, fileBytes);
+//            IoUtil.write(outputStream, true, fileBytes);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8);
+            bufferedOutputStream.write(fileBytes);
         }catch (ClientAbortException e){
             // 客户端已经关闭连接，这是一个正常的情况，无需记录错误信息
             log.debug("客户端连接已关闭");
