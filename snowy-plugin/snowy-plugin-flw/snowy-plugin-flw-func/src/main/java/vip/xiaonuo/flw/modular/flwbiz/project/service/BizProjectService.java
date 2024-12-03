@@ -15,10 +15,7 @@ package vip.xiaonuo.flw.modular.flwbiz.project.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,11 @@ public interface BizProjectService extends IService<BizProject> {
      * @date  2023/06/20 14:26
      **/
     BizProject queryEntity(String id);
+
+    /**
+     * 项目名称重复校验
+     * @param checkNameParam
+     * @return
+     */
+    Boolean checkName(CheckNameParam checkNameParam);
 }

@@ -79,10 +79,12 @@ import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelFormTypeEnum;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
+import vip.xiaonuo.flw.modular.process.enums.BoardTypeEnum;
 import vip.xiaonuo.flw.modular.process.mapper.FlwCommonMapper;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
+import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 import vip.xiaonuo.flw.modular.relation.enums.FlwRelationCategoryEnum;
 import vip.xiaonuo.flw.modular.relation.service.FlwRelationService;
@@ -1665,6 +1667,23 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }catch (Exception e){
             throw new CommonException("流程启动失败",e);
         }
+        return null;
+    }
+
+    @Override
+    public BoardTotalVo board(FlwBoardParam flwBoardParam) {
+        Date nowDate = new Date();  //当前时间
+        Date startDate = null;      //开始时间
+        Date endDate = null;        //结束时间
+        if(BoardTypeEnum.SEVEN_DAY.getValue().equals(flwBoardParam.getType())){
+            
+        } else if (BoardTypeEnum.MONTH.getValue().equals(flwBoardParam.getType())) {
+            
+        } else if (BoardTypeEnum.YEAR.getValue().equals(flwBoardParam.getType())) {
+            
+        }
+
+
         return null;
     }
 

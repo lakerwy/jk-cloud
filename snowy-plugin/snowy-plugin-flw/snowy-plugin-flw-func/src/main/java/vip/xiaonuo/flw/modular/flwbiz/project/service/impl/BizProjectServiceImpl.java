@@ -39,12 +39,9 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
+import vip.xiaonuo.flw.modular.flwbiz.project.util.MyUtil;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -202,4 +199,32 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         }
         return bizProject;
     }
+
+    @Override
+    public Boolean checkName(CheckNameParam checkNameParam) {
+        //缩小数据范围(流程状态+项目名称部分字段)
+        String preName = MyUtil.getFirstStr(checkNameParam.getName());
+        QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().select(BizProject::getId,BizProject::getName,BizProject::getProjectSn,BizProject::getStatus);
+        queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().isNotNull(BizProject::getName);
+        queryWrapper.lambda().ne(BizProject::getName,"");
+        if(ObjectUtil.isNotEmpty(preName)){
+            queryWrapper.lambda().like(BizProject::getName,preName);
+        }
+        List<BizProject> oldList = this.list(queryWrapper);
+        if(CollUtil.isEmpty(oldList)){
+            return false;
+        }
+        //循环校验
+        String newName = MyUtil.removeSpcChar(checkNameParam.getName());
+        oldList.forEach(item->{
+            String oldName = MyUtil.removeSpcChar(item.getName());
+            if(oldName.equals(newName) && !checkNameParam.getId().equals(item.getId())){
+                throw new CommonException("项目名称存在重复，已存在名称为:{}",item.getName());
+            }
+        });
+        return false;
+    }
+
 }

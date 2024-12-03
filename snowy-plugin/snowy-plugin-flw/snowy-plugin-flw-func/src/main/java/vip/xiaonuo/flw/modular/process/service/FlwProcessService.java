@@ -20,6 +20,7 @@ import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
+import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
 
 import java.util.List;
 import java.util.Map;
@@ -358,4 +359,11 @@ public interface FlwProcessService {
      * @Date 2024/5/17 11:10
      */
     String purchasePlanStart(FlwProcessStartParam flwProcessStartParam);
+
+    /**
+     * 流程耗时面板 - 统计
+     * @param flwBoardParam
+     * @return
+     */
+    BoardTotalVo board(FlwBoardParam flwBoardParam);
 }

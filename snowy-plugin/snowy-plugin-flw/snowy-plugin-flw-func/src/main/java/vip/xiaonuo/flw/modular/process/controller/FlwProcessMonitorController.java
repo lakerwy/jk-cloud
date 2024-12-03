@@ -27,6 +27,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
+import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -336,5 +337,20 @@ public class FlwProcessMonitorController {
     public CommonResult<Map<String,Long>> count(@RequestParam(value = "flag", defaultValue = "true") Boolean flag) {
         return CommonResult.data(flwProcessService.count(flag));
     }
+
+
+
+
+    /**
+     * 流程耗时看板
+     *
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("流程耗时看板")
+    @PostMapping("/flw/process/monitor/board")
+    public CommonResult<BoardTotalVo> board(@RequestBody @Valid FlwBoardParam flwBoardParam) {
+        return CommonResult.data(flwProcessService.board(flwBoardParam));
+    }
+
 
 }

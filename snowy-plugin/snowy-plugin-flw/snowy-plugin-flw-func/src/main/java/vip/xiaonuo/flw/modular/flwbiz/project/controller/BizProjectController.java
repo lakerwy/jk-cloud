@@ -27,10 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
 
 import javax.annotation.Resource;
@@ -127,5 +124,16 @@ public class BizProjectController {
     @GetMapping("/flw/project/detail")
     public CommonResult<BizProject> detail(@Valid BizProjectIdParam bizProjectIdParam) {
         return CommonResult.data(bizProjectService.detail(bizProjectIdParam));
+    }
+
+
+    /**
+     * 立项申请，重名校验（去掉空格，特殊字符，大小写）
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("立项申请，重名校验（去掉空格，特殊字符，大小写）")
+    @GetMapping("/flw/project/checkName")
+    public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
+        return CommonResult.data(bizProjectService.checkName(checkNameParam));
     }
 }
