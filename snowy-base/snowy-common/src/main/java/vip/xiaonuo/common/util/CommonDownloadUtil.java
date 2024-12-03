@@ -64,7 +64,6 @@ public class CommonDownloadUtil {
      */
     public static void download(String fileName, byte[] fileBytes, HttpServletResponse response) {
         ServletOutputStream outputStream = null;
-        BufferedOutputStream bufferedOutputStream = null;
         try {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLUtil.encode(fileName));
             response.addHeader("Content-Length", "" + fileBytes.length);
@@ -72,9 +71,12 @@ public class CommonDownloadUtil {
             response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
             response.setContentType("application/octet-stream;charset=UTF-8");
             outputStream = response.getOutputStream();
-//            IoUtil.write(outputStream, true, fileBytes);
-            bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8);
-            bufferedOutputStream.write(fileBytes);
+            IoUtil.write(outputStream, true, fileBytes);
+            try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8)){
+                bufferedOutputStream.write(fileBytes);
+            }catch (IOException e) {
+                log.error(">>> 文件下载异常：", e);
+            }
         }catch (ClientAbortException e){
             // 客户端已经关闭连接，这是一个正常的情况，无需记录错误信息
             log.debug("客户端连接已关闭");
@@ -84,13 +86,6 @@ public class CommonDownloadUtil {
             if(null!=outputStream){
                 try {
                     outputStream.close();
-                }catch (IOException e){
-                    log.error("关闭输出流异常",e);
-                }
-            }
-            if(null!=bufferedOutputStream){
-                try {
-                    bufferedOutputStream.close();
                 }catch (IOException e){
                     log.error("关闭输出流异常",e);
                 }
