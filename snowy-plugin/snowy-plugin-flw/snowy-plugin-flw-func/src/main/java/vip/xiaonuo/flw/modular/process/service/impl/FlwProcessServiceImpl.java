@@ -37,7 +37,6 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.migration.MigrationInstructionBuilder;
 import org.camunda.bpm.engine.migration.MigrationPlanBuilder;
 import org.camunda.bpm.engine.runtime.Execution;
@@ -84,7 +83,7 @@ import vip.xiaonuo.flw.modular.process.mapper.FlwCommonMapper;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
-import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
+import vip.xiaonuo.flw.modular.process.vo.*;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 import vip.xiaonuo.flw.modular.relation.enums.FlwRelationCategoryEnum;
 import vip.xiaonuo.flw.modular.relation.service.FlwRelationService;
@@ -103,6 +102,7 @@ import vip.xiaonuo.sys.api.SysUserApi;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1670,21 +1670,345 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return null;
     }
 
+
     @Override
     public BoardTotalVo board(FlwBoardParam flwBoardParam) {
+        BoardTotalVo result = new BoardTotalVo();
         Date nowDate = new Date();  //当前时间
-        Date startDate = null;      //开始时间
-        Date endDate = null;        //结束时间
-        if(BoardTypeEnum.SEVEN_DAY.getValue().equals(flwBoardParam.getType())){
-            
-        } else if (BoardTypeEnum.MONTH.getValue().equals(flwBoardParam.getType())) {
-            
-        } else if (BoardTypeEnum.YEAR.getValue().equals(flwBoardParam.getType())) {
-            
+        Date startDate = getStartDate(nowDate,flwBoardParam.getType());  //数据范围开始时间
+        Date endDate = nowDate;     //数据范围截止时间
+        Date preStartDate = getStartDate(startDate,flwBoardParam.getType()); //再前一期
+        Date preEndDate = startDate;
+
+        //全部流程：[startDate,endDate]数据范围
+        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate);
+        //耗时明细 - 趋势分析
+        LineChart lineChart = getLineChart(boardDataList);
+        //耗时明细 - 部门明细
+        List<BoardDept> boardDeptList = getBoardDept(boardDataList);
+
+        //待办流程: 所有待办信息
+        List<FlwTodoBoardResult> toDoBoardDataList = getToDoBoardData();
+        List<BoardTodo> tmpFlwToDoEmp = getFlwToDoEmp(startDate, endDate, preStartDate, preEndDate, toDoBoardDataList);
+        //待办量排行前5
+        List<BoardTodoNum> tmpBoardTodoNumList = BeanUtil.copyToList(tmpFlwToDoEmp,BoardTodoNum.class);
+        tmpBoardTodoNumList.sort(Comparator.comparing(BoardTodoNum::getToDoNums).reversed());
+        List<BoardTodoNum> boardTodoNumList = tmpBoardTodoNumList.size() > 5 ? tmpBoardTodoNumList.subList(0,5) : tmpBoardTodoNumList;
+        //待办耗时排行前5
+        List<BoardTodoHour> tmpBoardTodoHourList = BeanUtil.copyToList(tmpFlwToDoEmp, BoardTodoHour.class);
+        tmpBoardTodoHourList.sort(Comparator.comparing(BoardTodoHour::getDealHours).reversed());
+        List<BoardTodoHour> boardTodoHourList = tmpBoardTodoHourList.size() > 5 ? tmpBoardTodoHourList.subList(0,5) : tmpBoardTodoHourList;
+
+        result.setLineChart(lineChart);
+        result.setDeptList(boardDeptList);
+        result.setTodoNumList(boardTodoNumList);
+        result.setTodoHourList(boardTodoHourList);
+        return result;
+    }
+
+    @Override
+    public Page<FlwBoardResult> boardPage(FlwBoardParam flwBoardParam) {
+        Date nowDate = new Date();  //当前时间
+        Date startDate = getStartDate(nowDate,flwBoardParam.getType());  //数据范围开始时间
+        Date endDate = nowDate;
+        //全部流程：[startDate,endDate]数据范围
+        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate);
+        //超过48h
+        boardDataList.sort(Comparator.comparing(FlwBoardResult::getBoardTime).reversed());
+        List<FlwBoardResult> tmpData = boardDataList.stream().filter(x->ObjectUtil.isNotEmpty(x.getBoardTime()) && x.getBoardTime() > 48).collect(Collectors.toList());
+        Page<FlwBoardResult> defaultPage = CommonPageRequest.defaultPage();
+        //页面参数-分页
+        long current = defaultPage.getCurrent();
+        long size = defaultPage.getSize();
+        int fromIndex = Convert.toInt((current - 1) * size);
+        int toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(tmpData.size()));
+        List<FlwBoardResult> currentPageData = tmpData.subList(fromIndex, toIndex);
+        defaultPage.setRecords(currentPageData);
+        defaultPage.setTotal(tmpData.size());
+        return defaultPage;
+    }
+
+    /**
+     *  根据当前时间，获取 七天前  一月前  今年初 日期
+     * @param nowDate 当前时间
+     * @param type 类型 1 近七天  2 近一月  3 今年
+     * @return
+     */
+    public Date getStartDate(Date nowDate,String type){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(nowDate);
+        if(BoardTypeEnum.SEVEN_DAY.getValue().equals(type)){
+            // 将日期向前推七天
+            calendar.add(Calendar.DAY_OF_MONTH, -7);
+        } else if (BoardTypeEnum.MONTH.getValue().equals(type)) {
+            // 将日期向前推七天
+            calendar.add(Calendar.MONTH, -1);
+        } else if (BoardTypeEnum.YEAR.getValue().equals(type)) {
+            // 将月份设置为 0（表示 1 月），并将日期设置为 1
+            calendar.set(Calendar.MONTH, Calendar.JANUARY); // 1 月是 0
+            calendar.set(Calendar.DAY_OF_MONTH, 1); // 设置为 1 号
         }
+        return calendar.getTime();
+    }
 
 
-        return null;
+    /**
+     * 耗时明细 - 趋势分析
+     * @param boardResultList
+     * @return
+     */
+    public LineChart getLineChart(List<FlwBoardResult> boardResultList) {
+        if(CollUtil.isEmpty(boardResultList)) return null;
+        //统计维度(日期)
+        Map<Date,List<FlwBoardResult>> groupFlw = boardResultList.stream().collect(Collectors.groupingBy(FlwBoardResult::getBoardDate,LinkedHashMap::new,Collectors.toList()));
+        LineChart result = new LineChart();
+        List<String> xAxis = new ArrayList<>();
+        List<Long> firstData = new ArrayList<>();
+        List<Double> secondData = new ArrayList<>();
+        for (Map.Entry<Date,List<FlwBoardResult>> entry:groupFlw.entrySet()) {
+            List<FlwBoardResult> tmpList = entry.getValue();
+            //耗时
+            List<Double> tmpTimeList = tmpList.stream().map(x -> x.getBoardTime()).collect(Collectors.toList());
+            Double tmpHours = sumTime(tmpTimeList);
+            //总单量
+            long tmpCount = tmpList.size();
+            xAxis.add(DateUtil.formatDate(entry.getKey()));
+            firstData.add(tmpCount);
+            secondData.add( tmpCount > 0 ? (tmpHours/tmpCount) : 0d);
+        }
+        result.setXAxis(xAxis);
+        result.setFirstData(firstData);
+        result.setSecondData(secondData);
+        return result;
+    }
+
+    /**
+     * 耗时明细 - 部门明细
+     * @param boardResultList
+     * @return
+     */
+    public List<BoardDept> getBoardDept(List<FlwBoardResult> boardResultList) {
+        if(CollUtil.isEmpty(boardResultList)) return null;
+        List<BoardDept> result = new ArrayList<>();
+        //统计维度（发起人部门）
+        Map<String,List<FlwBoardResult>> groupFlw = boardResultList.stream().filter(x->ObjectUtil.isNotEmpty(x.getInitiatorOrgName()))
+                .collect(Collectors.groupingBy(FlwBoardResult::getInitiatorOrgName));
+        for (Map.Entry<String,List<FlwBoardResult>> entry:groupFlw.entrySet()) {
+            List<FlwBoardResult> tmpList = entry.getValue();
+            //耗时
+            List<Double> tmpTimeList = tmpList.stream().map(x -> x.getBoardTime()).collect(Collectors.toList());
+            Double tmpHours = sumTime(tmpTimeList);
+            //总单量
+            long tmpCount = tmpList.size();
+            BoardDept tmpBoardDept = new BoardDept();
+            tmpBoardDept.setDeptName(entry.getKey());
+            tmpBoardDept.setFlwNums(tmpCount);
+            tmpBoardDept.setAvgHours(tmpCount > 0 ? (tmpHours/tmpCount) : 0d);
+            result.add(tmpBoardDept);
+        }
+        return result;
+    }
+
+
+    /**
+     * 全部流程 - 信息补全
+     * @param startDate 流程发起 起始时间
+     * @param endDate 流程发起 截止时间
+     * @return
+     */
+    public List<FlwBoardResult> getFlwBoardData(Date startDate,Date endDate){
+        long start = System.currentTimeMillis();
+        System.out.println("全部流程耗时：开始时间 - "+start);
+        //框定流程数据范围
+        List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery()
+                .startedAfter(startDate).startedBefore(endDate).orderByProcessInstanceStartTime().asc().list();
+        if(CollUtil.isEmpty(historicProcessInstanceList)) return null;
+        //补充相关流程参数
+        List<FlwBoardResult> results = new ArrayList<>();
+        Date tmpNowDate = new Date(); //当前时间
+        historicProcessInstanceList.forEach(historicProcessInstance -> {
+            FlwBoardResult flwBoardResult = new FlwBoardResult();
+            flwBoardResult.setId(historicProcessInstance.getId());
+            List<HistoricVariableInstance> variableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
+            flwBoardResult.setStartTime(DateUtil.formatDateTime(historicProcessInstance.getStartTime()));
+            flwBoardResult.setEndTime(ObjectUtil.isNotEmpty(historicProcessInstance.getEndTime()) ?
+                    DateUtil.formatDateTime(historicProcessInstance.getEndTime()) : "-");
+            flwBoardResult.setSn(getVariableValue("initiatorProcessSn",variableInstanceList));
+            flwBoardResult.setTitle(getVariableValue("initiatorProcessTitle",variableInstanceList));
+            flwBoardResult.setAbstractTitle(getVariableValue("initiatorProcessAbstract",variableInstanceList));
+            String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
+            flwBoardResult.setProcessDefinitionId(processDefinitionId);
+            flwBoardResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+            flwBoardResult.setInitiator(getVariableValue("initiator",variableInstanceList));
+            flwBoardResult.setInitiatorName(getVariableValue("initiatorName",variableInstanceList));
+            flwBoardResult.setInitiatorOrgId(getVariableValue("initiatorOrgId",variableInstanceList));
+            flwBoardResult.setInitiatorOrgName(getVariableValue("initiatorOrgName",variableInstanceList));
+
+            // 创建一个新的 SimpleDateFormat 用于输出新的格式 yyyy-MM-dd
+            try {
+                SimpleDateFormat newFormat = new SimpleDateFormat("yyyy-MM-dd");
+                // 将 Date 格式化为 yyyy-MM-dd 格式的字符串
+                String formattedDateStr = newFormat.format(historicProcessInstance.getStartTime());
+                // 将格式化后的字符串转换回 Date 对象
+                Date yyyyMMddDate = newFormat.parse(formattedDateStr);
+                flwBoardResult.setBoardDate(yyyyMMddDate);  //流程发起所属日期
+            }catch (Exception e){
+            }
+            Double hours = 0d;
+            if (ObjectUtil.isNotEmpty(historicProcessInstance.getDurationInMillis())){  //毫秒
+                // 转换为小时 (1 小时 = 3600000 毫秒)
+                hours = historicProcessInstance.getDurationInMillis() / 3600000.0;
+                flwBoardResult.setBoardTime(hours);
+            }else{
+                hours = (tmpNowDate.getTime()-historicProcessInstance.getStartTime().getTime()) / 3600000.0;
+                flwBoardResult.setBoardTime(hours); //流程耗时
+            }
+            String state = historicProcessInstance.getState();
+            switch (state) {
+                case "ACTIVE":
+                    flwBoardResult.setStateCode(state);
+                    flwBoardResult.setStateText("审批中");
+                    break;
+                case "SUSPENDED":
+                    flwBoardResult.setStateCode(state);
+                    flwBoardResult.setStateText("已挂起");
+                    break;
+                case "COMPLETED":
+                    flwBoardResult.setStateCode(state);
+                    flwBoardResult.setStateText("已完成");
+                    break;
+                case "EXTERNALLY_TERMINATED":
+                    String deleteReason = historicProcessInstance.getDeleteReason();
+                    switch (deleteReason) {
+                        case "END":
+                            flwBoardResult.setStateCode(deleteReason);
+                            flwBoardResult.setStateText("已终止");
+                            break;
+                        case "REVOKE":
+                            flwBoardResult.setStateCode(deleteReason);
+                            flwBoardResult.setStateText("已撤回");
+                            break;
+                        case "REJECT":
+                            flwBoardResult.setStateCode(deleteReason);
+                            flwBoardResult.setStateText("已拒绝");
+                            break;
+                        default:
+                            flwBoardResult.setStateCode(deleteReason);
+                            flwBoardResult.setStateText("EXTERNALLY_TERMINATED - 未知");
+                    }
+                    break;
+                case "INTERNALLY_TERMINATED":
+                    flwBoardResult.setStateCode(state);
+                    flwBoardResult.setStateText("内部终止");
+                    break;
+                default:
+                    flwBoardResult.setStateCode(state);
+                    flwBoardResult.setStateText("未知");
+            }
+            results.add(flwBoardResult);
+        });
+        System.out.println("全部流程耗时：- "+ (System.currentTimeMillis() - start));
+        return results;
+    }
+
+    /**
+     * 待办流程 - 全部
+     * @return
+     */
+    public List<FlwTodoBoardResult> getToDoBoardData(){
+        long start = System.currentTimeMillis();
+        System.out.println("待办耗时：开始时间 - "+start);
+        //框定待办数据范围[待办列表里的所有]
+        List<Task> taskList = taskService.createTaskQuery().active().list();
+        if(CollUtil.isEmpty(taskList)) return null;
+        //补充相关信息
+        Date tmpNowDate = new Date(); //当前时间
+        List<FlwTodoBoardResult> result = new ArrayList<>();
+        taskList.forEach(task -> {
+//            JSONObject variableJsonObject = JSONUtil.createObj();
+//            historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
+//                    .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
+//                            historicVariableInstance.getValue()));
+            FlwTodoBoardResult flwToDoBoardResult = new FlwTodoBoardResult();
+            flwToDoBoardResult.setId(task.getId());
+            flwToDoBoardResult.setProcessInstanceId(task.getProcessInstanceId());
+//            flwToDoBoardResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+//            flwToDoBoardResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+//            flwToDoBoardResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+//            flwToDoBoardResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
+            flwToDoBoardResult.setTaskCreateTime(task.getCreateTime());
+            Double hours = (tmpNowDate.getTime()-task.getCreateTime().getTime()) / 3600000.0;     //流程耗时
+            flwToDoBoardResult.setBoardTime(hours);
+            flwToDoBoardResult.setAssigneeId(task.getAssignee());
+            if (ObjectUtil.isNotEmpty(task.getAssignee())) {
+                JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(task.getAssignee());
+                if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+                    flwToDoBoardResult.setAssignees(taskAssigneeUser.getStr("name"));
+                }
+            }
+            result.add(flwToDoBoardResult);
+        });
+        System.out.println("待办耗时：- "+ (System.currentTimeMillis() - start));
+        return result;
+    }
+
+    /**
+     * 待办趋势
+     * @param startDate    开始时间
+     * @param endDate      结束时间
+     * @param preStartDate 前一期开始时间
+     * @param preEndDate   前一期结束时间
+     * @param dataList     待办数据集（全部）
+     * @return
+     */
+    public List<BoardTodo> getFlwToDoEmp(Date startDate,Date endDate,Date preStartDate,Date preEndDate,List<FlwTodoBoardResult> dataList){
+        if(CollUtil.isEmpty(dataList)) return null;
+        List<BoardTodo> result = new ArrayList<>();
+        //按照 id + name 分组
+        Map<List<String>,List<FlwTodoBoardResult>> groupFlw = dataList.stream()
+                .filter(x->ObjectUtil.isNotEmpty(x.getAssigneeId()) && ObjectUtil.isNotEmpty(x.getAssignees()))
+                .collect(Collectors.groupingBy(obj-> Arrays.asList(obj.getAssigneeId(), obj.getAssignees())));
+        for (Map.Entry<List<String>,List<FlwTodoBoardResult>> entry:groupFlw.entrySet()) {
+            List<FlwTodoBoardResult> tmpList = entry.getValue();
+            //耗时
+            List<Double> tmpTimeList = tmpList.stream().map(x -> x.getBoardTime()).collect(Collectors.toList());
+            Double tmpHours = sumTime(tmpTimeList);
+            BoardTodo tmpBoardTodo = new BoardTodo();
+            tmpBoardTodo.setUserId(entry.getKey().get(0));
+            tmpBoardTodo.setUserName(entry.getKey().get(1));
+            tmpBoardTodo.setToDoNums((long) tmpList.size());
+            tmpBoardTodo.setDealHours(tmpHours);
+            //[startDate,endDate] 与 上一次对比
+            List<FlwTodoBoardResult> nowList = tmpList.stream().filter(x -> (x.getTaskCreateTime().after(startDate) && x.getTaskCreateTime().before(endDate))).collect(Collectors.toList());
+            List<FlwTodoBoardResult> preList = tmpList.stream().filter(x -> (x.getTaskCreateTime().after(preStartDate) && x.getTaskCreateTime().before(preEndDate))).collect(Collectors.toList());
+            int nowListCount = nowList.size();
+            int preListCount = preList.size();
+            tmpBoardTodo.setToDoNumSate(nowListCount > preListCount ? 1 : (nowListCount < preListCount ? -1 : 0));
+            Double nowHours = sumTime(nowList.stream().map(x -> x.getBoardTime()).collect(Collectors.toList()));
+            Double preHours = sumTime(preList.stream().map(x -> x.getBoardTime()).collect(Collectors.toList()));
+            tmpBoardTodo.setDealHoursSate(nowHours > preHours ? 1 : (nowHours < preHours ? -1 : 0));
+            result.add(tmpBoardTodo);
+        }
+        return result;
+    }
+
+
+    /**
+     * 耗时合计
+     * @param dataList 时间集合
+     * @return
+     */
+    public Double sumTime(List<Double> dataList ){
+        //耗时合计
+        Double tmpHours = 0d;
+        if(CollUtil.isEmpty(dataList)) return tmpHours;
+        for(int i=0;i<dataList.size();i++){
+            Double tmpI = dataList.get(i);
+            if(ObjectUtil.isNotEmpty(tmpI)) {
+                tmpHours += tmpI;
+            }
+        }
+        return tmpHours;
     }
 
 }

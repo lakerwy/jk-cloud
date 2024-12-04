@@ -21,6 +21,7 @@ import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
+import vip.xiaonuo.flw.modular.process.vo.FlwBoardResult;
 
 import java.util.List;
 import java.util.Map;
@@ -366,4 +367,11 @@ public interface FlwProcessService {
      * @return
      */
     BoardTotalVo board(FlwBoardParam flwBoardParam);
+
+    /**
+     * 流程看板 -超过48h 分页
+     * @param flwBoardParam
+     * @return
+     */
+    Page<FlwBoardResult> boardPage(FlwBoardParam flwBoardParam);
 }

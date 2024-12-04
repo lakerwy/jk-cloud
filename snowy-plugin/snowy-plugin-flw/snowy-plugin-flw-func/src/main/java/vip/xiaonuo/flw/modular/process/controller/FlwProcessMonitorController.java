@@ -28,6 +28,7 @@ import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.process.vo.BoardTotalVo;
+import vip.xiaonuo.flw.modular.process.vo.FlwBoardResult;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -352,5 +353,16 @@ public class FlwProcessMonitorController {
         return CommonResult.data(flwProcessService.board(flwBoardParam));
     }
 
+
+    /**
+     * 流程耗时看板 - 超过48h流程明细
+     *
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("流程耗时看板 - 超过48h流程明细")
+    @PostMapping("/flw/process/monitor/boardPage")
+    public CommonResult<Page<FlwBoardResult>> boardPage(@RequestBody @Valid FlwBoardParam flwBoardParam) {
+        return CommonResult.data(flwProcessService.boardPage(flwBoardParam));
+    }
 
 }
