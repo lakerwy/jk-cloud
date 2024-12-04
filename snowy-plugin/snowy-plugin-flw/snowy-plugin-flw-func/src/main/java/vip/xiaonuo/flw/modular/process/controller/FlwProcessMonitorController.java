@@ -360,8 +360,8 @@ public class FlwProcessMonitorController {
      */
     @ApiOperationSupport(order = 100)
     @ApiOperation("流程耗时看板 - 超过48h流程明细")
-    @PostMapping("/flw/process/monitor/boardPage")
-    public CommonResult<Page<FlwBoardResult>> boardPage(@RequestBody @Valid FlwBoardParam flwBoardParam) {
+    @GetMapping("/flw/process/monitor/boardPage")
+    public CommonResult<Page<FlwBoardResult>> boardPage(@Valid FlwBoardParam flwBoardParam) {
         return CommonResult.data(flwProcessService.boardPage(flwBoardParam));
     }
 
