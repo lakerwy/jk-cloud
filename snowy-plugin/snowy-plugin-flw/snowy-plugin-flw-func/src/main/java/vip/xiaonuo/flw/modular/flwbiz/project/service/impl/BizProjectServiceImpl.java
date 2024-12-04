@@ -220,8 +220,14 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         String newName = MyUtil.removeSpcChar(checkNameParam.getName());
         oldList.forEach(item->{
             String oldName = MyUtil.removeSpcChar(item.getName());
-            if(oldName.equals(newName) && !checkNameParam.getId().equals(item.getId())){
-                throw new CommonException("项目名称存在重复，已存在名称为:{}",item.getName());
+            if(ObjectUtil.isNotEmpty(checkNameParam.getId())){  //修改
+                if(oldName.equals(newName) && !item.getId().equals(checkNameParam.getId())){
+                    throw new CommonException("项目名称存在重复，已存在名称为:{}",item.getName());
+                }
+            }else{ //新增
+                if(oldName.equals(newName)){
+                    throw new CommonException("项目名称存在重复，已存在名称为:{}",item.getName());
+                }
             }
         });
         return false;

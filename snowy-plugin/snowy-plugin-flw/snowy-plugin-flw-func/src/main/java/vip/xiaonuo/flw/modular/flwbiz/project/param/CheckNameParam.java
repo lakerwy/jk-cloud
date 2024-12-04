@@ -11,9 +11,8 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 public class CheckNameParam {
-    /** 主键 */
-    @ApiModelProperty(value = "主键", required = true)
-    @NotBlank(message = "id主键不能为空")
+    /** 主键 - 新增|修改    页面修改时应该携带（自己修改自己特殊-不算重复） */
+    @ApiModelProperty(value = "主键 - 新增|修改    页面修改时应该携带（自己修改自己特殊-不算重复）")
     private String id;
 
     /** 项目名称 */
