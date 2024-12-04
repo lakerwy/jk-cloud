@@ -37,7 +37,6 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.migration.MigrationInstructionBuilder;
 import org.camunda.bpm.engine.migration.MigrationPlanBuilder;
 import org.camunda.bpm.engine.runtime.Execution;
@@ -1685,6 +1684,21 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
 
         return null;
+    }
+
+    @Override
+    public void updateFlwProcessParam(FlwProcessParamUpdate flwProcessParamUpdate) {
+        String modelId = flwProcessParamUpdate.getModelId();
+        FlwModel flwModel = flwModelService.queryEntity(modelId);
+        if(CollUtil.isNotEmpty(flwProcessParamUpdate.getProcessInstanceIdList())){
+            for(String processInstanceId : flwProcessParamUpdate.getProcessInstanceIdList()){
+                JSONObject jsonObject = JSONUtil.parseObj(runtimeService.getVariables(processInstanceId));
+                jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId",
+                        flwModel.getId()).set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson",
+                        flwModel.getFormJson()) .set("initiatorFormType", flwModel.getFormType()));
+                runtimeService.setVariables(processInstanceId, jsonObject);
+            }
+        }
     }
 
 }
