@@ -320,4 +320,20 @@ public class FlwProcessMyController {
     public CommonResult<String> purchasePlanStart(@RequestBody @Valid FlwProcessStartParam flwProcessStartParam) {
         return CommonResult.data(flwProcessService.purchasePlanStart(flwProcessStartParam));
     }
+
+
+    /**
+     * 临时接口-更新运行中流程参数
+     *
+     * @author pzh
+     * @date 2024/12/04 11:50
+     */
+    @ApiOperationSupport(order = 50)
+    @ApiOperation("更新运行中流程参数")
+    @CommonLog("更新运行中流程参数")
+    @PostMapping("/flw/process/updateFlwProcessParam")
+    public CommonResult<String> updateFlwProcessParam(@RequestBody @Valid FlwProcessParamUpdate flwProcessParamUpdate) {
+        flwProcessService.updateFlwProcessParam(flwProcessParamUpdate);
+        return CommonResult.ok();
+    }
 }

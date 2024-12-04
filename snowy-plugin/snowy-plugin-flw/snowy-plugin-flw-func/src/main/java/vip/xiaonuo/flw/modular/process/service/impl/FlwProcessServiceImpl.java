@@ -2011,4 +2011,19 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return tmpHours;
     }
 
+    @Override
+    public void updateFlwProcessParam(FlwProcessParamUpdate flwProcessParamUpdate) {
+        String modelId = flwProcessParamUpdate.getModelId();
+        FlwModel flwModel = flwModelService.queryEntity(modelId);
+        if(CollUtil.isNotEmpty(flwProcessParamUpdate.getProcessInstanceIdList())){
+            for(String processInstanceId : flwProcessParamUpdate.getProcessInstanceIdList()){
+                JSONObject jsonObject = JSONUtil.parseObj(runtimeService.getVariables(processInstanceId));
+                jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId",
+                        flwModel.getId()).set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson",
+                        flwModel.getFormJson()) .set("initiatorFormType", flwModel.getFormType()));
+                runtimeService.setVariables(processInstanceId, jsonObject);
+            }
+        }
+    }
+
 }

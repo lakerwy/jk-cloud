@@ -374,4 +374,11 @@ public interface FlwProcessService {
      * @return
      */
     Page<FlwBoardResult> boardPage(FlwBoardParam flwBoardParam);
+
+    /**
+     * 更新运行中流程参数
+     * @param flwProcessParamUpdate
+     * @return
+     */
+    void updateFlwProcessParam(FlwProcessParamUpdate flwProcessParamUpdate);
 }
