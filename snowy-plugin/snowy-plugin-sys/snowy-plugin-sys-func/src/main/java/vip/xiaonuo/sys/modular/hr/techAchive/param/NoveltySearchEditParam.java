@@ -24,6 +24,10 @@ public class NoveltySearchEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
+    /** 持有单位 */
+    @ApiModelProperty(value = "持有单位", position = 2)
+    private String holdingOrg;
+
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称", position = 2)
     private String prjName;

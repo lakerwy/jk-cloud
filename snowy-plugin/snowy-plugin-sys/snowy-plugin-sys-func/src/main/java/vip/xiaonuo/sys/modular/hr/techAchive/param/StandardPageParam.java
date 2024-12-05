@@ -40,6 +40,10 @@ public class StandardPageParam {
     @ApiModelProperty(value = "标准名称")
     private String name;
 
+    /** 类型 */
+    @ApiModelProperty(value = "类型")
+    private String type;
+
     /** 标准类型 */
     @ApiModelProperty(value = "标准类型")
     private String standardType;

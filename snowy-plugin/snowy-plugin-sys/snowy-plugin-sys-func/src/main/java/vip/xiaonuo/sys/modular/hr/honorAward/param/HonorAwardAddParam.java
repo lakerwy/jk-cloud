@@ -20,6 +20,10 @@ public class HonorAwardAddParam {
     @ApiModelProperty(value = "荣誉奖项类型（项目成果|科技奖|数字化成果）",position = 1)
     private String type;
 
+    /** 持有单位 */
+    @ApiModelProperty(value = "持有单位", position = 2)
+    private String holdingOrg;
+
     /** 名称 */
     @ApiModelProperty(value = "名称", position = 2)
     private String prjName;

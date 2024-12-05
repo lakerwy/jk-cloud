@@ -23,6 +23,10 @@ public class CertificationSystem {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 持有单位 */
+    @ApiModelProperty(value = "持有单位", position = 2)
+    private String holdingOrg;
+
     /** 名称 */
     @ApiModelProperty(value = "名称", position = 2)
     private String name;

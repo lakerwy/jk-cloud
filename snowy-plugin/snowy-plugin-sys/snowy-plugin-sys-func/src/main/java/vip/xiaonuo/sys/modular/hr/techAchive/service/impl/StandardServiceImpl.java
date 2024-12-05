@@ -37,6 +37,9 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, Standard> i
         if(ObjectUtil.isNotEmpty(standardPageParam.getName())){
             queryWrapper.lambda().like(Standard::getName, standardPageParam.getName());
         }
+        if(ObjectUtil.isNotEmpty(standardPageParam.getType())){
+            queryWrapper.lambda().eq(Standard::getType, standardPageParam.getType());
+        }
         if(ObjectUtil.isNotEmpty(standardPageParam.getStandardType())){
             queryWrapper.lambda().eq(Standard::getStandardType, standardPageParam.getStandardType());
         }

@@ -20,6 +20,10 @@ public class EnterpriseHonorAddParam {
     @ApiModelProperty(value = "名称", position = 2)
     private String name;
 
+    /** 持有单位 */
+    @ApiModelProperty(value = "持有单位", position = 2)
+    private String holdingOrg;
+
     /** 类型 */
     @ApiModelProperty(value = "类型", position = 3)
     private String type;
