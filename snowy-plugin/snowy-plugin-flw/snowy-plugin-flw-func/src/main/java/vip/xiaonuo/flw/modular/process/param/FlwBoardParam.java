@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 
 @Getter
@@ -17,12 +16,17 @@ public class FlwBoardParam {
     @NotBlank(message = "统计类型type不能为空")
     private String type;
 
-    /** 当前页 */
-    @ApiModelProperty(value = "当前页码")
+    /** 超过48h 当前页 */
+    @ApiModelProperty(value = "超过48h 当前页码")
     private Integer current;
 
-    /** 每页条数 */
-    @ApiModelProperty(value = "每页条数")
+    /** 超过48h 每页条数 */
+    @ApiModelProperty(value = "超过48h 每页条数")
     private Integer size;
+
+
+    /** 人员诊断 - 排行榜 - 前几名  默认 5 */
+    @ApiModelProperty(value = "人员诊断 - 排行榜 - 前几名 默认 5 ")
+    private Integer topNums;
 
 }

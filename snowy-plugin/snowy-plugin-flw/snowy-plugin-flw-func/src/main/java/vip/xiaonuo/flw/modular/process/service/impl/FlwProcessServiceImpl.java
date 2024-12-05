@@ -1681,23 +1681,32 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         Date preEndDate = startDate;
 
         //全部流程：[startDate,endDate]数据范围
-        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate);
+        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate,true);
         //耗时明细 - 趋势分析
         LineChart lineChart = getLineChart(boardDataList);
-        //耗时明细 - 部门明细
-        List<BoardDept> boardDeptList = getBoardDept(boardDataList);
+        //耗时明细 - 部门明细 [默认给全部]
+        List<BoardDept> tmpBoardDeptList = getBoardDept(boardDataList);
+        tmpBoardDeptList.sort(Comparator.comparing(BoardDept::getFlwNums).reversed());
+        List<BoardDept> boardDeptList = tmpBoardDeptList;
+        if(ObjectUtil.isNotEmpty(flwBoardParam.getTopNums())){
+            boardDeptList = tmpBoardDeptList.size() > flwBoardParam.getTopNums() ? tmpBoardDeptList.subList(0,flwBoardParam.getTopNums()) : tmpBoardDeptList;
+        }
 
         //待办流程: 所有待办信息
-        List<FlwTodoBoardResult> toDoBoardDataList = getToDoBoardData();
+        List<FlwTodoBoardResult> toDoBoardDataList = getToDoBoardData(false);
         List<BoardTodo> tmpFlwToDoEmp = getFlwToDoEmp(startDate, endDate, preStartDate, preEndDate, toDoBoardDataList);
         //待办量排行前5
+        int topNums = 5;
+        if(ObjectUtil.isNotEmpty(flwBoardParam.getTopNums())){
+            topNums = flwBoardParam.getTopNums();
+        }
         List<BoardTodoNum> tmpBoardTodoNumList = BeanUtil.copyToList(tmpFlwToDoEmp,BoardTodoNum.class);
         tmpBoardTodoNumList.sort(Comparator.comparing(BoardTodoNum::getToDoNums).reversed());
-        List<BoardTodoNum> boardTodoNumList = tmpBoardTodoNumList.size() > 5 ? tmpBoardTodoNumList.subList(0,5) : tmpBoardTodoNumList;
+        List<BoardTodoNum> boardTodoNumList = tmpBoardTodoNumList.size() > topNums ? tmpBoardTodoNumList.subList(0,topNums) : tmpBoardTodoNumList;
         //待办耗时排行前5
         List<BoardTodoHour> tmpBoardTodoHourList = BeanUtil.copyToList(tmpFlwToDoEmp, BoardTodoHour.class);
         tmpBoardTodoHourList.sort(Comparator.comparing(BoardTodoHour::getDealHours).reversed());
-        List<BoardTodoHour> boardTodoHourList = tmpBoardTodoHourList.size() > 5 ? tmpBoardTodoHourList.subList(0,5) : tmpBoardTodoHourList;
+        List<BoardTodoHour> boardTodoHourList = tmpBoardTodoHourList.size() > topNums ? tmpBoardTodoHourList.subList(0,topNums) : tmpBoardTodoHourList;
 
         result.setLineChart(lineChart);
         result.setDeptList(boardDeptList);
@@ -1712,17 +1721,18 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         Date startDate = getStartDate(nowDate,flwBoardParam.getType());  //数据范围开始时间
         Date endDate = nowDate;
         //全部流程：[startDate,endDate]数据范围
-        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate);
+        List<FlwBoardResult> boardDataList = getFlwBoardData(startDate,endDate,false);
         //超过48h
         boardDataList.sort(Comparator.comparing(FlwBoardResult::getBoardTime).reversed());
         List<FlwBoardResult> tmpData = boardDataList.stream().filter(x->ObjectUtil.isNotEmpty(x.getBoardTime()) && x.getBoardTime() > 48).collect(Collectors.toList());
-        Page<FlwBoardResult> defaultPage = CommonPageRequest.defaultPage();
         //页面参数-分页
+        Page<FlwBoardResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
         int fromIndex = Convert.toInt((current - 1) * size);
         int toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(tmpData.size()));
         List<FlwBoardResult> currentPageData = tmpData.subList(fromIndex, toIndex);
+        getCurrentBoardPage(currentPageData);
         defaultPage.setRecords(currentPageData);
         defaultPage.setTotal(tmpData.size());
         return defaultPage;
@@ -1814,9 +1824,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
      * 全部流程 - 信息补全
      * @param startDate 流程发起 起始时间
      * @param endDate 流程发起 截止时间
+     * @param includeVariable 是否需要指定的流程参数
      * @return
      */
-    public List<FlwBoardResult> getFlwBoardData(Date startDate,Date endDate){
+    public List<FlwBoardResult> getFlwBoardData(Date startDate,Date endDate,Boolean includeVariable){
         long start = System.currentTimeMillis();
         System.out.println("全部流程耗时：开始时间 - "+start);
         //框定流程数据范围
@@ -1829,21 +1840,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         historicProcessInstanceList.forEach(historicProcessInstance -> {
             FlwBoardResult flwBoardResult = new FlwBoardResult();
             flwBoardResult.setId(historicProcessInstance.getId());
-            List<HistoricVariableInstance> variableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
             flwBoardResult.setStartTime(DateUtil.formatDateTime(historicProcessInstance.getStartTime()));
             flwBoardResult.setEndTime(ObjectUtil.isNotEmpty(historicProcessInstance.getEndTime()) ?
                     DateUtil.formatDateTime(historicProcessInstance.getEndTime()) : "-");
-            flwBoardResult.setSn(getVariableValue("initiatorProcessSn",variableInstanceList));
-            flwBoardResult.setTitle(getVariableValue("initiatorProcessTitle",variableInstanceList));
-            flwBoardResult.setAbstractTitle(getVariableValue("initiatorProcessAbstract",variableInstanceList));
             String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
             flwBoardResult.setProcessDefinitionId(processDefinitionId);
             flwBoardResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
-            flwBoardResult.setInitiator(getVariableValue("initiator",variableInstanceList));
-            flwBoardResult.setInitiatorName(getVariableValue("initiatorName",variableInstanceList));
-            flwBoardResult.setInitiatorOrgId(getVariableValue("initiatorOrgId",variableInstanceList));
-            flwBoardResult.setInitiatorOrgName(getVariableValue("initiatorOrgName",variableInstanceList));
-
             // 创建一个新的 SimpleDateFormat 用于输出新的格式 yyyy-MM-dd
             try {
                 SimpleDateFormat newFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -1905,6 +1907,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     flwBoardResult.setStateCode(state);
                     flwBoardResult.setStateText("未知");
             }
+            //需要特定流程参数
+            if(includeVariable) {
+                List<HistoricVariableInstance> variableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).variableNameIn("initiatorOrgName").list();
+//                flwBoardResult.setSn(getVariableValue("initiatorProcessSn", variableInstanceList));
+//                flwBoardResult.setTitle(getVariableValue("initiatorProcessTitle", variableInstanceList));
+//                flwBoardResult.setAbstractTitle(getVariableValue("initiatorProcessAbstract", variableInstanceList));
+//                flwBoardResult.setInitiator(getVariableValue("initiator", variableInstanceList));
+//                flwBoardResult.setInitiatorName(getVariableValue("initiatorName", variableInstanceList));
+//                flwBoardResult.setInitiatorOrgId(getVariableValue("initiatorOrgId", variableInstanceList));
+                flwBoardResult.setInitiatorOrgName(getVariableValue("initiatorOrgName", variableInstanceList));
+            }
             results.add(flwBoardResult);
         });
         System.out.println("全部流程耗时：- "+ (System.currentTimeMillis() - start));
@@ -1913,38 +1926,47 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     /**
      * 待办流程 - 全部
+     * @param includeVariable 是否需要携带流程参数
      * @return
      */
-    public List<FlwTodoBoardResult> getToDoBoardData(){
-        long start = System.currentTimeMillis();
-        System.out.println("待办耗时：开始时间 - "+start);
+    public List<FlwTodoBoardResult> getToDoBoardData(Boolean includeVariable){
         //框定待办数据范围[待办列表里的所有]
         List<Task> taskList = taskService.createTaskQuery().active().list();
         if(CollUtil.isEmpty(taskList)) return null;
         //补充相关信息
         Date tmpNowDate = new Date(); //当前时间
         List<FlwTodoBoardResult> result = new ArrayList<>();
+        long start = System.currentTimeMillis();
+        System.out.println("待办耗时：开始时间 - "+start);
+        //框定所有审批人[去重]
+        List<String> userIds = taskList.stream().filter(x->ObjectUtil.isNotEmpty(x.getAssignee())).map(x->x.getAssignee()).distinct().collect(Collectors.toList());
+        List<JSONObject> userJsonObjectList = getUserListByIds(userIds,10);
+        List<JSONObject> finalUserJsonObjectList = userJsonObjectList;
         taskList.forEach(task -> {
-//            JSONObject variableJsonObject = JSONUtil.createObj();
-//            historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
-//                    .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
-//                            historicVariableInstance.getValue()));
             FlwTodoBoardResult flwToDoBoardResult = new FlwTodoBoardResult();
             flwToDoBoardResult.setId(task.getId());
             flwToDoBoardResult.setProcessInstanceId(task.getProcessInstanceId());
-//            flwToDoBoardResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
-//            flwToDoBoardResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
-//            flwToDoBoardResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
-//            flwToDoBoardResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
             flwToDoBoardResult.setTaskCreateTime(task.getCreateTime());
             Double hours = (tmpNowDate.getTime()-task.getCreateTime().getTime()) / 3600000.0;     //流程耗时
             flwToDoBoardResult.setBoardTime(hours);
             flwToDoBoardResult.setAssigneeId(task.getAssignee());
             if (ObjectUtil.isNotEmpty(task.getAssignee())) {
-                JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(task.getAssignee());
-                if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
-                    flwToDoBoardResult.setAssignees(taskAssigneeUser.getStr("name"));
+                // 使用 stream 过滤出 id 为 targetId 的 JSONObject
+                Optional<JSONObject> taskAssigneeUser = finalUserJsonObjectList.stream()
+                        .filter(json -> json.getStr("id").equals(task.getAssignee())).findFirst(); // 只获取第一个匹配的对象
+                if (taskAssigneeUser.isPresent()) {
+                    flwToDoBoardResult.setAssignees(taskAssigneeUser.get().getStr("name"));
                 }
+            }
+            //需要特定参数
+            if(includeVariable) {
+                JSONObject variableJsonObject = JSONUtil.createObj();
+                historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
+                        .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(), historicVariableInstance.getValue()));
+                flwToDoBoardResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+                flwToDoBoardResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+                flwToDoBoardResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+                flwToDoBoardResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
             }
             result.add(flwToDoBoardResult);
         });
@@ -1994,6 +2016,26 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
 
     /**
+     * 当前页数据 - 补充流程参数
+     * @param dataList
+     */
+    public void getCurrentBoardPage(List<FlwBoardResult> dataList){
+        if(CollUtil.isNotEmpty(dataList)){
+            dataList.forEach(item->{
+                List<HistoricVariableInstance> variableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceId(item.getId()).list();
+                item.setSn(getVariableValue("initiatorProcessSn", variableInstanceList));
+                item.setTitle(getVariableValue("initiatorProcessTitle", variableInstanceList));
+                item.setAbstractTitle(getVariableValue("initiatorProcessAbstract", variableInstanceList));
+                item.setInitiator(getVariableValue("initiator", variableInstanceList));
+                item.setInitiatorName(getVariableValue("initiatorName", variableInstanceList));
+                item.setInitiatorOrgId(getVariableValue("initiatorOrgId", variableInstanceList));
+                item.setInitiatorOrgName(getVariableValue("initiatorOrgName", variableInstanceList));
+            });
+        }
+    }
+
+
+    /**
      * 耗时合计
      * @param dataList 时间集合
      * @return
@@ -2009,6 +2051,33 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             }
         }
         return tmpHours;
+    }
+
+
+    /**
+     * 分批请求用户信息
+     * @param userIds 用户id集合
+     * @param timeCount 批次大小
+     * @return
+     */
+    public List<JSONObject> getUserListByIds(List<String> userIds,int timeCount){
+        List<JSONObject> userJsonObjectList = new ArrayList<>();
+        if (CollUtil.isNotEmpty(userIds)) {
+            // 将 userIds 列表分割成多个小批次
+            int totalSize = userIds.size();
+            for (int i = 0; i < totalSize; i += timeCount) {
+                // 获取每一批次的子列表
+                int end = Math.min(i + timeCount, totalSize);
+                List<String> subList = userIds.subList(i, end);
+                // 获取当前批次的用户信息
+                List<JSONObject> batchResult = sysUserApi.getUserListByIdListWithoutException(subList);
+                // 合并当前批次的结果
+                if (ObjectUtil.isNotEmpty(batchResult)) {
+                    userJsonObjectList.addAll(batchResult);
+                }
+            }
+        }
+        return userJsonObjectList;
     }
 
     @Override
