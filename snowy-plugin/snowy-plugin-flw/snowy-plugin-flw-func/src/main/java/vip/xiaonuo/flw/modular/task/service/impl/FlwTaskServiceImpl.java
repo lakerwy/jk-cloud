@@ -1051,6 +1051,25 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     public List<FlwModelDTO> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
         List<FlwModel> allFlwModels = flwModelService.list();
         List<FlwModelDTO> transferTasks = new ArrayList<>();
+
+        // 待办 - 涉及当前办理人
+        List<String> taskProcessInstanceIds = taskService.createTaskQuery().active().taskAssignee(flwTaskTransferPageParam.getOldAssignee()).list()
+                .stream().filter(x->ObjectUtil.isNotEmpty(x.getProcessInstanceId())).map(x->x.getProcessInstanceId()).distinct().collect(Collectors.toList());
+        List<String> modelIdVariables = new ArrayList<>();
+        if(CollUtil.isNotEmpty(taskProcessInstanceIds)){
+            taskProcessInstanceIds.forEach(processInstanceId->{
+                String processModelIdVariable = flwProcessService.getProcessModelIdVariable(processInstanceId);
+                if(ObjectUtil.isNotEmpty(processModelIdVariable) && !modelIdVariables.contains(processModelIdVariable)) {
+                    modelIdVariables.add(processModelIdVariable);
+                }
+            });
+        }
+        if(CollUtil.isNotEmpty(modelIdVariables)) {
+            List<FlwModel> taskModelList = allFlwModels.stream().filter(x -> modelIdVariables.contains(x.getId())).distinct().collect(Collectors.toList());
+            transferTasks.addAll(BeanUtil.copyToList(taskModelList, FlwModelDTO.class));
+            allFlwModels.removeAll(taskModelList);
+        }
+        // 流程模板中涉及当前办理人
         for (FlwModel flwModel : allFlwModels) {
             String processJson = flwModel.getProcessJson();
             if (ObjectUtil.isNotEmpty(processJson)) {
