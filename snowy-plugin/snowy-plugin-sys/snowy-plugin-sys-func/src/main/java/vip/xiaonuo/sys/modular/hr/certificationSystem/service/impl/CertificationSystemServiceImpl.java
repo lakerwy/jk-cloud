@@ -43,6 +43,7 @@ public class CertificationSystemServiceImpl extends ServiceImpl<CertificationSys
                     .or().like("a.CERT_NO",certificationSystemPageParam.getSearchKey())
                     .or().like("a.STANDARD",certificationSystemPageParam.getSearchKey())
                     .or().like("a.SCOPE",certificationSystemPageParam.getSearchKey())
+                    .or().like("a.HOLDING_ORG",certificationSystemPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(certificationSystemPageParam.getSortField(), certificationSystemPageParam.getSortOrder())) {

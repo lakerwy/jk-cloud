@@ -53,6 +53,7 @@ public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAw
             queryWrapper.lambda().and(q->q.like(HonorAward::getPrjName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getActivityName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getAwardingOrg,honorAwardPageParam.getSearchKey())
+                    .or().like(HonorAward::getHoldingOrg,honorAwardPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(honorAwardPageParam.getSortField(), honorAwardPageParam.getSortOrder())) {

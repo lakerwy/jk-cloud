@@ -45,6 +45,7 @@ public class OtherTechAchiveServiceImpl extends ServiceImpl<OtherTechAchiveMappe
                     .or().like(OtherTechAchive::getType,otherTechAchivePageParam.getSearchKey())
                     .or().like(OtherTechAchive::getCompletedPersonnel,otherTechAchivePageParam.getSearchKey())
                     .or().like(OtherTechAchive::getIssueOrg,otherTechAchivePageParam.getSearchKey())
+                    .or().like(OtherTechAchive::getHoldingOrg,otherTechAchivePageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(otherTechAchivePageParam.getSortField(), otherTechAchivePageParam.getSortOrder())) {

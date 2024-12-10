@@ -51,6 +51,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, Standard> i
                     .or().like(Standard::getType,standardPageParam.getSearchKey())
                     .or().like(Standard::getStandardType,standardPageParam.getSearchKey())
                     .or().like(Standard::getParticipants,standardPageParam.getSearchKey())
+                    .or().like(Standard::getHoldingOrg,standardPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(standardPageParam.getSortField(), standardPageParam.getSortOrder())) {

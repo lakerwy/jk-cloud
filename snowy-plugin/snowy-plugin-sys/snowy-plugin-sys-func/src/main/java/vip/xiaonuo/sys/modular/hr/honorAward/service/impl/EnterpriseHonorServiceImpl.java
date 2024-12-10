@@ -48,6 +48,7 @@ public class EnterpriseHonorServiceImpl extends ServiceImpl<EnterpriseHonorMappe
             queryWrapper.and(q->q.like("a.NAME",enterpriseHonorPageParam.getSearchKey())
                     .or().like("a.CERT_NO",enterpriseHonorPageParam.getSearchKey())
                     .or().like("a.AWARDING_ORG",enterpriseHonorPageParam.getSearchKey())
+                    .or().like("a.HOLDING_ORG",enterpriseHonorPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(enterpriseHonorPageParam.getSortField(), enterpriseHonorPageParam.getSortOrder())) {

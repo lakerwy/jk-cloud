@@ -54,6 +54,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                     .or().like(PatentInfo::getApplyNo,patentInfoPageParam.getSearchKey())
                     .or().like(PatentInfo::getPatentNo,patentInfoPageParam.getSearchKey())
                     .or().like(PatentInfo::getInventor,patentInfoPageParam.getSearchKey())
+                    .or().like(PatentInfo::getHoldingOrg,patentInfoPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(patentInfoPageParam.getSortField(), patentInfoPageParam.getSortOrder())) {

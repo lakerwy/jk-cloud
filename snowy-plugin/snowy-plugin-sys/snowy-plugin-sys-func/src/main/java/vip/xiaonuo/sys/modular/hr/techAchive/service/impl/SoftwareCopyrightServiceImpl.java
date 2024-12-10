@@ -45,6 +45,7 @@ public class SoftwareCopyrightServiceImpl extends ServiceImpl<SoftwareCopyrightM
             queryWrapper.and(q->q.like("a.NAME",softwareCopyrightPageParam.getSearchKey())
                     .or().like("a.OWNER",softwareCopyrightPageParam.getSearchKey())
                     .or().like("a.REGISTER_NO",softwareCopyrightPageParam.getSearchKey())
+                    .or().like("a.HOLDING_ORG",softwareCopyrightPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(softwareCopyrightPageParam.getSortField(), softwareCopyrightPageParam.getSortOrder())) {
