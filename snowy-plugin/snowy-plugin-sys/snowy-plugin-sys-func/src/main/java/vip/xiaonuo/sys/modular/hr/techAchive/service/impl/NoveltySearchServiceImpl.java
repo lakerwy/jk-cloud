@@ -41,6 +41,7 @@ public class NoveltySearchServiceImpl extends ServiceImpl<NoveltySearchMapper, N
             queryWrapper.lambda().and(q->q.like(NoveltySearch::getPrjName,noveltySearchPageParam.getSearchKey())
                     .or().like(NoveltySearch::getReportNo,noveltySearchPageParam.getSearchKey())
                     .or().like(NoveltySearch::getPurpose,noveltySearchPageParam.getSearchKey())
+                    .or().like(NoveltySearch::getHoldingOrg,noveltySearchPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(noveltySearchPageParam.getSortField(), noveltySearchPageParam.getSortOrder())) {
