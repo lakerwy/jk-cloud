@@ -71,7 +71,7 @@ public class CommonDownloadUtil {
             response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
             response.setContentType("application/octet-stream;charset=UTF-8");
             outputStream = response.getOutputStream();
-            IoUtil.write(outputStream, true, fileBytes);
+//            IoUtil.write(outputStream, true, fileBytes);
             try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8)){
                 bufferedOutputStream.write(fileBytes);
             }catch (IOException e) {
