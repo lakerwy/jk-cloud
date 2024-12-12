@@ -282,7 +282,7 @@ public class TencentImServiceImpl implements TencentImService {
     public CommonResult<String> tencentCreateRoot(AccountParam accountParam) {
 //        accountParam.setUserID("@RBT#001");
 //        accountParam.setNick("科科");
-//        accountParam.setFaceUrl("https://minio.jianke.co/comm/jk.png");
+//        accountParam.setFaceUrl("https://minio.hbjkjt.com/comm/jk.png");
         return accountImport(accountParam);
     }
 

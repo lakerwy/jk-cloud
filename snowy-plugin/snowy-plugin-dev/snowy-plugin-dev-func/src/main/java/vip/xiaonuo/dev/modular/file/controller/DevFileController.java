@@ -322,7 +322,7 @@ public class DevFileController {
     @GetMapping("/dev/attachment/onlinePreview")
     public CommonResult<Object> onlinePreview(@RequestParam(value = "url") String url){
 //        String previewUrl = commonProperties.getPreviewUrl();
-        String previewUrl = "https://files.jianke.co/onlinePreview";
+        String previewUrl = "https://files.hbjkjt.com/onlinePreview";
         String result = HttpUtil.get(previewUrl+"?url=" + url);
         return CommonResult.data(result);
     }

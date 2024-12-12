@@ -85,7 +85,7 @@ public class ResumeParserUtil {
             // 设置请求接口信息
             JSONObject json = new JSONObject();
             json.put("file_name", fname);   // 文件名
-            json.put("file_cont", data);     // "https://y2.jianke.co/api/webapp/dev/file/download?id=202308251090"
+            json.put("file_cont", data);     // "https://y2.hbjkjt.com/api/webapp/dev/file/download?id=202308251090"
             json.put("uid", uid);            // 用户id
             json.put("pwd", pwd);            // 用户密码
             json.put("need_avatar", 0);

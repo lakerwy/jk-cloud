@@ -35,5 +35,5 @@ public class CommonProperties {
     /** 后端地址 */
     private String backendUrl;
 
-//    private String previewUrl = "https://files.jianke.co/onlinePreview";
+//    private String previewUrl = "https://files.hbjkjt.com/onlinePreview";
 }

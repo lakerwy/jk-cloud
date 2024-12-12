@@ -39,7 +39,7 @@ public class IotConfigure {
                         .title("iot功能插件")
                         .description("iot功能插件")
                         .termsOfServiceUrl("https://www.xiaonuo.vip")
-                        .contact(new Contact("SNOWY_TEAM","https://yun.jianke.co", "jianke@foxmail.com"))
+                        .contact(new Contact("SNOWY_TEAM","https://yun.hbjkjt.com", "jianke@foxmail.com"))
                         .version("2.0.0")
                         .build())
                 .globalResponseMessage(RequestMethod.GET, CommonResult.responseList())
