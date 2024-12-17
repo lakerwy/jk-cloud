@@ -54,6 +54,7 @@ public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAw
                     .or().like(HonorAward::getActivityName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getAwardingOrg,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getHoldingOrg,honorAwardPageParam.getSearchKey())
+                    .or().like(HonorAward::getCompletedPersonnel,honorAwardPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(honorAwardPageParam.getSortField(), honorAwardPageParam.getSortOrder())) {
