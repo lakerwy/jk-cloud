@@ -38,7 +38,7 @@ public class OtherTechAchiveServiceImpl extends ServiceImpl<OtherTechAchiveMappe
             queryWrapper.lambda().like(OtherTechAchive::getName, otherTechAchivePageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(otherTechAchivePageParam.getPersonnelId())){
-            queryWrapper.lambda().like(OtherTechAchive::getCompletedPersonnelId, otherTechAchivePageParam.getPersonnelId());
+            queryWrapper.apply("FIND_IN_SET({0}, COMPLETED_PERSONNEL_ID) > 0", otherTechAchivePageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(otherTechAchivePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(OtherTechAchive::getName,otherTechAchivePageParam.getSearchKey())

@@ -17,6 +17,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.consts.WebsiteConstant;
 import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
@@ -100,10 +101,10 @@ public class DingDingServiceImpl implements IDingDingService {
         head.setText("流程消息");
         head.setBgcolor("FFBBBBBB");
         oa.setHead(head);
-        oa.setPcMessageUrl("https://yun.hbjkjt.com");
+        oa.setPcMessageUrl(WebsiteConstant.WEBSITE_URL);
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
         String mg = message;
-        mg += "\n处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.hbjkjt.com)处理";
+        mg += "\n处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网("+WebsiteConstant.WEBSITE_URL+")处理";
         body.setContent(mg);
         oa.setBody(body);
 
@@ -170,7 +171,7 @@ public class DingDingServiceImpl implements IDingDingService {
         head.setText("工程校审处理单");
         head.setBgcolor("FFBBBBBB");
         oa.setHead(head);
-//        oa.setPcMessageUrl("https://yun.hbjkjt.com");
+//        oa.setPcMessageUrl(WebsiteConstant.WEBSITE_URL);
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
         //String sn = String.valueOf(jsonObject.get("sn"));
         body.setTitle("【工程设计校审】");
@@ -193,7 +194,7 @@ public class DingDingServiceImpl implements IDingDingService {
         forms.add(form);
 
         body.setForm(forms);
-        String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.hbjkjt.com)处理";
+        String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网("+WebsiteConstant.WEBSITE_URL+")处理";
         body.setContent(mg);
         oa.setBody(body);
 

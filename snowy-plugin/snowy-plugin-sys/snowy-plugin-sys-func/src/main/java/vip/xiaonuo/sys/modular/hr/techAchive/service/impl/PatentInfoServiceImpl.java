@@ -47,7 +47,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             queryWrapper.lambda().like(PatentInfo::getName, patentInfoPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(patentInfoPageParam.getPersonnelId())){
-            queryWrapper.lambda().like(PatentInfo::getInventorId, patentInfoPageParam.getPersonnelId());
+            queryWrapper.apply("FIND_IN_SET({0}, INVENTOR_ID) > 0", patentInfoPageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(patentInfoPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(PatentInfo::getName,patentInfoPageParam.getSearchKey())

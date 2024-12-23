@@ -35,7 +35,7 @@ public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAw
     public Page<HonorAward> page(HonorAwardPageParam honorAwardPageParam) {
         QueryWrapper<HonorAward> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(honorAwardPageParam.getPersonnelId())){
-            queryWrapper.lambda().like(HonorAward::getCompletedPersonnelId, honorAwardPageParam.getPersonnelId());
+            queryWrapper.apply("FIND_IN_SET({0}, COMPLETED_PERSONNEL_ID) > 0", honorAwardPageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(honorAwardPageParam.getType())){
             queryWrapper.lambda().eq(HonorAward::getType, honorAwardPageParam.getType());
@@ -54,6 +54,7 @@ public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAw
                     .or().like(HonorAward::getActivityName,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getAwardingOrg,honorAwardPageParam.getSearchKey())
                     .or().like(HonorAward::getHoldingOrg,honorAwardPageParam.getSearchKey())
+                    .or().like(HonorAward::getCompletedPersonnel,honorAwardPageParam.getSearchKey())
             );
         }
         if(ObjectUtil.isAllNotEmpty(honorAwardPageParam.getSortField(), honorAwardPageParam.getSortOrder())) {

@@ -11,6 +11,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import vip.xiaonuo.common.consts.WebsiteConstant;
 import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
@@ -39,7 +40,7 @@ public class IotConfigure {
                         .title("iot功能插件")
                         .description("iot功能插件")
                         .termsOfServiceUrl("https://www.xiaonuo.vip")
-                        .contact(new Contact("SNOWY_TEAM","https://yun.hbjkjt.com", "jianke@foxmail.com"))
+                        .contact(new Contact("SNOWY_TEAM", WebsiteConstant.WEBSITE_URL, "jianke@foxmail.com"))
                         .version("2.0.0")
                         .build())
                 .globalResponseMessage(RequestMethod.GET, CommonResult.responseList())
