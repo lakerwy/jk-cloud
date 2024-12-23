@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 投标决策 - 申请流程实体
+ * 投标决策 - 【合约规划】 - 申请流程实体
  *
  * @author yong.ye
  * @date  2024/06/21 10:30
@@ -42,6 +42,10 @@ public class BidDecision {
     /** 项目名称：来源于立项 */
     @ApiModelProperty(value = "项目名称：来源于立项", position = 3)
     private String prjName;
+
+    /** 项目来源 */
+    @ApiModelProperty(value = "项目来源", position = 3)
+    private String prjSource;
 
     /** 立项申请信息：来源于立项 */
     @ApiModelProperty(value = "立项申请信息：来源于立项", position = 4)
@@ -119,20 +123,20 @@ public class BidDecision {
     @ApiModelProperty(value = "附件", position = 22)
     private String attach;
 
-    /** 计划项目生产分工JSON */
-    @ApiModelProperty(value = "计划项目生产分工JSON", position = 22)
+    /** 项目生产分工JSON */
+    @ApiModelProperty(value = "项目生产分工JSON", position = 22)
     private String planDivideJson;
 
-    /** 投标估算汇总JSON */
-    @ApiModelProperty(value = "投标估算汇总JSON", position = 23)
+    /** 项目产值划分及成本测算JSON */
+    @ApiModelProperty(value = "项目产值划分及成本测算JSON", position = 23)
     private String esSummaryJson;
 
-    /** 投标估算详情JSON */
-    @ApiModelProperty(value = "投标估算详情JSON", position = 24)
+    /** 进度计划JSON */
+    @ApiModelProperty(value = "进度计划JSON", position = 24)
     private String esDetailJson;
 
-    /** 标前风险识别JSON */
-    @ApiModelProperty(value = "标前风险识别JSON", position = 25)
+    /** 招采计划JSON */
+    @ApiModelProperty(value = "招采计划JSON", position = 25)
     private String riskJson;
 
     /** 备注 */

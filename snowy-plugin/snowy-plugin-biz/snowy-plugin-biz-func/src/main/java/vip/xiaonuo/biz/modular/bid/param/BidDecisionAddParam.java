@@ -31,29 +31,45 @@ import java.util.Date;
 @Setter
 public class BidDecisionAddParam {
 
+    /** 申请部门Id */
+    @ApiModelProperty(value = "申请部门Id", position = 1)
+    private String deptId;
+
+    /** 申请部门 */
+    @ApiModelProperty(value = "申请部门", position = 2)
+    private String dept;
+
+    /** 项目承接部门 */
+    @ApiModelProperty(value = "项目承接部门", position = 3)
+    private String acceptDept;
+
     /** 立项Id：来源于立项 */
-    @ApiModelProperty(value = "立项Id：来源于立项", position = 2)
+    @ApiModelProperty(value = "立项Id：来源于立项", position = 4)
     private String prjId;
 
     /** 项目名称：来源于立项 */
-    @ApiModelProperty(value = "项目名称：来源于立项", position = 3)
+    @ApiModelProperty(value = "项目名称：来源于立项", position = 4)
     private String prjName;
 
-    /** 立项申请信息：来源于立项 */
-    @ApiModelProperty(value = "立项申请信息：来源于立项", position = 4)
+    /** 项目来源 */
+    @ApiModelProperty(value = "项目来源", position = 4)
+    private String prjSource;
+
+    /** 项目流水号：来源于立项 */
+    @ApiModelProperty(value = "项目流水号：来源于立项", position = 4)
     private String prjSn;
 
     /** 立项申请人：来源于立项 */
     @ApiModelProperty(value = "立项申请人：来源于立项", position = 5)
     private String prjApplyUser;
 
-    /** 顾问联系人(自营)|合作方联系人(零星合作)|分公司联系人(分公司) */
-    @ApiModelProperty(value = "顾问联系人(自营)|合作方联系人(零星合作)|分公司联系人(分公司)", position = 6)
-    private String contractor;
-
     /** 项目承接类型(自营|零星合作|分公司) */
-    @ApiModelProperty(value = "项目承接类型(自营|零星合作|分公司)", position = 7)
+    @ApiModelProperty(value = "项目承接类型(自营|零星合作|分公司)", position = 6)
     private String contractType;
+
+    /** 顾问联系人(自营)|合作方联系人(零星合作)|分公司联系人(分公司) */
+    @ApiModelProperty(value = "顾问联系人(自营)|合作方联系人(零星合作)|分公司联系人(分公司)", position = 7)
+    private String contractor;
 
     /** 项目承接范围 */
     @ApiModelProperty(value = "项目承接范围", position = 8)
@@ -74,6 +90,10 @@ public class BidDecisionAddParam {
     /** 是否专门针对集团业绩/战略发展需要 ：针对项目 */
     @ApiModelProperty(value = "是否专门针对集团业绩/战略发展需要 ：针对项目", position = 12)
     private String tag;
+
+    /** 承接工作内容 */
+    @ApiModelProperty(value = "承接工作内容", position = 13)
+    private String jobContent;
 
     /** 是否我方牵头：是|否 */
     @ApiModelProperty(value = "是否我方牵头：是|否", position = 13)
@@ -115,20 +135,20 @@ public class BidDecisionAddParam {
     @ApiModelProperty(value = "附件", position = 22)
     private String attach;
 
-    /** 计划项目生产分工JSON */
-    @ApiModelProperty(value = "计划项目生产分工JSON", position = 22)
+    /** 项目生产分工JSON */
+    @ApiModelProperty(value = "项目生产分工JSON", position = 22)
     private String planDivideJson;
 
-    /** 投标估算汇总JSON */
-    @ApiModelProperty(value = "投标估算汇总JSON", position = 23)
+    /** 项目产值划分及成本测算JSON */
+    @ApiModelProperty(value = "项目产值划分及成本测算JSON", position = 23)
     private String esSummaryJson;
 
-    /** 投标估算详情JSON */
-    @ApiModelProperty(value = "投标估算详情JSON", position = 24)
+    /** 进度计划JSON */
+    @ApiModelProperty(value = "进度计划JSON", position = 24)
     private String esDetailJson;
 
-    /** 标前风险识别JSON */
-    @ApiModelProperty(value = "标前风险识别JSON", position = 25)
+    /** 招采计划JSON */
+    @ApiModelProperty(value = "招采计划JSON", position = 25)
     private String riskJson;
 
     /** 备注 */
@@ -157,23 +177,8 @@ public class BidDecisionAddParam {
 
     /**************************** 投标决策二期 *********************************/
 
-    /** 申请部门Id */
-    @ApiModelProperty(value = "申请部门Id", position = 41)
-    private String deptId;
-
-    /** 申请部门 */
-    @ApiModelProperty(value = "申请部门", position = 42)
-    private String dept;
-
-    /** 项目承接部门 */
-    @ApiModelProperty(value = "项目承接部门", position = 43)
-    private String acceptDept;
-
     /** 责任上缴比例 */
     @ApiModelProperty(value = "责任上缴比例", position = 44)
     private String rate;
 
-    /** 承接工作内容 */
-    @ApiModelProperty(value = "承接工作内容", position = 45)
-    private String jobContent;
 }

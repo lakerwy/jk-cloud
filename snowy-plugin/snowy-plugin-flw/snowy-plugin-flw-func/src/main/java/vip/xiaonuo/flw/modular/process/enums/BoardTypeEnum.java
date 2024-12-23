@@ -27,8 +27,8 @@ public enum BoardTypeEnum {
     /** 近一个月 */
     MONTH("2"),
 
-    /** 今年 */
-    YEAR("3");
+    /** 近三个月 */
+    THREE_MONTH("3");
 
     private final String value;
 

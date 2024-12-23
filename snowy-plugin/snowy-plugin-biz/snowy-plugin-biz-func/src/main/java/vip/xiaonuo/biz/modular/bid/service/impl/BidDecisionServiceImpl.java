@@ -73,6 +73,9 @@ public class BidDecisionServiceImpl extends ServiceImpl<BidDecisionMapper, BidDe
         if(ObjectUtil.isNotEmpty(bidDecisionPageParam.getPrjName())) {
             queryWrapper.lambda().like(BidDecision::getPrjName, bidDecisionPageParam.getPrjName());
         }
+        if(ObjectUtil.isNotEmpty(bidDecisionPageParam.getPrjSource())){
+            queryWrapper.lambda().like(BidDecision::getPrjSource,bidDecisionPageParam.getPrjSource());
+        }
         if(ObjectUtil.isNotEmpty(bidDecisionPageParam.getPrjSn())) {
             queryWrapper.lambda().like(BidDecision::getPrjSn, bidDecisionPageParam.getPrjSn());
         }

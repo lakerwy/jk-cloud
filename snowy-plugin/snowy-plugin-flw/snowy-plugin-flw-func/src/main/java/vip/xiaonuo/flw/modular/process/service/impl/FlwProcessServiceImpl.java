@@ -1745,7 +1745,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     /**
      *  根据当前时间，获取 七天前  一月前  今年初 日期
      * @param nowDate 当前时间
-     * @param type 类型 1 近七天  2 近一月  3 今年
+     * @param type 类型 1 近七天  2 近一月  3 近三个月
      * @return
      */
     public Date getStartDate(Date nowDate,String type){
@@ -1755,12 +1755,11 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             // 将日期向前推七天
             calendar.add(Calendar.DAY_OF_MONTH, -7);
         } else if (BoardTypeEnum.MONTH.getValue().equals(type)) {
-            // 将日期向前推七天
+            // 将日期向前推一月
             calendar.add(Calendar.MONTH, -1);
-        } else if (BoardTypeEnum.YEAR.getValue().equals(type)) {
-            // 将月份设置为 0（表示 1 月），并将日期设置为 1
-            calendar.set(Calendar.MONTH, Calendar.JANUARY); // 1 月是 0
-            calendar.set(Calendar.DAY_OF_MONTH, 1); // 设置为 1 号
+        } else if (BoardTypeEnum.THREE_MONTH.getValue().equals(type)) {
+            // 将日期向前推3个月
+            calendar.set(Calendar.MONTH, -3);
         }
         return calendar.getTime();
     }

@@ -38,12 +38,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * 投标决策 - 申请流程控制器
+ * 投标决策【调整为合约规划】 - 申请流程控制器
  *
  * @author yong.ye
  * @date  2024/06/21 10:30
  */
-@Api(tags = "投标决策 - 申请流程控制器")
+@Api(tags = "投标决策【调整为合约规划】 - 申请流程控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -53,13 +53,13 @@ public class BidDecisionController {
     private BidDecisionService bidDecisionService;
 
     /**
-     * 获取投标决策 - 申请流程分页
+     * 获取投标决策【调整为合约规划】 - 申请流程分页
      *
      * @author yong.ye
      * @date  2024/06/21 10:30
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取投标决策 - 申请流程分页")
+    @ApiOperation("获取投标决策【调整为合约规划】 - 申请流程分页")
 //    @SaCheckPermission("/biz/bid/decision/page")
     @GetMapping("/biz/bid/decision/page")
     public CommonResult<Page<BidDecision>> page(BidDecisionPageParam bidDecisionPageParam) {
@@ -67,14 +67,14 @@ public class BidDecisionController {
     }
 
     /**
-     * 添加投标决策 - 申请流程
+     * 添加投标决策【调整为合约规划】 - 申请流程
      *
      * @author yong.ye
      * @date  2024/06/21 10:30
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加投标决策 - 申请流程")
-    @CommonLog("添加投标决策 - 申请流程")
+    @ApiOperation("添加投标决策【调整为合约规划】 - 申请流程")
+    @CommonLog("添加投标决策【调整为合约规划】 - 申请流程")
 //    @SaCheckPermission("/biz/bid/decision/add")
     @PostMapping("/biz/bid/decision/add")
     public CommonResult<String> add(@RequestBody @Valid BidDecisionAddParam bidDecisionAddParam) {
@@ -89,8 +89,8 @@ public class BidDecisionController {
      * @date  2024/06/21 10:30
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑投标决策 - 申请流程")
-    @CommonLog("编辑投标决策 - 申请流程")
+    @ApiOperation("编辑投标决策【调整为合约规划】 - 申请流程")
+    @CommonLog("编辑投标决策【调整为合约规划】 - 申请流程")
 //    @SaCheckPermission("/biz/bid/decision/edit")
     @PostMapping("/biz/bid/decision/edit")
     public CommonResult<String> edit(@RequestBody @Valid BidDecisionEditParam bidDecisionEditParam) {
@@ -105,8 +105,8 @@ public class BidDecisionController {
      * @date  2024/06/21 10:30
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除投标决策 - 申请流程")
-    @CommonLog("删除投标决策 - 申请流程")
+    @ApiOperation("删除投标决策【调整为合约规划】 - 申请流程")
+    @CommonLog("删除投标决策【调整为合约规划】 - 申请流程")
 //    @SaCheckPermission("/biz/bid/decision/delete")
     @PostMapping("/biz/bid/decision/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -116,13 +116,13 @@ public class BidDecisionController {
     }
 
     /**
-     * 获取投标决策 - 申请流程详情
+     * 获取投标决策【调整为合约规划】 - 申请流程详情
      *
      * @author yong.ye
      * @date  2024/06/21 10:30
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取投标决策 - 申请流程详情")
+    @ApiOperation("获取投标决策【调整为合约规划】 - 申请流程详情")
 //    @SaCheckPermission("/biz/bid/decision/detail")
     @GetMapping("/biz/bid/decision/detail")
     public CommonResult<BidDecision> detail(@Valid BidDecisionIdParam bidDecisionIdParam) {

@@ -84,4 +84,8 @@ public class BidDecisionPageParam {
     @ApiModelProperty(value = "项目承接部门")
     private String acceptDept;
 
+    /** 项目来源 */
+    @ApiModelProperty(value = "项目来源")
+    private String prjSource;
+
 }
