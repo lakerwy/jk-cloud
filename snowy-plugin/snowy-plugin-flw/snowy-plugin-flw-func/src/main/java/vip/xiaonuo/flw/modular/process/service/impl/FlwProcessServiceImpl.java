@@ -1759,7 +1759,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             calendar.add(Calendar.MONTH, -1);
         } else if (BoardTypeEnum.THREE_MONTH.getValue().equals(type)) {
             // 将日期向前推3个月
-            calendar.set(Calendar.MONTH, -3);
+            calendar.add(Calendar.MONTH, -3);
         }
         return calendar.getTime();
     }
