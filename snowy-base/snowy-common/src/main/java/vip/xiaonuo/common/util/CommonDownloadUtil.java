@@ -74,6 +74,7 @@ public class CommonDownloadUtil {
 //            IoUtil.write(outputStream, true, fileBytes);
             try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8)){
                 bufferedOutputStream.write(fileBytes);
+                bufferedOutputStream.flush();
             }catch (IOException e) {
                 log.error(">>> 文件下载异常：", e);
             }
