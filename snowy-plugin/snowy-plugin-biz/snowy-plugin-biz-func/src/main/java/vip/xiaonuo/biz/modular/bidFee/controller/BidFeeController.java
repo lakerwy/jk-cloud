@@ -129,18 +129,4 @@ public class BidFeeController {
     public CommonResult<Page<BizProjectVo>> projectPage(BizProjectPageParam bizProjectPageParam) {
         return CommonResult.data(bidFeeService.projectPage(bizProjectPageParam));
     }
-
-    /**
-     * 投标费用审批 - 生成打印Excel
-     *
-     * @author pzh
-     * @date  2024/12/30 10:00
-     */
-    @ApiOperationSupport(order = 7)
-    @ApiOperation("投标费用审批  - 生成打印Excel")
-    @CommonLog("投标费用审批  - 生成打印Excel")
-    @PostMapping("/biz/bidFee/genExcel")
-    public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
-        bidFeeService.genExcel(excelParam,response);
-    }
 }
