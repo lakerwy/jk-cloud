@@ -21,4 +21,8 @@ public class BizSysOrgVo {
     @ApiModelProperty(value = "组织名称", position = 21)
     private String orgName;
 
+    /** 主管id */
+    @ApiModelProperty(value = "主管id", position = 30)
+    private String directorId;
+
 }

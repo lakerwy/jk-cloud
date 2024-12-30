@@ -12,6 +12,10 @@
  */
 package vip.xiaonuo.dev.api;
 
+import cn.hutool.json.JSONObject;
+
+import java.util.List;
+
 /**
  * 字典API
  *
@@ -19,4 +23,12 @@ package vip.xiaonuo.dev.api;
  * @date 2022/9/2 15:58
  */
 public interface DevDictApi {
+    /**
+     * 获取字典列表
+     *
+     * @param category 字典分类
+     * @param parentId
+     * @return
+     */
+    List<JSONObject> list(String parentId, String category);
 }
