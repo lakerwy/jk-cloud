@@ -317,20 +317,24 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
 
     @Override
     public List<PartnerGroupVo> listGroup(PartnerGroupParam partnerGroupParam) {
+        QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
         //返回结果
         List<PartnerGroupVo> result = new ArrayList<>();
-        //获取参数
-        if(CollUtil.isEmpty(partnerGroupParam.getPartnerTypes())){
-            String[] regions = {"分公司","分公司（注册）"};
-            partnerGroupParam.setPartnerTypes(Arrays.asList(regions));
+        if(ObjectUtil.isNotEmpty(partnerGroupParam.getIsAll()) && "1".equals(partnerGroupParam.getIsAll())) {
+
+        } else {
+            //获取参数
+            if (CollUtil.isEmpty(partnerGroupParam.getPartnerTypes())) {
+                String[] regions = {"分公司", "分公司（注册）"};
+                partnerGroupParam.setPartnerTypes(Arrays.asList(regions));
+            }
+            if (CollUtil.isEmpty(partnerGroupParam.getPartnerStatus())) {
+                String[] status = {"协议伙伴"};
+                partnerGroupParam.setPartnerStatus(Arrays.asList(status));
+            }
+            queryWrapper.lambda().in(PartnerInfo::getPartnerType, partnerGroupParam.getPartnerTypes());
+            queryWrapper.lambda().in(PartnerInfo::getPartnerStatus, partnerGroupParam.getPartnerStatus());
         }
-        if(CollUtil.isEmpty(partnerGroupParam.getPartnerStatus())){
-            String[] status = {"协议伙伴"};
-            partnerGroupParam.setPartnerStatus(Arrays.asList(status));
-        }
-        QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(PartnerInfo::getPartnerType,partnerGroupParam.getPartnerTypes());
-        queryWrapper.lambda().in(PartnerInfo::getPartnerStatus,partnerGroupParam.getPartnerStatus());
         if(ObjectUtil.isNotEmpty(partnerGroupParam.getRegion())){
             queryWrapper.lambda().eq(PartnerInfo::getRegion,partnerGroupParam.getRegion());
         }

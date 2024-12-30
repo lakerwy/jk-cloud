@@ -31,4 +31,7 @@ public class PartnerGroupParam {
     @ApiModelProperty(value = "伙伴状态集合（默认：协议伙伴）")
     private List<String> partnerStatus;
 
+    /** 查询全部 */
+    @ApiModelProperty(value = "查询全部 1 0")
+    private String isAll;
 }
