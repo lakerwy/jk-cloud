@@ -89,5 +89,5 @@ public interface PartnerInfoService extends IService<PartnerInfo> {
      * @param partnerGroupParam
      * @return
      */
-    List<PartnerGroupVo> listGroup(PartnerGroupParam partnerGroupParam);
+    List<PartnerGroupVo> listGroup(PartnerListGroupParam partnerGroupParam);
 }

@@ -316,7 +316,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     }
 
     @Override
-    public List<PartnerGroupVo> listGroup(PartnerGroupParam partnerGroupParam) {
+    public List<PartnerGroupVo> listGroup(PartnerListGroupParam partnerGroupParam) {
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
         //返回结果
         List<PartnerGroupVo> result = new ArrayList<>();

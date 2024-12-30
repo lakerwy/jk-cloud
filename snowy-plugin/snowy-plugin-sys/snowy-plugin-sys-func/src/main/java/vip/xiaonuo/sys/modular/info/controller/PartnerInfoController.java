@@ -160,7 +160,7 @@ public class PartnerInfoController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("获取合作伙伴-APP端列表（按大区分组）")
     @GetMapping("/sys/info/listGroup")
-    public CommonResult<List<PartnerGroupVo>> listGroup(@Valid PartnerGroupParam partnerGroupParam) {
+    public CommonResult<List<PartnerGroupVo>> listGroup(@Valid PartnerListGroupParam partnerGroupParam) {
         return CommonResult.data(partnerInfoService.listGroup(partnerGroupParam));
     }
 }
