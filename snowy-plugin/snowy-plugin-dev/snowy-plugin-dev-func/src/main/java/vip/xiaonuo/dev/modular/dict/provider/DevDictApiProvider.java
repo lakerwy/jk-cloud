@@ -12,8 +12,18 @@
  */
 package vip.xiaonuo.dev.modular.dict.provider;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.dev.api.DevDictApi;
+import vip.xiaonuo.dev.modular.dict.param.DevDictListParam;
+import vip.xiaonuo.dev.modular.dict.service.DevDictService;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 字典API接口实现类
@@ -23,4 +33,19 @@ import vip.xiaonuo.dev.api.DevDictApi;
  */
 @Service
 public class DevDictApiProvider implements DevDictApi {
+
+    @Resource
+    private DevDictService devDictService;
+
+    @Override
+    public List<JSONObject> list(String parentId, String category) {
+        DevDictListParam devDictListParam = new DevDictListParam();
+        devDictListParam.setParentId(parentId);
+        devDictListParam.setCategory(category);
+        List<JSONObject> list = devDictService.list(devDictListParam).stream().map(JSONUtil::parseObj).collect(Collectors.toList());
+        if (ObjectUtil.isNotEmpty(list)) {
+            return list.stream().map(JSONUtil::parseObj).collect(Collectors.toList());
+        }
+        return CollectionUtil.newArrayList();
+    }
 }

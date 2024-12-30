@@ -70,7 +70,9 @@ public enum BizCommonEnum {
 
     BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl"),  //需求单 - 确认
 
-    BIZ_CAR_VEHICLE_APPLY("BIZ_CAR_VEHICLE_APPLY","BIZ_CAR_VEHICLE_APPLY","VehicleApplyServiceImpl");   //用车申请单
+    BIZ_CAR_VEHICLE_APPLY("BIZ_CAR_VEHICLE_APPLY","BIZ_CAR_VEHICLE_APPLY","VehicleApplyServiceImpl"),   //用车申请单
+
+    BIZ_BID_FEE_APPLY("BIZ_BID_FEE","BIZ_BID_FEE","BidFeeServiceImpl");   //投标费用审批
 
     String bizModel;
     String bizTable;

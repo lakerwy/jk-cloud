@@ -29,4 +29,8 @@ public class DevDictTreeParam {
     /** 字典分类 */
     @ApiModelProperty(value = "字典分类")
     private String category;
+
+    /** 字典文字 */
+    @ApiModelProperty(value = "字典文字")
+    private String dictLabel;
 }

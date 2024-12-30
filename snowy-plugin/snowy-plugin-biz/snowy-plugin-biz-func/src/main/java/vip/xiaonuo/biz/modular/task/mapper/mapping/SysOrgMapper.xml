@@ -6,11 +6,11 @@
     </select>
 
     <select id="getOrgById" resultType="vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo">
-        select ID as orgId,NAME as orgName from SYS_ORG where ID = #{orgId}
+        select ID as orgId,NAME as orgName,DIRECTOR_ID as directorId from SYS_ORG where ID = #{orgId}
     </select>
 
     <select id="getOrgByOrgName" resultType="vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo">
-        select ID as orgId,NAME as orgName from SYS_ORG where DELETE_FLAG = 'NOT_DELETE'  and NAME = #{orgName}
+        select ID as orgId,NAME as orgName,DIRECTOR_ID as directorId from SYS_ORG where DELETE_FLAG = 'NOT_DELETE'  and NAME = #{orgName}
     </select>
 
     <select id="getFirstOrgList" resultType="vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo">

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.bidFee.mapper.BidFeeMapper">
+
+    <select id="getProjectPage" resultType="vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo">
+        SELECT DISTINCT
+            a.*
+        FROM
+            BIZ_PROJECT a
+                JOIN BIZ_CRM_HETONG b ON a.ID = b.BIZ_PROJECT_ID
+        ${ew.customSqlSegment}
+    </select>
+
+</mapper>
