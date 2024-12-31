@@ -378,4 +378,17 @@ public class FlwTaskController {
     public CommonResult<List<FlwNextNodeInfoResult>> getNextNodeInfo(@RequestBody @Valid FlwNextNodeInfoParam flwNextNodeInfoParam) {
         return CommonResult.data(flwTaskService.getNextNodeInfo(flwNextNodeInfoParam));
     }
+
+
+    /**
+     * 设置节点审批人
+     */
+    @ApiOperationSupport(order = 200)
+    @ApiOperation("设置节点审批人")
+    @CommonLog("设置节点审批人")
+    @PostMapping("/flw/task/setActivityAssign")
+    public CommonResult<String> setActivityAssign(@RequestBody @Valid FlwActivityAssignParam flwActivityAssignParam) {
+        flwTaskService.setActivityAssign(flwActivityAssignParam);
+        return CommonResult.ok();
+    }
 }

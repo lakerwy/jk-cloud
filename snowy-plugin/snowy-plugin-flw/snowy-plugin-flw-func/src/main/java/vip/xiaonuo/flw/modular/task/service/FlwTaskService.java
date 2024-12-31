@@ -214,4 +214,11 @@ public interface FlwTaskService {
      * @date 2024/11/13 14:30
      */
     List<FlwNextNodeInfoResult> getNextNodeInfo(FlwNextNodeInfoParam flwNextNodeInfoParam);
+
+    /**
+     * 设置节点审批人
+     * @param flwActivityAssignParam
+     * @return
+     */
+    void setActivityAssign(FlwActivityAssignParam flwActivityAssignParam);
 }

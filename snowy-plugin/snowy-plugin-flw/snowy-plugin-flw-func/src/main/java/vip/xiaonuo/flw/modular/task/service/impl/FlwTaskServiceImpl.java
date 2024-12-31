@@ -23,6 +23,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
@@ -1318,5 +1319,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             }
         }
         return flwNextNodeInfoResultList;
+    }
+
+    @Override
+    public void setActivityAssign(FlwActivityAssignParam flwActivityAssignParam) {
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        runtimeService.setVariable(flwActivityAssignParam.getProcessInstanceId(),
+                "assignee" + StrUtil.UNDERLINE + flwActivityAssignParam.getActivityId(),
+                flwActivityAssignParam.getAssignList());
     }
 }
