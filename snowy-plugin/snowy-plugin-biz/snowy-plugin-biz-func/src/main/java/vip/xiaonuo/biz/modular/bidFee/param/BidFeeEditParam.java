@@ -24,8 +24,8 @@ public class BidFeeEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 申请单位（总部：1 分公司：2 其他：3） */
-    @ApiModelProperty(value = "申请单位（总部：1 分公司：2 其他：3）", position = 2)
+    /** 申请单位（总部|分公司|其他） */
+    @ApiModelProperty(value = "申请单位（总部|分公司|其他）", position = 2)
     private String applyUnit;
 
     /** 合作方负责人 */
