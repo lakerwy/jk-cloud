@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.bidFee.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -21,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
 import vip.xiaonuo.biz.modular.bidFee.vo.BidFeeExcelData;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
@@ -130,12 +132,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             queryWrapper.lambda().orderByDesc(BidFee::getCreateTime);
         }
         // 校验数据范围
-//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-//            queryWrapper.lambda().in(BidFee::getDataScopeId, loginUserDataScope);
-//        } else {
-//            queryWrapper.lambda().eq(BidFee::getCreateUser, StpUtil.getLoginIdAsString());
-//        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BidFee::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BidFee::getCreateUser, StpUtil.getLoginIdAsString());
+        }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
@@ -215,6 +217,13 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.NAME", bizProjectPageParam.getSearchKey())
                     .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey()));
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("b.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.eq("b.CREATE_USER", StpUtil.getLoginIdAsString());
         }
         Page<BizProjectVo> bizProject = bidFeeMapper.getProjectPage(CommonPageRequest.defaultPage(), queryWrapper);
         Map<String,String> bidManagerMapmap = getBidManagerMap();
