@@ -23,8 +23,8 @@ public class BidFee {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /** 申请单位 */
-    @ApiModelProperty(value = "申请单位", position = 2)
+    /** 申请单位（总部：1 分公司：2 其他：3） */
+    @ApiModelProperty(value = "申请单位（总部：1 分公司：2 其他：3）", position = 2)
     private String applyUnit;
 
     /** 合作方负责人 */

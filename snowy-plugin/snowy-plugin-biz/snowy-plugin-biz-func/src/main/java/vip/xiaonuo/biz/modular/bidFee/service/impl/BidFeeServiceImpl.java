@@ -222,13 +222,13 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             // 投标专员
             bizProjectVo.setBidMangerId(bidManagerMapmap.get(bizProjectVo.getBidManger()));
             // 部门负责人
-            if("1".equals(bizProjectVo.getIsHead())){ // 总部
+            if("1".equals(bizProjectPageParam.getApplyUnit())){ // 总部
                 BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
                 bizProjectVo.setDeptId(sysOrg.getOrgId());
                 bizProjectVo.setManagerId(sysOrg.getDirectorId());
             }
             // 分公司负责人
-            else if("2".equals(bizProjectVo.getIsHead())){ // 分公司
+            else if("2".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
                 String region = bizProjectVo.getRegion();
                 if(ObjectUtil.isNotEmpty(region)){
                     List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);

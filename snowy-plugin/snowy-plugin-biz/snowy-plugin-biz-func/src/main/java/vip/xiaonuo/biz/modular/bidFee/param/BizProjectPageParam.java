@@ -42,6 +42,10 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
     private String sortOrder;
 
+    /** 申请单位（总部：1 分公司：2 其他：3） */
+    @ApiModelProperty(value = "申请单位（总部：1 分公司：2 其他：3）")
+    private String applyUnit;
+
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
