@@ -1,16 +1,19 @@
 package vip.xiaonuo.biz.modular.bidFee.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,8 +21,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
+import vip.xiaonuo.biz.modular.bidFee.vo.BidFeeExcelData;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
@@ -38,6 +41,7 @@ import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.DevDictApi;
 import vip.xiaonuo.flw.api.FlwCommonApi;
+import vip.xiaonuo.flw.api.FlwProcessMonitorApi;
 import vip.xiaonuo.sys.api.PartnerInfoApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
@@ -52,6 +56,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 投标费用审批Service接口实现类
@@ -81,12 +86,15 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
     @Resource
     SysUserApi sysUserApi;
 
+    @Resource
+    PartnerInfoApi partnerInfoApi;
+
+    @Resource
+    FlwProcessMonitorApi flwProcessMonitorApi;
+
     public static final String DICT_LABEL_CATEGORY = "BIZ";
 
     public static final String DICT_LABEL_BID_MANAGER = "投标专员";
-
-    @Resource
-    private PartnerInfoApi partnerInfoApi;
 
     @Override
     public Page<BidFee> page(BidFeePageParam bidFeePageParam) {
@@ -214,13 +222,13 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             // 投标专员
             bizProjectVo.setBidMangerId(bidManagerMapmap.get(bizProjectVo.getBidManger()));
             // 部门负责人
-            if("1".equals(bizProjectVo.getIsHead())){ // 总部
+            if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
                 BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
                 bizProjectVo.setDeptId(sysOrg.getOrgId());
                 bizProjectVo.setManagerId(sysOrg.getDirectorId());
             }
             // 分公司负责人
-            else if("2".equals(bizProjectVo.getIsHead())){ // 分公司
+            else if("分公司".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
                 String region = bizProjectVo.getRegion();
                 if(ObjectUtil.isNotEmpty(region)){
                     List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);
@@ -253,5 +261,115 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             ));
         }
         return map;
+    }
+
+
+    @Override
+    public void genExcel(ExcelParam excelParam, HttpServletResponse response) {
+        ExcelWriter excelWriter = null;
+        InputStream inputStream = null;
+        try {
+            // 定义没有分隔符的日期时间格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            // 将当前日期时间格式化为字符串
+            String dateStr = LocalDateTime.now().format(formatter);
+            // 定义导出excel文件路径
+            String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR +  "BID_FEE_" + dateStr + ".xlsx";
+            ClassPathResource classPathResource = new ClassPathResource("BidFeeTemplate.xlsx");
+            inputStream = classPathResource.getStream();
+            BidFeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), BidFeeExcelData.class);
+            // 使用 EasyExcel 填充数据
+            excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+            WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
+            // 获取评论列表
+            List<BidFeeExcelData.FlwProcessComment> commentList = getFlwProcessComments(excelData.getProcessInstanceId());
+            excelData.setCommentList(commentList);
+            // 解析并设置审批人
+            setAssignees(excelData,commentList);
+            // 写入Excel
+            FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+            excelWriter.fill(excelData, sheet1);
+            excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()), fillConfig, sheet1);
+            excelWriter.finish();
+            File tempFile = FileUtil.file(outputFileName);
+            CommonDownloadUtil.download(tempFile, response);
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }finally {
+            // 关闭流
+            if(excelWriter != null){
+                excelWriter.close();
+            }
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    // 获取评论列表
+    private List<BidFeeExcelData.FlwProcessComment> getFlwProcessComments(String processInstanceId) {
+        List<BidFeeExcelData.FlwProcessComment> commentList = new ArrayList<>();
+        // 查询审批评论列表
+        if(StrUtil.isNotBlank(processInstanceId)){
+            JSONObject jsonObject = flwProcessMonitorApi.monitorDetail(processInstanceId);
+            if(ObjectUtil.isNotEmpty(jsonObject)){
+                JSONArray jsonArray = jsonObject.getJSONArray("commentList");
+                if(CollUtil.isNotEmpty(jsonArray)){
+                    commentList = JSONUtil.toList(jsonArray.toString(), BidFeeExcelData.FlwProcessComment.class);
+                }
+            }
+        }
+        return commentList;
+    }
+
+    // 设置审批人
+    private void setAssignees(BidFeeExcelData excelData,List<BidFeeExcelData.FlwProcessComment> commentList) {
+        if(CollUtil.isEmpty(commentList)){
+            return;
+        }
+        // 过滤出同意申请的评论
+        List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(commentList,BidFeeExcelData.FlwProcessComment.class);
+        passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType())).collect(Collectors.toList());
+        if(CollUtil.isEmpty(passCommentList)){
+            return;
+        }
+        // 将评论转为节点名称->审核人名称的映射
+        Map<String, List<BidFeeExcelData.FlwProcessComment>> commentMap = passCommentList.stream()
+                .collect(Collectors.groupingBy(BidFeeExcelData.FlwProcessComment::getTaskName));
+        Map<String, String> map = commentMap.entrySet().stream()
+        .collect(Collectors.toMap(
+                Map.Entry::getKey, // 保留原始键
+                entry -> entry.getValue().stream()
+                        .map(BidFeeExcelData.FlwProcessComment::getUserName)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.joining(","))
+        ));
+        // 核准人
+        // 1.公司垫付类型，则为董事长姓名
+        // 2.代收代付类型，则为财务总监姓名
+        if("公司垫付".equals(excelData.getPaymentType())){
+            excelData.setApprovedBy(map.get("董事长签批"));
+        }
+        if("代收代付".equals(excelData.getPaymentType())){
+            excelData.setApprovedBy(map.get("财务总监"));
+        }
+        // 会计
+        excelData.setAccounting(map.get("核算经理"));
+        // 出纳
+        excelData.setCashier(map.get("出纳"));
+        // 招投标部
+        String bidDept = Stream.of(map.get("投标专员"), map.get("招投标部负责人"))
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.joining(","));
+        excelData.setBidDept(bidDept);
+        // 部门负责人
+        excelData.setManager(map.get("部门负责人"));
+        // 发起人
+        excelData.setInitiator(map.get("发起申请"));
     }
 }

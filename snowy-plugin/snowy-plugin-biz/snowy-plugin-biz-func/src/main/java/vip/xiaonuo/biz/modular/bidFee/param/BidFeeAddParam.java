@@ -19,8 +19,8 @@ import java.util.Date;
 @Setter
 public class BidFeeAddParam {
 
-    /** 申请单位 */
-    @ApiModelProperty(value = "申请单位", position = 2)
+    /** 申请单位（总部|分公司|其他） */
+    @ApiModelProperty(value = "申请单位（总部|分公司|其他）", position = 2)
     private String applyUnit;
 
     /** 合作方负责人 */

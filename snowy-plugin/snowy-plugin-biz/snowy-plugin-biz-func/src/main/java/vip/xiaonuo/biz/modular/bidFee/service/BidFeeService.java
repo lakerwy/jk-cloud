@@ -72,4 +72,10 @@ public interface BidFeeService extends IService<BidFee> {
      * @date 2024/12/26 16:37
      **/
     Page<BizProjectVo> projectPage(BizProjectPageParam bizProjectPageParam);
+
+    /**
+     * excel报表生成打印版
+     * @param excelParam
+     */
+    void genExcel(ExcelParam excelParam, HttpServletResponse response);
 }
