@@ -226,10 +226,10 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             queryWrapper.eq("b.CREATE_USER", StpUtil.getLoginIdAsString());
         }
         Page<BizProjectVo> bizProject = bidFeeMapper.getProjectPage(CommonPageRequest.defaultPage(), queryWrapper);
-        Map<String,String> bidManagerMapmap = getBidManagerMap();
+        Map<String,String> bidManagerMap = getBidManagerMap();
         for(BizProjectVo bizProjectVo : bizProject.getRecords()){
             // 投标专员
-            bizProjectVo.setBidMangerId(bidManagerMapmap.get(bizProjectVo.getBidManger()));
+            bizProjectVo.setBidMangerId(bidManagerMap.get(bizProjectVo.getBidManger()));
             // 部门负责人
             if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
                 BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
@@ -291,10 +291,9 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
             WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
             // 获取评论列表
-            List<BidFeeExcelData.FlwProcessComment> commentList = getFlwProcessComments(excelData.getProcessInstanceId());
-            excelData.setCommentList(commentList);
-            // 解析并设置审批人
-            setAssignees(excelData,commentList);
+            setCommentList(excelData);
+            // 解析并设置打印数据
+            setData(excelData);
             // 写入Excel
             FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
             excelWriter.fill(excelData, sheet1);
@@ -319,6 +318,25 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         }
     }
 
+    // 获取并设置评论列表
+    private void setCommentList(BidFeeExcelData excelData) {
+        if(CollUtil.isNotEmpty(excelData.getCommentList())){
+            return;
+        }
+        List<BidFeeExcelData.FlwProcessComment> commentList = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(excelData.getProcessInstanceId())){
+            commentList = getFlwProcessComments(excelData.getProcessInstanceId());
+        }else {
+            if(ObjectUtil.isNotEmpty(excelData.getId())){
+                BidFee bidFee = this.getById(excelData.getId());
+                if(ObjectUtil.isNotEmpty(bidFee)){
+                    commentList = getFlwProcessComments(bidFee.getProcessInstanceId());
+                }
+            }
+        }
+        excelData.setCommentList(commentList);
+    }
+
     // 获取评论列表
     private List<BidFeeExcelData.FlwProcessComment> getFlwProcessComments(String processInstanceId) {
         List<BidFeeExcelData.FlwProcessComment> commentList = new ArrayList<>();
@@ -335,14 +353,17 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         return commentList;
     }
 
-    // 设置审批人
-    private void setAssignees(BidFeeExcelData excelData,List<BidFeeExcelData.FlwProcessComment> commentList) {
-        if(CollUtil.isEmpty(commentList)){
+    // 解析并设置打印数据
+    private void setData(BidFeeExcelData excelData) {
+        if("公司垫付".equals(excelData.getPaymentType())){
+            excelData.setPaymentDesc("-");
+        }
+        if(CollUtil.isEmpty(excelData.getCommentList())){
             return;
         }
         // 过滤出同意申请的评论
-        List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(commentList,BidFeeExcelData.FlwProcessComment.class);
-        passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType())).collect(Collectors.toList());
+        List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(excelData.getCommentList(),BidFeeExcelData.FlwProcessComment.class);
+        passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType()) || "START".equals(x.getOperateType())).collect(Collectors.toList());
         if(CollUtil.isEmpty(passCommentList)){
             return;
         }
@@ -379,6 +400,6 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         // 部门负责人
         excelData.setManager(map.get("部门负责人"));
         // 发起人
-        excelData.setInitiator(map.get("发起申请"));
+        excelData.setInitor(map.get("发起申请"));
     }
 }
