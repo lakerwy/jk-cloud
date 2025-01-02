@@ -17,13 +17,18 @@ public class FlwActivityAssignParam {
     @NotBlank(message = "processInstanceId不能为空")
     private String processInstanceId;
 
+    /** 流程定义id */
+    @ApiModelProperty(value = "流程定义id", required = true, position = 2)
+    @NotBlank(message = "processDefinitionId不能为空")
+    private String processDefinitionId;
+
     /** 目标节点id */
-    @ApiModelProperty(value = "目标节点id", required = true, position = 2)
+    @ApiModelProperty(value = "目标节点id", required = true, position = 3)
     @NotBlank(message = "activityId不能为空")
     private String activityId;
 
     /** 审批人集合 */
-    @ApiModelProperty(value = "审批人集合", position = 3)
+    @ApiModelProperty(value = "审批人集合", position = 4)
     private List<String> assignList;
 
 }

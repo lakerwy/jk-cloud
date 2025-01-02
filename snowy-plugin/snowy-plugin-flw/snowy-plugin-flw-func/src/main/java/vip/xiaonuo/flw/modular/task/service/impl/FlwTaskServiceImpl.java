@@ -1323,9 +1323,14 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Override
     public void setActivityAssign(FlwActivityAssignParam flwActivityAssignParam) {
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        runtimeService.setVariable(flwActivityAssignParam.getProcessInstanceId(),
-                "assignee" + StrUtil.UNDERLINE + flwActivityAssignParam.getActivityId(),
-                flwActivityAssignParam.getAssignList());
+        UserTask userTask = repositoryService.getBpmnModelInstance(flwActivityAssignParam.getProcessDefinitionId())
+                .getModelElementById(flwActivityAssignParam.getActivityId());
+        if(ObjectUtil.isNotEmpty(userTask) && CollUtil.isNotEmpty(flwActivityAssignParam.getAssignList())){
+            runtimeService.setVariable(flwActivityAssignParam.getProcessInstanceId(),
+                    "assignee" + StrUtil.UNDERLINE + userTask.getId(),
+                    flwActivityAssignParam.getAssignList());
+            commonCacheOperator.put(FlwCacheConstant.FLW_TASK_USER+userTask.getId()+flwActivityAssignParam.getProcessInstanceId(),
+                    String.join(",", flwActivityAssignParam.getAssignList()));
+        }
     }
 }
