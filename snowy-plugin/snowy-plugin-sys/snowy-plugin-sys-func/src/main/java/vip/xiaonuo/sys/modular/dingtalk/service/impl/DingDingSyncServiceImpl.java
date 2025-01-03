@@ -6,21 +6,21 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dingtalk.api.response.OapiV2DepartmentGetResponse;
-import com.dingtalk.api.response.OapiV2DepartmentListsubResponse;
-import com.dingtalk.api.response.OapiV2UserGetResponse;
-import com.dingtalk.api.response.OapiV2UserListResponse;
+import com.dingtalk.api.response.*;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
 import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -111,6 +111,160 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                 syncDeptUser(dingDeptList, sysOrgList, dingUserList, sysUserList, access_token);
                 log.info("钉钉组织架构同步 -- 结束 -- 耗时：" + (System.currentTimeMillis() - start));
             });
+        }
+    }
+
+    @Override
+    public void syncUser(SyncUserParam syncUserParam) {
+        if(CollUtil.isEmpty(syncUserParam.getUserList())){
+            throw new CommonException("参数缺失");
+        }
+
+        //待同步用户中，已存在
+        List<SysUser> existSysUserList = new ArrayList<>();
+        List<String> mobileList = syncUserParam.getUserList().stream().map(x->x.getMobile()).distinct().collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(mobileList)) {
+            existSysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getAccount,mobileList));
+        }
+
+        List<SysUser> updateUserList = new ArrayList<>();
+        List<String> addDingUserIds = new ArrayList<>();
+        //钉钉token
+        String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
+        //本次需要同步的用户相关信息
+        for(SyncUserParam.UserParam item : syncUserParam.getUserList()){
+            //获取钉钉信息
+            OapiV2UserGetbymobileResponse.UserGetByMobileResponse byMobile = CommonDingDingUtil.getByMobile(access_Token, item.getMobile());
+            if(ObjectUtil.isEmpty(byMobile)){
+                throw new CommonException("钉钉不存在手机号为:{} 的用户",item.getMobile());
+            }
+            SysUser existSysUser = existSysUserList.stream().filter(x -> item.getMobile().equals(x.getAccount()) && item.getName().equals(x.getName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(existSysUser)){
+                existSysUser.setDingUserId(byMobile.getUserid());
+                existSysUser.setDingSyncTag(DingSyncTagEnum.UPDATE.getValue());
+                updateUserList.add(existSysUser);
+            }else{
+                addDingUserIds.add(byMobile.getUserid());
+            }
+        }
+
+        //建科 系统组织架构信息
+        List<SysOrg> jkSysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().isNotNull(SysOrg::getDingDeptId));
+        //建科 系统用户信息（携带钉钉id）
+        List<SysUser> jkSysUserList = sysUserService.getDingSysUser();
+        //新增
+        if(CollUtil.isNotEmpty(addDingUserIds)){
+            List<SysUser> addUserList = new ArrayList<>();
+            List<AuthThirdUser> addThirdUserList = new ArrayList<>();
+            //循环增员
+            for (String dingUserId : addDingUserIds){
+                OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(access_Token, dingUserId);
+                //新增SysUser
+                SysUser tmpAddUser = SyncUtils.addUser(dingUserId,dingUser.getManagerUserid(),dingUser.getMobile(),dingUser.getName(),dingUser.getMobile(),jkSysOrgList,dingUser.getDeptIdList());
+                addUserList.add(tmpAddUser);
+                //添加第三方库
+                AuthThirdUser tmpAddThirdUser = SyncUtils.addThirdUser(dingUser.getName(),tmpAddUser.getId(),dingUser.getUserid(),dingUser.getUnionid());
+                addThirdUserList.add(tmpAddThirdUser);
+            }
+            jkSysUserList.addAll(addUserList);  //避免新增的员工中有主管
+
+            //处理其他信息
+            if(CollUtil.isNotEmpty(addUserList)){
+                addUserList.forEach(user->{
+                    user.setDingSyncMemo(DateUtil.now()+" 操作：【手动触发接口同步指定用户】 - 新增 ");
+                    user.setUpdateTime(new Date());
+                    try {
+                        if (ObjectUtil.isNotEmpty(user.getDingDirectorId())) {
+                            SysUser tmpSysUser = jkSysUserList.stream().filter(x -> user.getDingDirectorId().equals(x.getDingUserId())).findFirst().orElse(null);
+                            if(ObjectUtil.isNotEmpty(tmpSysUser)) user.setDirectorId(tmpSysUser.getId());
+                        }
+                        sysUserService.addAndGrantRole2(user);
+                    }catch (Exception e){
+                        log.error("【手动触发接口同步指定用户："+ user.getAccount() +"】 -- 操作数据库 异常 --"+e.getMessage());
+                    }
+                });
+            }
+            if(CollUtil.isNotEmpty(addThirdUserList)){
+                authThirdUserService.saveBatch(addThirdUserList);
+            }
+        }
+        //更新
+        if(CollUtil.isNotEmpty(updateUserList)){
+            for(SysUser user : updateUserList){
+                //更新信息
+                OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(access_Token, user.getDingUserId());
+                user.setOrgId(SyncUtils.getOrgId(jkSysOrgList,dingUser.getDeptIdList()));
+                user.setName(dingUser.getName());
+                user.setEmail(dingUser.getEmail());
+                user.setDingDirectorId(dingUser.getManagerUserid());
+                user.setPhone(dingUser.getMobile());
+                //找到直属主管 - 对应建科云用户id
+                if(ObjectUtil.isNotEmpty(dingUser.getManagerUserid())) {
+                    SysUser tmpSysUser = jkSysUserList.stream().filter(x -> dingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);
+                    if(ObjectUtil.isNotEmpty(tmpSysUser)) user.setDirectorId(tmpSysUser.getId());
+                }
+                user.setDingSyncMemo(DateUtil.now()+" 操作：【手动触发接口同步指定用户】 - 更新 ");
+                user.setUpdateTime(new Date());
+            }
+            sysUserService.updateBatchById(updateUserList);
+        }
+    }
+
+    @Override
+    public void syncDept(SyncDeptParam syncDeptParam) {
+        SysOrg parentDept = sysOrgService.queryEntity(syncDeptParam.getParentDeptId());
+        if(ObjectUtil.isEmpty(parentDept.getDingDeptId())){
+            throw new CommonException("参数异常，上级部门dingDeptId缺失");
+        }
+
+        //钉钉token
+        String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
+        //获取parentDingDeptId下子部门
+        List<OapiV2DepartmentListsubResponse.DeptBaseResponse> listSub = CommonDingDingUtil.getListSub(access_Token, parentDept.getDingDeptId());
+        if(CollUtil.isEmpty(listSub)){
+            throw new CommonException("检查钉钉是否存在该上级部门");
+        }
+        //找到对应钉钉部门
+        OapiV2DepartmentListsubResponse.DeptBaseResponse matchDingDept = listSub.stream().filter(x -> syncDeptParam.getDeptName().equals(x.getName())).findFirst().orElse(null);
+        if(ObjectUtil.isEmpty(matchDingDept)){
+            throw new CommonException("钉钉该上级部门下不存在部门名称：{}",syncDeptParam.getDeptName());
+        }
+        //对应钉钉部门详情
+        OapiV2DepartmentGetResponse.DeptGetResponse dingDept = CommonDingDingUtil.getDeptById(access_Token, matchDingDept.getDeptId());
+
+        //判断当前待同步的部门是否已存在【有可能修改过部门名称】
+        SysOrg existSysOrg = sysOrgService.getOne(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getParentId,syncDeptParam.getParentDeptId())
+                .eq(SysOrg::getCategory,SysOrgCategoryEnum.DEPT.getValue())
+                .and(q->q.eq(SysOrg::getName,syncDeptParam.getDeptName()).or().eq(SysOrg::getDingDeptId,dingDept.getDeptId()))
+                .last(" limit 1 "));
+
+        //建科 系统用户信息（携带钉钉id）
+        List<SysUser> jkSysUserList = sysUserService.getDingSysUser();
+        //已存在，更新，否则，新增
+        if(ObjectUtil.isNotEmpty(existSysOrg)){
+            existSysOrg.setName(dingDept.getName());
+            existSysOrg.setParentId(syncDeptParam.getParentDeptId());
+            if(ObjectUtil.isNotEmpty(dingDept.getDeptManagerUseridList())) {
+                existSysOrg.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
+                existSysOrg.setDirectorId(SyncUtils.getManageId(jkSysUserList, dingDept.getDeptManagerUseridList()));
+            }
+            existSysOrg.setDingSyncMemo(DateUtil.now()+" 操作：【手动触发接口同步指定用户】 - 更新 ");
+            existSysOrg.setUpdateTime(new Date());
+            sysOrgService.updateById(existSysOrg);
+
+            /********************************************* 清理缓存 **********************************************************/
+            commonCacheOperator.removeKeys(ORG_FIRST_CODE_CACHE_KEY);
+
+        }else {
+            SysOrg tmpAddOrg = SyncUtils.addOrg(dingDept.getName(),dingDept.getDeptId(),dingDept.getParentId());
+            if(CollUtil.isNotEmpty(dingDept.getDeptManagerUseridList())) {
+                tmpAddOrg.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
+                tmpAddOrg.setDirectorId(SyncUtils.getManageId(jkSysUserList, dingDept.getDeptManagerUseridList()));
+            }
+            tmpAddOrg.setParentId(syncDeptParam.getParentDeptId());
+            tmpAddOrg.setDingSyncMemo(DateUtil.now()+" 操作：【手动触发接口同步指定用户】 - 新增 ");
+            tmpAddOrg.setUpdateTime(new Date());
+            sysOrgService.save(tmpAddOrg);
         }
     }
 

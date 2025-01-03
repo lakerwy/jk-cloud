@@ -289,4 +289,22 @@ public class CommonDingDingUtil {
         }
     }
 
+
+    /**
+     * 根据手机号，获取钉钉用户信息（userId）
+     * @param mobile
+     * @return
+     */
+    public static OapiV2UserGetbymobileResponse.UserGetByMobileResponse getByMobile(String access_token, String mobile) {
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/getbymobile");
+            OapiV2UserGetbymobileRequest req = new OapiV2UserGetbymobileRequest();
+            req.setMobile(mobile);
+            OapiV2UserGetbymobileResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        }catch (Exception e) {
+            return null;
+        }
+    }
+
 }

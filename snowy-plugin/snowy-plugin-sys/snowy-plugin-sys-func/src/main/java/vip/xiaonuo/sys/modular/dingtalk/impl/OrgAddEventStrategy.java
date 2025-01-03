@@ -74,7 +74,12 @@ public class OrgAddEventStrategy implements EventHandlingStrategy {
         if(CollUtil.isNotEmpty(addList)){
             addList.forEach(item->{
                 SysOrg tmpSysOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(item.getDingParentId())).findFirst().orElse(null);
-                if(ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
+                if(ObjectUtil.isNotEmpty(tmpSysOrg)) {
+                    item.setParentId(tmpSysOrg.getId());
+                }else{
+                    String topOrgId = sysOrgList.stream().filter(x-> 1 == x.getDingDeptId()).map(x->x.getId()).findFirst().orElse(null);
+                    item.setParentId(topOrgId);//新增部门时，没匹配到，默认放公司下
+                }
                 item.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录企业部门创建】 ");
                 item.setUpdateTime(new Date());
             });

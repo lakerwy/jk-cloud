@@ -6,12 +6,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * 钉钉数据同步 - 专属控制器
@@ -39,6 +43,34 @@ public class DingDingSyncController {
     @PostMapping("/sys/dingTalk/sync")
     public CommonResult<String> sync() {
         dingDingSyncService.sync();
+        return CommonResult.ok();
+    }
+
+
+
+    /**
+     * 同步 - 钉钉 - 同步指定用户  -- 说明：只处理指定用户的同步（新增|更新）
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("同步 - 钉钉 - 同步指定用户  -- 说明：只处理指定用户的同步（新增|更新）")
+    @CommonLog("同步 - 钉钉 - 同步指定用户  -- 说明：只处理指定用户的同步（新增|更新）")
+    @PostMapping("/sys/dingTalk/syncUser")
+    public CommonResult<String> syncUser(@RequestBody @Valid SyncUserParam syncUserParam) {
+        dingDingSyncService.syncUser(syncUserParam);
+        return CommonResult.ok();
+    }
+
+
+
+    /**
+     * 同步 - 钉钉 - 同步指定部门  -- 说明：只处理指定部门的同步（新增|更新）
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("同步 - 钉钉 - 同步指定部门  -- 说明：只处理指定部门的同步（新增|更新）")
+    @CommonLog("同步 - 钉钉 - 同步指定部门  -- 说明：只处理指定部门的同步（新增|更新）")
+    @PostMapping("/sys/dingTalk/syncDept")
+    public CommonResult<String> syncDept(@RequestBody @Valid SyncDeptParam syncDeptParam) {
+        dingDingSyncService.syncDept(syncDeptParam);
         return CommonResult.ok();
     }
 
