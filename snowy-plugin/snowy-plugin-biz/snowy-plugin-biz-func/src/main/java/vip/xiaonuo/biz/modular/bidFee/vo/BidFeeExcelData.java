@@ -14,6 +14,10 @@ import java.util.List;
 @Setter
 public class BidFeeExcelData {
 
+    /** 业务表主键id */
+    @ApiModelProperty(value = "业务表主键id", position = 1)
+    private String id;
+
     /** 申请单位（总部|分公司|其他） */
     @ApiModelProperty(value = "申请单位（总部|分公司|其他）", position = 2)
     private String applyUnit;
@@ -148,7 +152,7 @@ public class BidFeeExcelData {
 
     /** 发起人 */
     @ApiModelProperty(value = "发起人", position = 63)
-    private String initiator;
+    private String initor;
 
     /** 审批意见 - 集合 */
     @ApiModelProperty(value = "审批意见 - 集合", position = 80)
