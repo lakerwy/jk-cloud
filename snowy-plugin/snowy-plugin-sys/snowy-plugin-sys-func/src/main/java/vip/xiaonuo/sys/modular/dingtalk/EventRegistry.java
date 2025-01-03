@@ -9,6 +9,7 @@ import com.dingtalk.open.app.stream.protocol.event.EventAckStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
+import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -28,6 +29,9 @@ public class EventRegistry {
     @Resource
     DingTalkProperties dingTalkProperties;
 
+    @Resource
+    private DingSyncProperties dingSyncProperties;
+
     // 注册事件处理策略
     public void registerStrategy(String eventType, EventHandlingStrategy strategy) {
         strategyMap.put(eventType, strategy);
@@ -46,7 +50,9 @@ public class EventRegistry {
 
     @PostConstruct
     public void init() throws Exception {
-        handleData();
+        if(dingSyncProperties.getIsSync()){
+            handleData();
+        }
     }
 
     public void handleData() throws Exception {
