@@ -219,12 +219,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
                     .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey()));
         }
         // 校验数据范围
-        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.in("b.DATA_SCOPE_ID", loginUserDataScope);
-        } else {
-            queryWrapper.eq("b.CREATE_USER", StpUtil.getLoginIdAsString());
-        }
+//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+//            queryWrapper.in("b.DATA_SCOPE_ID", loginUserDataScope);
+//        } else {
+//            queryWrapper.eq("b.CREATE_USER", StpUtil.getLoginIdAsString());
+//        }
         Page<BizProjectVo> bizProject = bidFeeMapper.getProjectPage(CommonPageRequest.defaultPage(), queryWrapper);
         Map<String,String> bidManagerMap = getBidManagerMap();
         for(BizProjectVo bizProjectVo : bizProject.getRecords()){

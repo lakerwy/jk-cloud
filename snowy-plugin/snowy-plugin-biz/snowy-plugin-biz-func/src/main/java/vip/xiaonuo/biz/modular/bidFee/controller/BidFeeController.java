@@ -124,7 +124,7 @@ public class BidFeeController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取合同关联立项列表")
-    @SaCheckPermission("/biz/bidFee/project/page")
+//    @SaCheckPermission("/biz/bidFee/project/page")
     @GetMapping("/biz/bidFee/project/page")
     public CommonResult<Page<BizProjectVo>> projectPage(BizProjectPageParam bizProjectPageParam) {
         return CommonResult.data(bidFeeService.projectPage(bizProjectPageParam));
