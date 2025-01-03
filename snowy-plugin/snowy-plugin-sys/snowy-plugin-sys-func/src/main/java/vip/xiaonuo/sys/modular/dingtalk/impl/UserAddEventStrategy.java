@@ -49,10 +49,10 @@ public class UserAddEventStrategy implements EventHandlingStrategy {
 
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
+        log.info("【事件订阅-企业新增员工】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         if(!dingSyncProperties.getIsSync()){
             return;
         }
-        log.info("【事件订阅-企业新增员工】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         JSONArray dingUserIds = event.getData().getJSONArray("userId");
         //钉钉token
         String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());

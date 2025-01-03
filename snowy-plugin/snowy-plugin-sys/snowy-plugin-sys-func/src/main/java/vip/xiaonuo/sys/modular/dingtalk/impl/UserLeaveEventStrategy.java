@@ -32,10 +32,10 @@ public class UserLeaveEventStrategy implements EventHandlingStrategy {
     DingSyncProperties dingSyncProperties;
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
+        log.info("【事件订阅-通讯录用户离职】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         if(!dingSyncProperties.getIsSync()){
             return;
         }
-        log.info("【事件订阅-通讯录用户离职】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         JSONArray dingUserIds = event.getData().getJSONArray("userId");
         //更新用户
         List<SysUser> updateList = new ArrayList<>();

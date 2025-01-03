@@ -50,10 +50,10 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
     private CommonCacheOperator commonCacheOperator;
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
+        log.info("【事件订阅-通讯录企业部门修改】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         if(!dingSyncProperties.getIsSync()){
             return;
         }
-        log.info("【事件订阅-通讯录企业部门修改】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         JSONArray dingDeptIds = event.getData().getJSONArray("deptId");
         //钉钉token
         String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());

@@ -32,10 +32,10 @@ public class OrgRemoveEventStrategy implements EventHandlingStrategy {
     DingSyncProperties dingSyncProperties;
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
+        log.info("【事件订阅-通讯录企业部门删除】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         if(!dingSyncProperties.getIsSync()){
             return;
         }
-        log.info("【事件订阅-通讯录企业部门删除】 -- start 钉钉参数 --"+ JSONUtil.toJsonStr(event));
         JSONArray dingDeptIds = event.getData().getJSONArray("deptId");
         List<SysOrg> removeList = new ArrayList<>();
         if(dingDeptIds.size()>0) {
