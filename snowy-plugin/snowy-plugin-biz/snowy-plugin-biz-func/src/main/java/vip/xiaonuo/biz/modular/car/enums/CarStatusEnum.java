@@ -23,7 +23,7 @@ import lombok.Getter;
 @Getter
 public enum CarStatusEnum {
 
-    /** 可用 */
+    /** 可出车 */
     Useable("1"),
 
     /** 出车 */
@@ -33,7 +33,12 @@ public enum CarStatusEnum {
     Repair("3"),
 
     /** 其他 */
-    Other("4");
+    Other("4"),
+
+    /** 无司机可出车 */
+    NoDriver("5"),
+
+    ;
 
     private final String value;
 

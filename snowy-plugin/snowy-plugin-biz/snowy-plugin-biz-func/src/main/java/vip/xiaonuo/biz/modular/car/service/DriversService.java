@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.car.param.DriversAddParam;
 import vip.xiaonuo.biz.modular.car.param.DriversEditParam;
 import vip.xiaonuo.biz.modular.car.param.DriversIdParam;
 import vip.xiaonuo.biz.modular.car.param.DriversPageParam;
+import vip.xiaonuo.biz.modular.car.vo.DriverDispatchInfo;
 
 import java.util.List;
 
@@ -77,4 +78,12 @@ public interface DriversService extends IService<Drivers> {
      * @date  2023/11/08 15:57
      **/
     Drivers queryEntity(String id);
+
+    /**
+     * 获取当前外出司机信息
+     *
+     * @author pzh
+     * @date  2025/01/06 16:09
+     */
+    DriverDispatchInfo getDispatchInfo();
 }

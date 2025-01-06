@@ -17,11 +17,14 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.enums.DriverStatusEnum;
+import vip.xiaonuo.biz.modular.car.vo.DriverDispatchInfo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -60,6 +63,9 @@ public class DriversServiceImpl extends ServiceImpl<DriversMapper, Drivers> impl
         }
         if(ObjectUtil.isNotEmpty(driversPageParam.getStatus())) {
             queryWrapper.lambda().eq(Drivers::getStatus, driversPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(driversPageParam.getDispatchType())) {
+            queryWrapper.lambda().eq(Drivers::getDispatchType, driversPageParam.getDispatchType());
         }
         if(ObjectUtil.isNotEmpty(driversPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Drivers::getName,driversPageParam.getSearchKey())
@@ -109,5 +115,15 @@ public class DriversServiceImpl extends ServiceImpl<DriversMapper, Drivers> impl
             throw new CommonException("CAR-驾驶员不存在，id值为：{}", id);
         }
         return drivers;
+    }
+
+    @Override
+    public DriverDispatchInfo getDispatchInfo() {
+        DriverDispatchInfo driverDispatchInfo = new DriverDispatchInfo();
+        driverDispatchInfo.setAvailableDriverNum(this.count(new LambdaQueryWrapper<Drivers>()
+                .eq(Drivers::getStatus, DriverStatusEnum.Free.getValue()).eq(Drivers::getDispatchType,"公派")));
+        driverDispatchInfo.setDispatchDriverNum(this.count(new LambdaQueryWrapper<Drivers>()
+                .eq(Drivers::getStatus, DriverStatusEnum.Out.getValue()).eq(Drivers::getDispatchType,"公派")));
+        return driverDispatchInfo;
     }
 }

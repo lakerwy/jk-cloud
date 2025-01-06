@@ -164,4 +164,12 @@ public class VehicleInformationEditParam {
     @ApiModelProperty(value = "总计加油量", position = 30)
     private BigDecimal totalOilFuel;
 
+    /** 用车类型(公用|私用) */
+    @ApiModelProperty(value = "用车类型(公用|私用)", position = 40)
+    private String useType;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 41)
+    private String memo;
+
 }

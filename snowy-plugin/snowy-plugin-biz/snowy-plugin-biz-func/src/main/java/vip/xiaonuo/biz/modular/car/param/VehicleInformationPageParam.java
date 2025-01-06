@@ -76,4 +76,8 @@ public class VehicleInformationPageParam {
     @ApiModelProperty(value = "车辆状态 可用 出车 维保 其他")
     private String status;
 
+    /** 用车类型(公用|私用) */
+    @ApiModelProperty(value = "用车类型(公用|私用)")
+    private String useType;
+
 }

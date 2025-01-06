@@ -17,11 +17,16 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.entity.Drivers;
+import vip.xiaonuo.biz.modular.car.enums.CarStatusEnum;
+import vip.xiaonuo.biz.modular.car.enums.DriverStatusEnum;
+import vip.xiaonuo.biz.modular.car.service.DriversService;
 import vip.xiaonuo.biz.modular.car.vo.H5CarDto;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -34,6 +39,7 @@ import vip.xiaonuo.biz.modular.car.param.VehicleInformationIdParam;
 import vip.xiaonuo.biz.modular.car.param.VehicleInformationPageParam;
 import vip.xiaonuo.biz.modular.car.service.VehicleInformationService;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -47,6 +53,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformationMapper, VehicleInformation> implements VehicleInformationService {
+
+    @Resource
+    private DriversService driversService;
 
     @Override
     public Page<VehicleInformation> page(VehicleInformationPageParam vehicleInformationPageParam) {
@@ -72,6 +81,9 @@ public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformatio
         if(ObjectUtil.isNotEmpty(vehicleInformationPageParam.getStatus())) {
             queryWrapper.lambda().eq(VehicleInformation::getStatus, vehicleInformationPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleInformationPageParam.getUseType())) {
+            queryWrapper.lambda().eq(VehicleInformation::getUseType, vehicleInformationPageParam.getUseType());
+        }
         if(ObjectUtil.isNotEmpty(vehicleInformationPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(VehicleInformation::getLicenseNo,vehicleInformationPageParam.getSearchKey())
                     .or().like(VehicleInformation::getSn,vehicleInformationPageParam.getSearchKey())
@@ -84,6 +96,18 @@ public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformatio
                     StrUtil.toUnderlineCase(vehicleInformationPageParam.getSortField()));
         } else {
             queryWrapper.lambda().orderByDesc(VehicleInformation::getCreateTime);
+        }
+        // 获取可出车的公派司机数量
+        long availableDriverNum = driversService.count(new LambdaQueryWrapper<Drivers>()
+                .eq(Drivers::getStatus, DriverStatusEnum.Free.getValue()).eq(Drivers::getDispatchType,"公派"));
+        Page<VehicleInformation> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        for (VehicleInformation vehicleInformation : page.getRecords()){
+            // 车辆为空闲状态时，需要进一步判断是否有司机可出车
+            if(CarStatusEnum.Useable.getValue().equals(vehicleInformation.getStatus())){
+                if(availableDriverNum < 1){
+                    vehicleInformation.setStatus(CarStatusEnum.NoDriver.getValue());
+                }
+            }
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

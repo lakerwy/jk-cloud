@@ -30,7 +30,10 @@ public enum DriverStatusEnum {
     Out("2"),
 
     /** 请假 */
-    Leave("3");
+    Leave("3"),
+
+    /** 离职 */
+    Resign("4");
 
     private final String value;
 

@@ -103,7 +103,7 @@ public class VehicleInformation {
     private BigDecimal totalMileage;
 
     /** 车辆状态 可用 出车 维保 其他 */
-    @ApiModelProperty(value = "车辆状态 可用 出车 维保 其他", position = 17)
+    @ApiModelProperty(value = "车辆状态(1-可出车 2-出车 3-维保 4-其他 5-无司机可出车", position = 17)
     private String status;
 
     /** 参考保养里程（KM） */
@@ -193,4 +193,12 @@ public class VehicleInformation {
     @ApiModelProperty(value = "更新人", position = 35)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 用车类型(公用|私用) */
+    @ApiModelProperty(value = "用车类型(公用|私用)", position = 40)
+    private String useType;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 41)
+    private String memo;
 }

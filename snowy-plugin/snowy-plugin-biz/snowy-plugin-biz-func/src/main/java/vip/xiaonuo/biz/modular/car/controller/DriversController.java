@@ -23,14 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.car.param.*;
+import vip.xiaonuo.biz.modular.car.vo.DriverDispatchInfo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.car.entity.Drivers;
-import vip.xiaonuo.biz.modular.car.param.DriversAddParam;
-import vip.xiaonuo.biz.modular.car.param.DriversEditParam;
-import vip.xiaonuo.biz.modular.car.param.DriversIdParam;
-import vip.xiaonuo.biz.modular.car.param.DriversPageParam;
 import vip.xiaonuo.biz.modular.car.service.DriversService;
 
 import javax.annotation.Resource;
@@ -142,5 +140,19 @@ public class DriversController {
     @GetMapping("/biz/car/drivers/getDriversList")
     public CommonResult<List<Drivers>> list() {
         return CommonResult.data(driversService.list());
+    }
+
+    /**
+     * 获取CAR-当前外出司机信息
+     *
+     * @author pzh
+     * @date  2025/01/06 16:09
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取CAR-当前外出司机信息")
+//    @SaCheckPermission("/biz/car/drivers/getDispatchInfo")
+    @GetMapping("/biz/car/drivers/getDispatchInfo")
+    public CommonResult<DriverDispatchInfo> getDispatchInfo() {
+        return CommonResult.data(driversService.getDispatchInfo());
     }
 }

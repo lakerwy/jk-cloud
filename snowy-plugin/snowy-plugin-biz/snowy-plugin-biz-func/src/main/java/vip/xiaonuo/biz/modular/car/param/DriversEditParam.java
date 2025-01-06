@@ -60,4 +60,12 @@ public class DriversEditParam {
     @ApiModelProperty(value = "司机UserId", position = 13)
     private String driverUserId;
 
+    /** 派遣类型(公派|私派) */
+    @ApiModelProperty(value = "派遣类型(公派|私派)", position = 20)
+    private String dispatchType;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 21)
+    private String memo;
+
 }
