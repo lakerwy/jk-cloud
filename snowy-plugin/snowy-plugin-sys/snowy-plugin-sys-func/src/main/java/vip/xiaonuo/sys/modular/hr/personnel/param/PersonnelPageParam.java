@@ -87,4 +87,8 @@ public class PersonnelPageParam {
     /** 用工性质 */
     @ApiModelProperty(value = "用工性质")
     private String employNature;
+
+    /** 手机 */
+    @ApiModelProperty(value = "手机")
+    private String phone;
 }

@@ -99,4 +99,8 @@ public class PersonnelListVo {
     /** 试用期转正考核流程实例Id */
     @ApiModelProperty(value = "试用期转正考核流程实例Id", position = 100)
     private String turnProcessInstanceId;
+
+    /** 手机 */
+    @ApiModelProperty(value = "手机", position = 120)
+    private String phone;
 }

@@ -489,7 +489,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if (ObjectUtil.isNotEmpty(personnelPageParam.getEmployNature())) {
             queryWrapper.eq("a.EMPLOY_NATURE", personnelPageParam.getEmployNature());
         }
-
+        // 手机号
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getPhone())){
+            queryWrapper.like("a.PHONE", personnelPageParam.getPhone());
+        }
         if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
