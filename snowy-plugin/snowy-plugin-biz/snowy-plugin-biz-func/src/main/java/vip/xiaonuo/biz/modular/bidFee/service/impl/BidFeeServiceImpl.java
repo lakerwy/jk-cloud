@@ -361,9 +361,11 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(CollUtil.isEmpty(excelData.getCommentList())){
             return;
         }
-        // 过滤出同意申请的评论
+        // 过滤出同意申请的评论(包括发起节点、审批同意节点、自动通过节点)
         List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(excelData.getCommentList(),BidFeeExcelData.FlwProcessComment.class);
-        passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType()) || "START".equals(x.getOperateType())).collect(Collectors.toList());
+        passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType())
+                || "START".equals(x.getOperateType()) || "AUTO_COMPLETE".equals(x.getOperateType()))
+                .collect(Collectors.toList());
         if(CollUtil.isEmpty(passCommentList)){
             return;
         }
