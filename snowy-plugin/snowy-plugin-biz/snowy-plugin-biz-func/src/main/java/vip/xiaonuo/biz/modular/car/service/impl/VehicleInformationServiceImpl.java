@@ -97,19 +97,21 @@ public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformatio
         } else {
             queryWrapper.lambda().orderByDesc(VehicleInformation::getCreateTime);
         }
+        Page<VehicleInformation> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         // 获取可出车的公派司机数量
         long availableDriverNum = driversService.count(new LambdaQueryWrapper<Drivers>()
                 .eq(Drivers::getStatus, DriverStatusEnum.Free.getValue()).eq(Drivers::getDispatchType,"公派"));
-        Page<VehicleInformation> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         for (VehicleInformation vehicleInformation : page.getRecords()){
+            // 首页状态
+            vehicleInformation.setShowStatus(vehicleInformation.getStatus());
             // 车辆为空闲状态时，需要进一步判断是否有司机可出车
-            if(CarStatusEnum.Useable.getValue().equals(vehicleInformation.getStatus())){
+            if(CarStatusEnum.Useable.getValue().equals(vehicleInformation.getShowStatus())){
                 if(availableDriverNum < 1){
-                    vehicleInformation.setStatus(CarStatusEnum.NoDriver.getValue());
+                    vehicleInformation.setShowStatus(CarStatusEnum.NoDriver.getValue());
                 }
             }
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return page;
     }
 
     @Transactional(rollbackFor = Exception.class)

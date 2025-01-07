@@ -93,8 +93,8 @@ public class VehicleInformationAddParam {
     @ApiModelProperty(value = "总行驶里程（KM）", position = 16)
     private BigDecimal totalMileage;
 
-    /** 车辆状态 可用 出车 维保 其他 */
-    @ApiModelProperty(value = "车辆状态 可用 出车 维保 其他", position = 17)
+    /** 车辆状态(1-可用 2-出车 3-维保 4-其他) */
+    @ApiModelProperty(value = "车辆状态(1-可用 2-出车 3-维保 4-其他)", position = 17)
     private String status;
 
     /** 参考保养里程（KM） */

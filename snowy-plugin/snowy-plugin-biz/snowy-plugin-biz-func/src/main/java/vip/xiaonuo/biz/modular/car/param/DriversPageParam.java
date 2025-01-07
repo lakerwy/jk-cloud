@@ -64,7 +64,7 @@ public class DriversPageParam {
     @ApiModelProperty(value = "状态")
     private String status;
 
-    /** 派遣类型 */
-    @ApiModelProperty(value = "派遣类型")
+    /** 派遣类型(公派|私派) */
+    @ApiModelProperty(value = "派遣类型(公派|私派)")
     private String dispatchType;
 }

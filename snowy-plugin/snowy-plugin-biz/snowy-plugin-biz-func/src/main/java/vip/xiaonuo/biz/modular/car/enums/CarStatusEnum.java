@@ -35,7 +35,7 @@ public enum CarStatusEnum {
     /** 其他 */
     Other("4"),
 
-    /** 无司机可出车 */
+    /** 无司机可出车(仅用于首页展示) */
     NoDriver("5"),
 
     ;
