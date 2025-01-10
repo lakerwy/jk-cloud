@@ -58,11 +58,15 @@ public class BizProjectVo {
     @ApiModelProperty(value = "投标专员ID", position = 19)
     private String bidMangerId;
 
-    /** 部门/分公司负责人 */
-    @ApiModelProperty(value = "部门/分公司负责人", position = 24)
-    private String manager;
+//    /** 部门/分公司负责人 */
+//    @ApiModelProperty(value = "部门/分公司负责人", position = 24)
+//    private String manager;
+//
+//    /** 部门/分公司负责人ID */
+//    @ApiModelProperty(value = "部门/分公司负责人ID", position = 25)
+//    private String managerId;
 
-    /** 部门/分公司负责人ID */
-    @ApiModelProperty(value = "部门/分公司负责人ID", position = 25)
-    private String managerId;
+    /** 投标专员用户状态 */
+    @ApiModelProperty(value = "投标专员用户状态(可用：ENABLE，不可用：DISABLED)", position = 30)
+    private String bidMangerStatus;
 }

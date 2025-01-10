@@ -235,27 +235,31 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         for(BizProjectVo bizProjectVo : bizProject.getRecords()){
             // 投标专员
             bizProjectVo.setBidMangerId(bidManagerMap.get(bizProjectVo.getBidManger()));
-            // 部门负责人
-            if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
-                BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
-                bizProjectVo.setDeptId(sysOrg.getOrgId());
-                bizProjectVo.setManagerId(sysOrg.getDirectorId());
-            }
-            // 分公司负责人
-            else if("分公司".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
-                String region = bizProjectVo.getRegion();
-                if(ObjectUtil.isNotEmpty(region)){
-                    List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);
-                    if(ObjectUtil.isNotEmpty(partnerVos)){
-                        JSONObject partnerVo = partnerVos.get(0);
-                        bizProjectVo.setDeptId(partnerVo.getStr("orgId"));
-                        bizProjectVo.setManagerId(partnerVo.getStr("regionalManager"));
-                    }
-                }
-            }
-            if(ObjectUtil.isNotEmpty(bizProjectVo.getManagerId())){
-                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getManagerId());
-                bizProjectVo.setManager(ObjectUtil.isNotEmpty(json) ? json.getStr("name") : null);
+//            // 部门负责人
+//            if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
+//                BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
+//                bizProjectVo.setDeptId(sysOrg.getOrgId());
+//                bizProjectVo.setManagerId(sysOrg.getDirectorId());
+//            }
+//            // 分公司负责人
+//            else if("分公司".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
+//                String region = bizProjectVo.getRegion();
+//                if(ObjectUtil.isNotEmpty(region)){
+//                    List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);
+//                    if(ObjectUtil.isNotEmpty(partnerVos)){
+//                        JSONObject partnerVo = partnerVos.get(0);
+//                        bizProjectVo.setDeptId(partnerVo.getStr("orgId"));
+//                        bizProjectVo.setManagerId(partnerVo.getStr("regionalManager"));
+//                    }
+//                }
+//            }
+//            if(ObjectUtil.isNotEmpty(bizProjectVo.getManagerId())){
+//                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getManagerId());
+//                bizProjectVo.setManager(ObjectUtil.isNotEmpty(json) ? json.getStr("name") : null);
+//            }
+            if(ObjectUtil.isNotEmpty(bizProjectVo.getBidMangerId())){
+                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getBidMangerId());
+                bizProjectVo.setBidMangerStatus(json.getStr("userStatus"));
             }
         }
         return bizProject;
