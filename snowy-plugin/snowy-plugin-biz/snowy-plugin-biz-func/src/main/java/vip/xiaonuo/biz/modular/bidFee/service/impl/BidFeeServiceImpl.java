@@ -371,6 +371,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(CollUtil.isEmpty(excelData.getCommentList())){
             return;
         }
+        // 如果投标专员节点为空自动通过，则审批评论显示为"-"
+        excelData.getCommentList().forEach(x -> {
+            if("投标专员".equals(x.getTaskName()) && "AUTO_COMPLETE".equals(x.getOperateType()) && x.getComment().contains("该节点审批人为空")){
+                x.setUserName("-");
+            }
+        });
         // 过滤出同意申请的评论(包括发起节点、审批同意节点、自动通过节点)
         List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(excelData.getCommentList(),BidFeeExcelData.FlwProcessComment.class);
         passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType())
@@ -405,7 +411,9 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         // 出纳
         excelData.setCashier(map.get("出纳"));
         // 招投标部
-        String bidDept = Stream.of(map.get("投标专员"), map.get("招投标部负责人"))
+        String bidManger = map.get("投标专员");
+        bidManger = "-".equals(bidManger) ? null : bidManger;
+        String bidDept = Stream.of(bidManger, map.get("招投标部负责人"))
                 .filter(StrUtil::isNotBlank)
                 .collect(Collectors.joining(","));
         excelData.setBidDept(bidDept);
