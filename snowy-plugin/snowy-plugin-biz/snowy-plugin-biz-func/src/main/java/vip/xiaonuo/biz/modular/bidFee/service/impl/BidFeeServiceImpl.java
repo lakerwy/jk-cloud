@@ -214,9 +214,14 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())){
             queryWrapper.like("a.NAME",bizProjectPageParam.getName());
         }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())){
+            queryWrapper.like("a.SN",bizProjectPageParam.getSn());
+        }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.NAME", bizProjectPageParam.getSearchKey())
-                    .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey()));
+                    .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey())
+                    .or().like("a.SN", bizProjectPageParam.getSearchKey())
+            );
         }
         // 校验数据范围
 //        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -287,6 +292,7 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             ClassPathResource classPathResource = new ClassPathResource("BidFeeTemplate.xlsx");
             inputStream = classPathResource.getStream();
             BidFeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), BidFeeExcelData.class);
+            excelData.setCommentList(excelParam.getCommentList());
             // 使用 EasyExcel 填充数据
             excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
             WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
