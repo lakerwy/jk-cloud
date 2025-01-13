@@ -214,9 +214,14 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())){
             queryWrapper.like("a.NAME",bizProjectPageParam.getName());
         }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())){
+            queryWrapper.like("a.SN",bizProjectPageParam.getSn());
+        }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.NAME", bizProjectPageParam.getSearchKey())
-                    .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey()));
+                    .or().like("a.PROJECT_SN", bizProjectPageParam.getSearchKey())
+                    .or().like("a.SN", bizProjectPageParam.getSearchKey())
+            );
         }
         // 校验数据范围
 //        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -230,27 +235,31 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         for(BizProjectVo bizProjectVo : bizProject.getRecords()){
             // 投标专员
             bizProjectVo.setBidMangerId(bidManagerMap.get(bizProjectVo.getBidManger()));
-            // 部门负责人
-            if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
-                BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
-                bizProjectVo.setDeptId(sysOrg.getOrgId());
-                bizProjectVo.setManagerId(sysOrg.getDirectorId());
-            }
-            // 分公司负责人
-            else if("分公司".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
-                String region = bizProjectVo.getRegion();
-                if(ObjectUtil.isNotEmpty(region)){
-                    List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);
-                    if(ObjectUtil.isNotEmpty(partnerVos)){
-                        JSONObject partnerVo = partnerVos.get(0);
-                        bizProjectVo.setDeptId(partnerVo.getStr("orgId"));
-                        bizProjectVo.setManagerId(partnerVo.getStr("regionalManager"));
-                    }
-                }
-            }
-            if(ObjectUtil.isNotEmpty(bizProjectVo.getManagerId())){
-                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getManagerId());
-                bizProjectVo.setManager(ObjectUtil.isNotEmpty(json) ? json.getStr("name") : null);
+//            // 部门负责人
+//            if("总部".equals(bizProjectPageParam.getApplyUnit())){ // 总部
+//                BizSysOrgVo sysOrg = sysOrgService.getOrgByName(bizProjectVo.getDept());
+//                bizProjectVo.setDeptId(sysOrg.getOrgId());
+//                bizProjectVo.setManagerId(sysOrg.getDirectorId());
+//            }
+//            // 分公司负责人
+//            else if("分公司".equals(bizProjectPageParam.getApplyUnit())){ // 分公司
+//                String region = bizProjectVo.getRegion();
+//                if(ObjectUtil.isNotEmpty(region)){
+//                    List<JSONObject> partnerVos = partnerInfoApi.getByRegion(region);
+//                    if(ObjectUtil.isNotEmpty(partnerVos)){
+//                        JSONObject partnerVo = partnerVos.get(0);
+//                        bizProjectVo.setDeptId(partnerVo.getStr("orgId"));
+//                        bizProjectVo.setManagerId(partnerVo.getStr("regionalManager"));
+//                    }
+//                }
+//            }
+//            if(ObjectUtil.isNotEmpty(bizProjectVo.getManagerId())){
+//                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getManagerId());
+//                bizProjectVo.setManager(ObjectUtil.isNotEmpty(json) ? json.getStr("name") : null);
+//            }
+            if(ObjectUtil.isNotEmpty(bizProjectVo.getBidMangerId())){
+                JSONObject json = sysUserApi.getUserByIdWithoutException(bizProjectVo.getBidMangerId());
+                bizProjectVo.setBidMangerStatus(json.getStr("userStatus"));
             }
         }
         return bizProject;
@@ -287,6 +296,7 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             ClassPathResource classPathResource = new ClassPathResource("BidFeeTemplate.xlsx");
             inputStream = classPathResource.getStream();
             BidFeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), BidFeeExcelData.class);
+            excelData.setCommentList(excelParam.getCommentList());
             // 使用 EasyExcel 填充数据
             excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
             WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
@@ -361,6 +371,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(CollUtil.isEmpty(excelData.getCommentList())){
             return;
         }
+        // 如果投标专员节点为空自动通过，则审批评论显示为"-"
+        excelData.getCommentList().forEach(x -> {
+            if("投标专员".equals(x.getTaskName()) && "AUTO_COMPLETE".equals(x.getOperateType()) && x.getComment().contains("该节点审批人为空")){
+                x.setUserName("-");
+            }
+        });
         // 过滤出同意申请的评论(包括发起节点、审批同意节点、自动通过节点)
         List<BidFeeExcelData.FlwProcessComment> passCommentList = BeanUtil.copyToList(excelData.getCommentList(),BidFeeExcelData.FlwProcessComment.class);
         passCommentList = passCommentList.stream().filter(x -> "PASS".equals(x.getOperateType())
@@ -395,7 +411,9 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         // 出纳
         excelData.setCashier(map.get("出纳"));
         // 招投标部
-        String bidDept = Stream.of(map.get("投标专员"), map.get("招投标部负责人"))
+        String bidManger = map.get("投标专员");
+        bidManger = "-".equals(bidManger) ? null : bidManger;
+        String bidDept = Stream.of(bidManger, map.get("招投标部负责人"))
                 .filter(StrUtil::isNotBlank)
                 .collect(Collectors.joining(","));
         excelData.setBidDept(bidDept);

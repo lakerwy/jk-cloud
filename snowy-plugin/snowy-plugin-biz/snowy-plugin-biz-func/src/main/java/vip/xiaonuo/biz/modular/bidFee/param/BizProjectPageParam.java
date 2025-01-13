@@ -58,4 +58,8 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "立项编号")
     private String projectSn;
 
+    /** 立项sn */
+    @ApiModelProperty(value = "立项sn")
+    private String sn;
+
 }
