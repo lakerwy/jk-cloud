@@ -93,7 +93,9 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
     @Override
     public void add(WorkOrderAddParam workOrderAddParam) {
         WorkOrder workOrder = BeanUtil.toBean(workOrderAddParam, WorkOrder.class);
-        workOrder.setEventNo("SJ-"+ DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN));
+        if(ObjectUtil.isEmpty(workOrder.getEventNo())) {
+            workOrder.setEventNo("SJ-" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN));
+        }
         this.save(workOrder);
     }
 
