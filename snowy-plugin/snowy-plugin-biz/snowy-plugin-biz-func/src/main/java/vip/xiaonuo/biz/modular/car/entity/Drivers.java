@@ -55,8 +55,8 @@ public class Drivers {
     @ApiModelProperty(value = "驾龄", position = 6)
     private String drivingYears;
 
-    /** 状态 */
-    @ApiModelProperty(value = "状态", position = 7)
+    /** 状态（1-空闲，2-出车，3-请假，4-离职） */
+    @ApiModelProperty(value = "状态（1-空闲，2-出车，3-请假，4-离职）", position = 7)
     private String status;
 
     /** 删除状态标记 */

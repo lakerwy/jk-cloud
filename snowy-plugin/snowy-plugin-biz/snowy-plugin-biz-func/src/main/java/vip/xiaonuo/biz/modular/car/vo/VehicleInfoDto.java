@@ -59,4 +59,12 @@ public class VehicleInfoDto {
     @ApiModelProperty(value = "行驶证有效期", position = 23)
     private Date licenseValid;
 
+    /** 用车类型(公用|私用) */
+    @ApiModelProperty(value = "用车类型(公用|私用)", position = 30)
+    private String useType;
+
+    /** 车辆状态 可用 出车 维保 其他 */
+    @ApiModelProperty(value = "车辆状态(1-可用 2-出车 3-维保 4-其他)", position = 31)
+    private String status;
+
 }
