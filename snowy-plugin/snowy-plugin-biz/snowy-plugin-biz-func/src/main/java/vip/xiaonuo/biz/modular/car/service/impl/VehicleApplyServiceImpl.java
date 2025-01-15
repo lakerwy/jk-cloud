@@ -589,6 +589,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             {
                 queryWrapper1.lambda().notIn(VehicleInformation::getId,haveUsedVehicle);
             }
+            queryWrapper1.lambda().eq(VehicleInformation::getUseType,"公用");
             List<VehicleInformation> dbVehicleInfo = vehicleInformationService.list(queryWrapper1);
             result.setAvailableVehicles(BeanUtil.copyToList(dbVehicleInfo, VehicleInfoDto.class));
             //可用司机
@@ -597,6 +598,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             {
                 queryWrapper2.lambda().notIn(Drivers::getDriverUserId,haveUsedDriver);
             }
+            queryWrapper2.lambda().eq(Drivers::getDispatchType,"公派");
             List<Drivers> dbDriverInfo = driversService.list(queryWrapper2);
             result.setAvailableDrivers(BeanUtil.copyToList(dbDriverInfo, DriverInfoDto.class));
         }

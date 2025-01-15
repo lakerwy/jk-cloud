@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotmentItem;
 import vip.xiaonuo.biz.modular.prjFee.service.PrjFeeAllotmentItemService;
-import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentItemVo;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -182,11 +182,11 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
     }
 
     @Override
-    public PrjFeeAllotmentItemVo detail(PrjFeeAllotmentIdParam prjFeeAllotmentIdParam) {
+    public PrjFeeAllotmentVo detail(PrjFeeAllotmentIdParam prjFeeAllotmentIdParam) {
         PrjFeeAllotment prjFeeAllotment = this.queryEntity(prjFeeAllotmentIdParam.getId());
-        PrjFeeAllotmentItemVo prjFeeAllotmentItemVo = BeanUtil.copyProperties(prjFeeAllotment,PrjFeeAllotmentItemVo.class);
-        prjFeeAllotmentItemVo.setFeeItemList(prjFeeAllotmentItemService.list(new QueryWrapper<PrjFeeAllotmentItem>().lambda().eq(PrjFeeAllotmentItem::getPrjFeeAllotmentId,prjFeeAllotmentItemVo.getId())));
-        return prjFeeAllotmentItemVo;
+        PrjFeeAllotmentVo prjFeeAllotmentVo = BeanUtil.copyProperties(prjFeeAllotment, PrjFeeAllotmentVo.class);
+        prjFeeAllotmentVo.setFeeItemList(prjFeeAllotmentItemService.list(new QueryWrapper<PrjFeeAllotmentItem>().lambda().eq(PrjFeeAllotmentItem::getPrjFeeAllotmentId, prjFeeAllotmentVo.getId())));
+        return prjFeeAllotmentVo;
     }
 
     @Override

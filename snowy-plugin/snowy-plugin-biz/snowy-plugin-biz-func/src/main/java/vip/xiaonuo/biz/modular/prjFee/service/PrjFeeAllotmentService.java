@@ -7,7 +7,7 @@ import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentAddParam;
 import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentEditParam;
 import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentIdParam;
 import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentPageParam;
-import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentItemVo;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentVo;
 
 import java.util.List;
 
@@ -57,7 +57,7 @@ public interface PrjFeeAllotmentService extends IService<PrjFeeAllotment> {
      * @author pzh
      * @date 2025/01/15 09:22
      */
-    PrjFeeAllotmentItemVo detail(PrjFeeAllotmentIdParam prjFeeAllotmentIdParam);
+    PrjFeeAllotmentVo detail(PrjFeeAllotmentIdParam prjFeeAllotmentIdParam);
 
     /**
      * 获取工程款拨付审批详情

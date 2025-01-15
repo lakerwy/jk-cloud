@@ -3,9 +3,7 @@ package vip.xiaonuo.biz.modular.prjFee.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
-import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpCost;
-import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpItem;
+import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotment;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotmentItem;
 
 import java.util.List;
@@ -16,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PrjFeeAllotmentItemVo extends PrjFeeAllotmentItem {
+public class PrjFeeAllotmentVo extends PrjFeeAllotment {
     /** 款项拨付 - 集合 */
     @ApiModelProperty(value = "款项拨付 - 集合", position = 80)
     private List<PrjFeeAllotmentItem> feeItemList;
