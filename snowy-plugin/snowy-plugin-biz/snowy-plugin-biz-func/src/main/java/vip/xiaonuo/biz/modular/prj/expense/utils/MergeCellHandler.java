@@ -31,7 +31,7 @@ public class MergeCellHandler extends AbstractMergeStrategy {
         //设置样式
         CellStyle cellStyle = cell.getCellStyle();
         //水平居中
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+//        cellStyle.setAlignment(HorizontalAlignment.CENTER);
         //自动换行
         cellStyle.setWrapText(Boolean.TRUE);
         //在这里判断从哪一行开始调用合并方法

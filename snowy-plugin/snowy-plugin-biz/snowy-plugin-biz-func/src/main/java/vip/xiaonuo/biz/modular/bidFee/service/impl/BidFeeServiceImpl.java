@@ -26,8 +26,9 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
 import vip.xiaonuo.biz.modular.bidFee.vo.BidFeeExcelData;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
+import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCell;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
-import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -299,16 +300,30 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
             excelData.setCommentList(excelParam.getCommentList());
             // 使用 EasyExcel 填充数据
             excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
-            WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
             // 获取评论列表
             setCommentList(excelData);
             // 解析并设置打印数据
             setData(excelData);
-            // 写入Excel
+
+            List<MergeCell> feeMergeList = new ArrayList<>();
+            int firstRow = 17;
+            feeMergeList.add(new MergeCell(firstRow, excelData.getCommentList().size() + firstRow - 1, 0, 2));
+            feeMergeList.add(new MergeCell(firstRow, excelData.getCommentList().size() + firstRow - 1, 3, 5));
+            feeMergeList.add(new MergeCell(firstRow, excelData.getCommentList().size() + firstRow - 1, 6, 8));
+            feeMergeList.add(new MergeCell(firstRow, excelData.getCommentList().size() + firstRow - 1, 9, 11));
+            WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(feeMergeList)).build();
+//            WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
             FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
             excelWriter.fill(excelData, sheet1);
             excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()), fillConfig, sheet1);
             excelWriter.finish();
+
+            // 写入Excel
+//            FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+//            excelWriter.fill(excelData, sheet1);
+//            excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()), fillConfig, sheet1);
+//            excelWriter.finish();
+
             File tempFile = FileUtil.file(outputFileName);
             CommonDownloadUtil.download(tempFile, response);
         }catch (Exception e){
