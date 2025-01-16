@@ -30,6 +30,10 @@ public class PrjFeeAllotmentEditParam {
     @ApiModelProperty(value = "合同主键ID", position = 2)
     private String hetongId;
 
+    /** 拨付次数 */
+    @ApiModelProperty(value = "拨付次数", position = 3)
+    private Integer curDisburseNum;
+
     /** 合同名称 */
     @ApiModelProperty(value = "合同名称", position = 3)
     private String projectName;

@@ -2,13 +2,13 @@ package vip.xiaonuo.biz.modular.prjFee.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.prjFee.param.ExcelParam;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotment;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentAddParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentEditParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentIdParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentPageParam;
+import vip.xiaonuo.biz.modular.prjFee.param.*;
 import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentVo;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeHisVo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -66,4 +66,20 @@ public interface PrjFeeAllotmentService extends IService<PrjFeeAllotment> {
      * @date  2025/01/15 09:22
      **/
     PrjFeeAllotment queryEntity(String id);
+
+    /**
+     * 获取前期款项数据
+     *
+     * @author pzh
+     * @date 2025/01/15 15:45
+     */
+    PrjFeeHisVo prjFeeHis(PrjFeeHisParam prjFeeHisParam);
+
+    /**
+     * 工程款拨付审批 - 生成打印Excel
+     *
+     * @author pzh
+     * @date  2025/01/16 09:55
+     */
+    void genExcel(ExcelParam excelParam, HttpServletResponse response);
 }

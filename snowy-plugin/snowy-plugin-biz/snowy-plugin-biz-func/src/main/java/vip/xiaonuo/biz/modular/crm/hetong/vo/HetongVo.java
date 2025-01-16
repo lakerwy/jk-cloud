@@ -122,4 +122,8 @@ public class HetongVo {
     /** 项目规模描述 */
     @ApiModelProperty(value = "项目规模描述", position = 66)
     private String description;
+
+    /** 申请人单位 */
+    @ApiModelProperty(value = "申请人单位", position = 70)
+    private String htMainType;
 }

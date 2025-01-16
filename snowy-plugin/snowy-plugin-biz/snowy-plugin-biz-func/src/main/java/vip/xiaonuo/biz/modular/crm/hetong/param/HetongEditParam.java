@@ -234,4 +234,8 @@ public class HetongEditParam {
     /** 合同总金额 */
     @ApiModelProperty(value = "合同总金额", position = 63)
     private BigDecimal sumAmount;
+
+    /** 申请人单位 */
+    @ApiModelProperty(value = "申请人单位", position = 70)
+    private String htMainType;
 }

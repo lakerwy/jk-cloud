@@ -26,8 +26,8 @@ public class AvailableParam {
     private String dispatchType;
 
     @ApiModelProperty(value = "是否排除状态异常车辆（true-是，false-否）", position = 5)
-    private boolean excludeUnavailableVehicle;
+    private Boolean excludeUnavailableVehicle;
 
     @ApiModelProperty(value = "是否排除状态异常司机（true-是，false-否）", position = 6)
-    private boolean excludeUnavailableDriver;
+    private Boolean excludeUnavailableDriver;
 }

@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prjFee.param.ExcelParam;
+import vip.xiaonuo.biz.modular.prjFee.param.*;
 import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentVo;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeHisVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotment;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentAddParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentEditParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentIdParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentPageParam;
 import vip.xiaonuo.biz.modular.prjFee.service.PrjFeeAllotmentService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
@@ -115,5 +115,33 @@ public class PrjFeeAllotmentController {
     @GetMapping("/biz/prjFee/detail")
     public CommonResult<PrjFeeAllotmentVo> detail(@Valid PrjFeeAllotmentIdParam prjFeeAllotmentIdParam) {
         return CommonResult.data(prjFeeAllotmentService.detail(prjFeeAllotmentIdParam));
+    }
+
+    /**
+     * 获取前期款项数据
+     *
+     * @author pzh
+     * @date  2025/01/15 15:45
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取前期款项数据")
+    // @SaCheckPermission("/biz/prjFee/his")
+    @GetMapping("/biz/prjFee/his")
+    public CommonResult<PrjFeeHisVo> prjFeeHis(@Valid PrjFeeHisParam prjFeeHisParam) {
+        return CommonResult.data(prjFeeAllotmentService.prjFeeHis(prjFeeHisParam));
+    }
+
+    /**
+     * 工程款拨付审批 - 生成打印Excel
+     *
+     * @author pzh
+     * @date  2025/01/16 09:55
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("工程款拨付审批  - 生成打印Excel")
+    @CommonLog("工程款拨付审批  - 生成打印Excel")
+    @PostMapping("/biz/prjFee/genExcel")
+    public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
+        prjFeeAllotmentService.genExcel(excelParam,response);
     }
 }

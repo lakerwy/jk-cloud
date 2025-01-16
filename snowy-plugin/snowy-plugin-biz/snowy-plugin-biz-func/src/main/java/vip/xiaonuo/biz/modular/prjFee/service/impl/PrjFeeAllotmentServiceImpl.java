@@ -3,17 +3,36 @@ package vip.xiaonuo.biz.modular.prjFee.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.bidFee.entity.BidFee;
+import vip.xiaonuo.biz.modular.prjFee.param.ExcelParam;
+import vip.xiaonuo.biz.modular.bidFee.vo.BidFeeExcelData;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
+import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCell;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotmentItem;
+import vip.xiaonuo.biz.modular.prjFee.param.*;
 import vip.xiaonuo.biz.modular.prjFee.service.PrjFeeAllotmentItemService;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentExcelData;
 import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeAllotmentVo;
+import vip.xiaonuo.biz.modular.prjFee.vo.PrjFeeHisVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -24,19 +43,22 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prjFee.entity.PrjFeeAllotment;
 import vip.xiaonuo.biz.modular.prjFee.mapper.PrjFeeAllotmentMapper;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentAddParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentEditParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentIdParam;
-import vip.xiaonuo.biz.modular.prjFee.param.PrjFeeAllotmentPageParam;
 import vip.xiaonuo.biz.modular.prjFee.service.PrjFeeAllotmentService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
+import vip.xiaonuo.flw.api.FlwProcessMonitorApi;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +69,7 @@ import java.util.stream.Collectors;
  * @date  2025/01/15 09:22
  **/
 @Service
+@DS("slave_1")
 public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMapper, PrjFeeAllotment> implements PrjFeeAllotmentService {
 
     @Resource
@@ -57,6 +80,9 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
 
     @Resource
     PrjFeeAllotmentItemService prjFeeAllotmentItemService;
+
+    @Resource
+    FlwProcessMonitorApi flwProcessMonitorApi;
 
     @Override
     public Page<PrjFeeAllotment> page(PrjFeeAllotmentPageParam prjFeeAllotmentPageParam) {
@@ -196,5 +222,123 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
             throw new CommonException("工程款拨付审批不存在，id值为：{}", id);
         }
         return prjFeeAllotment;
+    }
+
+    @Override
+    public PrjFeeHisVo prjFeeHis(PrjFeeHisParam prjFeeHisParam) {
+        PrjFeeHisVo prjFeeHisVo = new PrjFeeHisVo();
+        LambdaQueryWrapper<PrjFeeAllotment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PrjFeeAllotment::getHetongId, prjFeeHisParam.getHetongId());
+        queryWrapper.isNotNull(PrjFeeAllotment::getCurDisburseNum);
+        queryWrapper.orderByDesc(PrjFeeAllotment::getCurDisburseNum);
+        queryWrapper.last("limit 1");
+        PrjFeeAllotment prjFeeAllotment = this.getOne(queryWrapper);
+        if(ObjectUtil.isEmpty(prjFeeAllotment)) {
+            prjFeeHisVo.setDisbursedTimes(0);
+            return prjFeeHisVo;
+        }
+        prjFeeHisVo = BeanUtil.copyProperties(prjFeeAllotment, PrjFeeHisVo.class);
+        prjFeeHisVo.setDisbursedTimes(prjFeeAllotment.getCurDisburseNum());
+        return prjFeeHisVo;
+    }
+
+    @Override
+    public void genExcel(ExcelParam excelParam, HttpServletResponse response) {
+        ExcelWriter excelWriter = null;
+        InputStream inputStream = null;
+        try {
+            // 定义没有分隔符的日期时间格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            // 将当前日期时间格式化为字符串
+            String dateStr = LocalDateTime.now().format(formatter);
+            // 定义导出excel文件路径
+            String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR +  "PRJ_FEE_ALLOTMENT_" + dateStr + ".xlsx";
+            ClassPathResource classPathResource = new ClassPathResource("PrjFeeAllotmentTemplate.xlsx");
+            inputStream = classPathResource.getStream();
+            PrjFeeAllotmentExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), PrjFeeAllotmentExcelData.class);
+            excelData.setCommentList(excelParam.getCommentList());
+            // 设置序号
+            if(ObjectUtil.isNotEmpty(excelData.getFeeItemList())) {
+                for(int i=0;i<excelData.getFeeItemList().size();i++) {
+                    excelData.getFeeItemList().get(i).setSortNum(i+1);
+                }
+            }
+            // 获取评论列表
+            setCommentList(excelData);
+            List<MergeCell> mergeList = new ArrayList<>();
+            int firstRow_feeItemList = 9;
+            int feeItemListSize = ObjectUtil.isEmpty(excelData.getFeeItemList()) ? 1 : excelData.getFeeItemList().size();
+            int firstRow_commentList = firstRow_feeItemList + feeItemListSize + 4;
+            mergeList.add(new MergeCell(firstRow_feeItemList, feeItemListSize + firstRow_feeItemList - 1, 3, 4));
+            mergeList.add(new MergeCell(firstRow_feeItemList, feeItemListSize + firstRow_feeItemList - 1, 8, 9));
+            mergeList.add(new MergeCell(firstRow_feeItemList, feeItemListSize + firstRow_feeItemList - 1, 10, 11));
+            mergeList.add(new MergeCell(firstRow_feeItemList, feeItemListSize + firstRow_feeItemList - 1, 13, 14));
+            mergeList.add(new MergeCell(firstRow_feeItemList, feeItemListSize + firstRow_feeItemList - 1, 16, 17));
+
+            mergeList.add(new MergeCell(firstRow_commentList, excelData.getCommentList().size() + firstRow_commentList - 1, 0, 5));
+            mergeList.add(new MergeCell(firstRow_commentList, excelData.getCommentList().size() + firstRow_commentList - 1, 6, 7));
+            mergeList.add(new MergeCell(firstRow_commentList, excelData.getCommentList().size() + firstRow_commentList - 1, 8, 10));
+            mergeList.add(new MergeCell(firstRow_commentList, excelData.getCommentList().size() + firstRow_commentList - 1, 11, 17));
+            WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+            FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+            // 使用 EasyExcel 填充数据
+            excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+            excelWriter.fill(excelData, sheet1);
+            excelWriter.fill(new FillWrapper("data1", excelData.getFeeItemList()), fillConfig, sheet1);
+            excelWriter.fill(new FillWrapper("data2", excelData.getCommentList()), fillConfig, sheet1);
+            excelWriter.finish();
+
+            File tempFile = FileUtil.file(outputFileName);
+            CommonDownloadUtil.download(tempFile, response);
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }finally {
+            // 关闭流
+            if(excelWriter != null){
+                excelWriter.close();
+            }
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    // 获取并设置评论列表
+    private void setCommentList(PrjFeeAllotmentExcelData excelData) {
+        if(CollUtil.isNotEmpty(excelData.getCommentList())){
+            return;
+        }
+        List<PrjFeeAllotmentExcelData.FlwProcessComment> commentList = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(excelData.getProcessInstanceId())){
+            commentList = getFlwProcessComments(excelData.getProcessInstanceId());
+        }else {
+            if(ObjectUtil.isNotEmpty(excelData.getId())){
+                PrjFeeAllotment prjFeeAllotment = this.getById(excelData.getId());
+                if(ObjectUtil.isNotEmpty(prjFeeAllotment)){
+                    commentList = getFlwProcessComments(prjFeeAllotment.getProcessInstanceId());
+                }
+            }
+        }
+        excelData.setCommentList(commentList);
+    }
+
+    // 获取评论列表
+    private List<PrjFeeAllotmentExcelData.FlwProcessComment> getFlwProcessComments(String processInstanceId) {
+        List<PrjFeeAllotmentExcelData.FlwProcessComment> commentList = new ArrayList<>();
+        // 查询审批评论列表
+        if(StrUtil.isNotBlank(processInstanceId)){
+            JSONObject jsonObject = flwProcessMonitorApi.monitorDetail(processInstanceId);
+            if(ObjectUtil.isNotEmpty(jsonObject)){
+                JSONArray jsonArray = jsonObject.getJSONArray("commentList");
+                if(CollUtil.isNotEmpty(jsonArray)){
+                    commentList = JSONUtil.toList(jsonArray.toString(), PrjFeeAllotmentExcelData.FlwProcessComment.class);
+                }
+            }
+        }
+        return commentList;
     }
 }

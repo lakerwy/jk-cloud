@@ -271,4 +271,8 @@ public class Hetong {
     /** 用印审批-流程实例id，多个英文逗号分割 */
     @ApiModelProperty(value = "用印审批-流程实例id，多个英文逗号分割", position = 64)
     private String sealProcessInstanceId;
+
+    /** 申请人单位 */
+    @ApiModelProperty(value = "申请人单位", position = 70)
+    private String htMainType;
 }

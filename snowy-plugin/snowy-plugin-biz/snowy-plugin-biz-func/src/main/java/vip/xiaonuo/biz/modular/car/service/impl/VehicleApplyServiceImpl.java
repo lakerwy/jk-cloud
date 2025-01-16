@@ -589,11 +589,13 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             {
                 queryWrapper1.lambda().notIn(VehicleInformation::getId,haveUsedVehicle);
             }
-            if(availableParam.isExcludeUnavailableVehicle()){
+            if(ObjectUtil.isEmpty(availableParam.getExcludeUnavailableVehicle()) || availableParam.getExcludeUnavailableVehicle()){
                 queryWrapper1.lambda().in(VehicleInformation::getStatus,CarStatusEnum.Useable.getValue(),CarStatusEnum.Out.getValue());
             }
             if(ObjectUtil.isNotEmpty(availableParam.getUseType())){
                 queryWrapper1.lambda().eq(VehicleInformation::getUseType,availableParam.getUseType());
+            }else{
+                queryWrapper1.lambda().eq(VehicleInformation::getUseType,"公用");
             }
             List<VehicleInformation> dbVehicleInfo = vehicleInformationService.list(queryWrapper1);
             result.setAvailableVehicles(BeanUtil.copyToList(dbVehicleInfo, VehicleInfoDto.class));
@@ -603,11 +605,13 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             {
                 queryWrapper2.lambda().notIn(Drivers::getDriverUserId,haveUsedDriver);
             }
-            if(availableParam.isExcludeUnavailableDriver()){
+            if(ObjectUtil.isEmpty(availableParam.getExcludeUnavailableDriver()) || availableParam.getExcludeUnavailableDriver()){
                 queryWrapper2.lambda().in(Drivers::getStatus,DriverStatusEnum.Free.getValue(),DriverStatusEnum.Out.getValue());
             }
             if(ObjectUtil.isNotEmpty(availableParam.getDispatchType())){
                 queryWrapper2.lambda().eq(Drivers::getDispatchType,availableParam.getDispatchType());
+            }else {
+                queryWrapper2.lambda().eq(Drivers::getDispatchType,"公派");
             }
 
             List<Drivers> dbDriverInfo = driversService.list(queryWrapper2);
