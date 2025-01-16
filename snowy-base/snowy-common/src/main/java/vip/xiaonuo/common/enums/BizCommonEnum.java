@@ -72,6 +72,7 @@ public enum BizCommonEnum {
 
     BIZ_CAR_VEHICLE_APPLY("BIZ_CAR_VEHICLE_APPLY","BIZ_CAR_VEHICLE_APPLY","VehicleApplyServiceImpl"),   //用车申请单
 
+    REG_SUBSIDY("REG_SUBSIDY","REG_SUBSIDY","RegSubsidyServiceImpl"), //注册补贴（新版）审批
     BIZ_BID_FEE_APPLY("BIZ_BID_FEE","BIZ_BID_FEE","BidFeeServiceImpl");   //投标费用审批
 
     String bizModel;

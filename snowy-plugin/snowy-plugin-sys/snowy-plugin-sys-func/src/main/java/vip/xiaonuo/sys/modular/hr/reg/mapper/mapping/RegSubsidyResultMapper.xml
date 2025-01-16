@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.reg.mapper.RegSubsidyResultMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.reg.vo.RegResultVo" >
+        select a.*,
+               b.POSITION as regPosition,b.FIRST_ORG_NAME as regFirstOrgName,b.SECOND_ORG_NAME as regSecondOrgName,
+               b.HIRE_DATE as regHireDate,b.EDUCATION as regEducation,b.COLLEGE as regCollege,b.MAJOR as regMajor,
+               b.GRAD_TIME as regGradTime,b.CERT_LEVEL as regCertLevel,b.CERT_MAJOR as regCertMajor,b.ATTACH as regAttach,
+               b.JT_TOTAL as regJtTotal,b.DEPT_TOTAL as regDeptTotal,b.SUM_TOTAL as regSumTotal,
+               b.SN as regSn,b.PROCESS_INSTANCE_ID as regProcessInstanceId,b.STATUS as regStatus
+        from REG_SUBSIDY_RESULT a
+                left join REG_SUBSIDY b on a.REG_SUBSIDY_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+</mapper>

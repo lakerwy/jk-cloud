@@ -136,8 +136,8 @@ public class CertManage {
     @ApiModelProperty(value = "证书状态：有效|无效", position = 20)
     private String certStatus;
 
-    /** 系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */
-    @ApiModelProperty(value = "系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员", position = 21)
+    /** 系统用户：总部 PERSONNEL.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */
+    @ApiModelProperty(value = "系统用户：总部 PERSONNEL.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员", position = 21)
     private String userId;
 
     /** 用户类型：总部|分公司|外部人员 */
