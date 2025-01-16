@@ -38,4 +38,12 @@ public class DriverInfoDto {
     /** 司机UserId */
     @ApiModelProperty(value = "司机UserId", position = 13)
     private String driverUserId;
+
+    /** 派遣类型(公派|私派) */
+    @ApiModelProperty(value = "派遣类型(公派|私派)", position = 20)
+    private String dispatchType;
+
+    /** 状态 */
+    @ApiModelProperty(value = "状态（1-空闲，2-出车，3-请假，4-离职）", position = 21)
+    private String status;
 }
