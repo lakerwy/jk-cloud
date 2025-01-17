@@ -287,6 +287,10 @@ public class PrjFeeAllotmentExcelData {
         /** 附件 */
         @ApiModelProperty(value = "附件", position = 13)
         private String attachments;
+
+        /** 文件名 */
+        @ApiModelProperty(value = "文件名", position = 14)
+        private String fileName;
     }
 
     /**

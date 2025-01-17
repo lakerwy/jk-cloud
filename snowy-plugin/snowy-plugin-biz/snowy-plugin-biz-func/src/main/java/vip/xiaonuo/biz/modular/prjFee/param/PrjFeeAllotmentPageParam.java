@@ -48,4 +48,8 @@ public class PrjFeeAllotmentPageParam {
     @ApiModelProperty(value = "日期（格式：yyyy-MM-dd）")
     private String feeDate;
 
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态")
+    private String status;
+
 }

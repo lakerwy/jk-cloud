@@ -19,7 +19,11 @@ public class PrjFeeHisVo {
 
     /** 本项目已拨付次数 */
     @ApiModelProperty(value = "本项目已拨付次数", position = 1)
-    private int disbursedTimes;
+    private Integer disbursedTimes;
+
+    /** 本项目已拨付次数 */
+    @ApiModelProperty(value = "该合同前期拨付是否完成（true-是，false-否，前面的流程拨付完成才能发起新的拨付流程）", position = 2)
+    private Boolean preAllotmentOver;
 
     /** 前期银行收款累计 */
     @ApiModelProperty(value = "前期银行收款累计", position = 33)

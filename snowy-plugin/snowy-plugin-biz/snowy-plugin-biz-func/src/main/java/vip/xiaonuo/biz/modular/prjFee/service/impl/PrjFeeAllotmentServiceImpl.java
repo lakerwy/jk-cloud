@@ -87,6 +87,12 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
     @Override
     public Page<PrjFeeAllotment> page(PrjFeeAllotmentPageParam prjFeeAllotmentPageParam) {
         QueryWrapper<PrjFeeAllotment> queryWrapper = new QueryWrapper<>();
+        // 默认只展示审核中和已完成的数据
+        if(ObjectUtil.isNotEmpty(prjFeeAllotmentPageParam.getStatus())){
+            queryWrapper.lambda().eq(PrjFeeAllotment::getStatus,prjFeeAllotmentPageParam.getStatus());
+        }else {
+            queryWrapper.lambda().in(PrjFeeAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        }
         if(ObjectUtil.isNotEmpty(prjFeeAllotmentPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(PrjFeeAllotment::getSn,prjFeeAllotmentPageParam.getSearchKey())
                     .or().like(PrjFeeAllotment::getProjectName,prjFeeAllotmentPageParam.getSearchKey())
@@ -227,18 +233,26 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
     @Override
     public PrjFeeHisVo prjFeeHis(PrjFeeHisParam prjFeeHisParam) {
         PrjFeeHisVo prjFeeHisVo = new PrjFeeHisVo();
+        // 获取审批中和审批通过的拨付单
         LambdaQueryWrapper<PrjFeeAllotment> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PrjFeeAllotment::getHetongId, prjFeeHisParam.getHetongId());
-        queryWrapper.isNotNull(PrjFeeAllotment::getCurDisburseNum);
+        queryWrapper.in(PrjFeeAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        List<PrjFeeAllotment> prjFeeAllotmentList = this.list(queryWrapper);
+        // 没有查到，已拨付次数视为0，直接返回
+        if(CollUtil.isEmpty(prjFeeAllotmentList)) {
+            prjFeeHisVo.setDisbursedTimes(0);
+            prjFeeHisVo.setPreAllotmentOver(Boolean.TRUE);
+            return prjFeeHisVo;
+        }
+        // queryWrapper.isNotNull(PrjFeeAllotment::getCurDisburseNum);
         queryWrapper.orderByDesc(PrjFeeAllotment::getCurDisburseNum);
         queryWrapper.last("limit 1");
         PrjFeeAllotment prjFeeAllotment = this.getOne(queryWrapper);
-        if(ObjectUtil.isEmpty(prjFeeAllotment)) {
-            prjFeeHisVo.setDisbursedTimes(0);
-            return prjFeeHisVo;
-        }
         prjFeeHisVo = BeanUtil.copyProperties(prjFeeAllotment, PrjFeeHisVo.class);
         prjFeeHisVo.setDisbursedTimes(prjFeeAllotment.getCurDisburseNum());
+        List<PrjFeeAllotment> collect = prjFeeAllotmentList.stream().filter(x -> FlwStatusEnum.ACTIVE_STATUS.getValue().equals(x.getStatus()))
+                .collect(Collectors.toList());
+        prjFeeHisVo.setPreAllotmentOver(CollUtil.isEmpty(collect)?Boolean.TRUE:Boolean.FALSE);
         return prjFeeHisVo;
     }
 
@@ -257,10 +271,10 @@ public class PrjFeeAllotmentServiceImpl extends ServiceImpl<PrjFeeAllotmentMappe
             inputStream = classPathResource.getStream();
             PrjFeeAllotmentExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), PrjFeeAllotmentExcelData.class);
             excelData.setCommentList(excelParam.getCommentList());
-            // 设置序号
             if(ObjectUtil.isNotEmpty(excelData.getFeeItemList())) {
                 for(int i=0;i<excelData.getFeeItemList().size();i++) {
-                    excelData.getFeeItemList().get(i).setSortNum(i+1);
+                    PrjFeeAllotmentExcelData.PrjFeeAllotmentItem item = excelData.getFeeItemList().get(i);
+                    item.setSortNum(i+1);// 设置序号
                 }
             }
             // 获取评论列表

@@ -72,4 +72,8 @@ public class PrjFeeAllotmentItemEditParam {
     @ApiModelProperty(value = "附件", position = 13)
     private String attachments;
 
+    /** 文件名 */
+    @ApiModelProperty(value = "文件名", position = 13)
+    private String fileName;
+
 }

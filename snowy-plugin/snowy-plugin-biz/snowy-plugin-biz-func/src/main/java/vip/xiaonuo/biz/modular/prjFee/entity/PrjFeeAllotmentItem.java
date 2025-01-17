@@ -71,6 +71,10 @@ public class PrjFeeAllotmentItem {
     @ApiModelProperty(value = "附件", position = 13)
     private String attachments;
 
+    /** 文件名 */
+    @ApiModelProperty(value = "文件名", position = 13)
+    private String fileName;
+
     /** 租户id */
     @ApiModelProperty(value = "租户id", position = 14)
     private String tenantId;
