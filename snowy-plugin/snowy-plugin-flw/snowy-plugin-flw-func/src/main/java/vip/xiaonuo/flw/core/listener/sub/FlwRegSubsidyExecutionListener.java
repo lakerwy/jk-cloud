@@ -1,5 +1,6 @@
 package vip.xiaonuo.flw.core.listener.sub;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
@@ -31,13 +32,14 @@ public class FlwRegSubsidyExecutionListener implements ExecutionListener {
             String personnelId = String.valueOf(execution.getVariable("personnelId"));
             String idCardNumber = String.valueOf(execution.getVariable("idCardNumber"));
             String name = String.valueOf(execution.getVariable("name"));
-            String resultJson = String.valueOf(execution.getVariable("resultJson"));
+            Object objResultJson = execution.getVariable("resultJson");
+            String resultJson = ObjectUtil.isNotEmpty(objResultJson) ? objResultJson.toString() : null;
             //当前流程实例Id
             String processInstanceId = execution.getProcessInstanceId();
             RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             String businessKey = processInstance.getBusinessKey();
-            Map<String,Object> paramMap = new HashMap<>();
+            Map<String,String> paramMap = new HashMap<>();
             paramMap.put("personnelId",personnelId);
             paramMap.put("idCardNumber",idCardNumber);
             paramMap.put("name",name);

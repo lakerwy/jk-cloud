@@ -26,14 +26,14 @@ public class SysExtApiProvider implements SysExtApi {
      * @return
      */
     @Override
-    public Boolean saveRegSubsidyResult(Map<String,Object> paramMap) {
+    public Boolean saveRegSubsidyResult(Map<String,String> paramMap) {
         try {
             //获取流程中参数
-            String personnelId = paramMap.get("personnelId").toString();
-            String idCardNumber = paramMap.get("idCardNumber").toString();
-            String name = paramMap.get("name").toString();
-            String resultJson = paramMap.get("resultJson").toString();
-            String regSubsidyId = paramMap.get("regSubsidyId").toString();
+            String personnelId = paramMap.get("personnelId");
+            String idCardNumber = paramMap.get("idCardNumber");
+            String name = paramMap.get("name");
+            String resultJson = paramMap.get("resultJson");
+            String regSubsidyId = paramMap.get("regSubsidyId");
             //将resultJson转换成实体(保留最新，历史删除)
             regSubsidyResultService.remove(new LambdaQueryWrapper<RegSubsidyResult>().eq(RegSubsidyResult::getPersonnelId, personnelId));
             List<RegSubsidyResult> addList = JSONUtil.toList(resultJson, RegSubsidyResult.class);

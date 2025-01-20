@@ -12,5 +12,5 @@ public interface SysExtApi {
      * @param paramMap
      * @return
      */
-    Boolean saveRegSubsidyResult(Map<String,Object> paramMap);
+    Boolean saveRegSubsidyResult(Map<String,String> paramMap);
 }

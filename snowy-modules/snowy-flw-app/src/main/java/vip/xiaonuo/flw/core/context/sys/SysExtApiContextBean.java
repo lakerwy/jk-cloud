@@ -36,7 +36,7 @@ public class SysExtApiContextBean implements SysExtApi {
      * @return
      */
     @Override
-    public Boolean saveRegSubsidyResult(Map<String,Object> paramMap) {
+    public Boolean saveRegSubsidyResult(Map<String,String> paramMap) {
         return sysExtFeign.saveRegSubsidyResult(paramMap);
     }
 }
