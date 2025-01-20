@@ -51,11 +51,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -153,24 +152,43 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             CommonResponseUtil.renderError(response, e.getMessage());
             return;
         }
+//       模式一：字节传输
+//        byte[] fileBytes = null;
+//        if(DevFileEngineTypeEnum.LOCAL.getValue().equals(devFile.getEngine())) {
+//            File file = FileUtil.file(devFile.getStoragePath());
+//            if(!FileUtil.exist(file)) {
+//                CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
+//                return;
+//            }
+//            fileBytes = IoUtil.readBytes(FileUtil.getInputStream(file));
+//        }else if(DevFileEngineTypeEnum.MINIO.getValue().equals(devFile.getEngine())) {
+//            URL url = new URL(devFile.getStoragePath());
+//            fileBytes = IoUtil.readBytes(URLUtil.getStream(url));
+//        }else{
+//            CommonResponseUtil.renderError(response, "文件不支持此方式下载，id值为：" + devFile.getId());
+//            return;
+//        }
+//
+//        CommonDownloadUtil.download(devFile.getName(), fileBytes, response);
 
-        byte[] fileBytes = null;
+//      模式二：流传输
+        InputStream inputStream = null;
         if(DevFileEngineTypeEnum.LOCAL.getValue().equals(devFile.getEngine())) {
             File file = FileUtil.file(devFile.getStoragePath());
             if(!FileUtil.exist(file)) {
                 CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
                 return;
             }
-            fileBytes = IoUtil.readBytes(FileUtil.getInputStream(file));
+            inputStream = FileUtil.getInputStream(file);
         }else if(DevFileEngineTypeEnum.MINIO.getValue().equals(devFile.getEngine())) {
             URL url = new URL(devFile.getStoragePath());
-            fileBytes = IoUtil.readBytes(URLUtil.getStream(url));
+            inputStream = URLUtil.getStream(url);
         }else{
             CommonResponseUtil.renderError(response, "文件不支持此方式下载，id值为：" + devFile.getId());
             return;
         }
+        CommonDownloadUtil.download(devFile.getName(), inputStream, response);
 
-        CommonDownloadUtil.download(devFile.getName(), fileBytes, response);
     }
 
 //    @Override

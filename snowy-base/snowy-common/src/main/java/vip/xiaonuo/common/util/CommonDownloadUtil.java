@@ -29,6 +29,7 @@ import java.util.zip.Deflater;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -127,5 +128,49 @@ public class CommonDownloadUtil {
     }
     private static String encodeFileName(String fileName) throws UnsupportedEncodingException {
         return URLEncoder.encode(fileName, "UTF-8");
+    }
+
+
+
+    /**
+     * 下载文件(传入文件流)
+     *
+     * @author xuyuxiang
+     * @date 2022/7/31 10:57
+     */
+    public static void download(String fileName, InputStream inputStream, HttpServletResponse response) {
+        try {
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLUtil.encode(fileName));
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+            response.setContentType("application/octet-stream;charset=UTF-8");
+
+            try (BufferedInputStream bis = new BufferedInputStream(inputStream);
+                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
+                byte[] buffer = new byte[1024 * 8];  // 8k缓冲区
+                int bytesRead;
+
+                // 逐步读取并写入文件内容
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+                bos.flush();  // 确保数据写入到响应流
+            }catch (Exception e){
+                throw e;
+            }
+        }catch (ClientAbortException e){
+            // 客户端已经关闭连接，这是一个正常的情况，无需记录错误信息
+            log.debug("客户端连接已关闭");
+        } catch (Exception e) {
+            log.error(">>> 文件下载异常：", e);
+        }finally {
+            if(null!=inputStream){
+                try {
+                    inputStream.close();
+                }catch (IOException e){
+                    log.error("关闭输入流异常",e);
+                }
+            }
+        }
     }
 }
