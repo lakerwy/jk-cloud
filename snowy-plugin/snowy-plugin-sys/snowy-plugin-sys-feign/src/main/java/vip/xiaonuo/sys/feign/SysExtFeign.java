@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 import java.util.Map;
@@ -31,6 +32,6 @@ public interface SysExtFeign {
      * @return
      */
     @RequestMapping("/feign/sys/ext/saveRegSubsidyResult")
-    Boolean saveRegSubsidyResult(Map<String,Object> paramMap);
+    Boolean saveRegSubsidyResult(@RequestParam(value = "paramMap",required = false) Map<String,Object> paramMap);
 
 }

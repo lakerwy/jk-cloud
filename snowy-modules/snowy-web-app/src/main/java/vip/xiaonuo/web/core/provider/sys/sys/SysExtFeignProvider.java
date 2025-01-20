@@ -15,6 +15,7 @@ package vip.xiaonuo.web.core.provider.sys.sys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.sys.feign.SysExtFeign;
 import vip.xiaonuo.sys.modular.hr.reg.provider.SysExtApiProvider;
@@ -39,7 +40,7 @@ public class SysExtFeignProvider implements SysExtFeign {
      */
     @Override
     @RequestMapping("/feign/sys/ext/saveRegSubsidyResult")
-    public Boolean saveRegSubsidyResult(Map<String,Object> paramMap) {
+    public Boolean saveRegSubsidyResult(@RequestParam(value = "paramMap",required = false) Map<String,Object> paramMap) {
         return sysExtApiProvider.saveRegSubsidyResult(paramMap);
     }
 }
