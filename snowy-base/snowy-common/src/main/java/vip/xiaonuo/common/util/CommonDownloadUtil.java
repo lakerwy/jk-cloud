@@ -76,12 +76,12 @@ public class CommonDownloadUtil {
             try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 1024 * 1024 * 8)){
                 bufferedOutputStream.write(fileBytes);
             }catch (IOException e) {
-                log.error(">>> 文件下载异常：", e);
+                throw e;
             }
         }catch (ClientAbortException e){
             // 客户端已经关闭连接，这是一个正常的情况，无需记录错误信息
             log.debug("客户端连接已关闭");
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(">>> 文件下载异常：", e);
         }finally {
             if(null!=outputStream){
