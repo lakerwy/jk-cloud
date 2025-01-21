@@ -207,8 +207,7 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
     public Page<BizProjectVo> projectPage(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BidFee> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("b.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.eq("a.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getProjectSn())){
             queryWrapper.like("a.PROJECT_SN",bizProjectPageParam.getProjectSn());
         }

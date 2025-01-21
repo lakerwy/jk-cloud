@@ -3,11 +3,10 @@
 <mapper namespace="vip.xiaonuo.biz.modular.bidFee.mapper.BidFeeMapper">
 
     <select id="getProjectPage" resultType="vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo">
-        SELECT DISTINCT
+        SELECT
             a.*
         FROM
             BIZ_PROJECT a
-                JOIN BIZ_CRM_HETONG b ON a.ID = b.BIZ_PROJECT_ID
         ${ew.customSqlSegment}
     </select>
 
