@@ -24,15 +24,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
+import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractAddParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractEditParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractIdParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractPageParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
 
 import javax.annotation.Resource;
@@ -165,4 +163,16 @@ public class SubcontractController {
     public CommonResult<Page<SubContractInfoVo>> limitPage(SubcontractPageParam subcontractPageParam) {
         return CommonResult.data(subcontractService.limitPage(subcontractPageParam));
     }
+
+
+    /**
+     * 分包合同申请，乙方重名校验（去掉空格，特殊字符，大小写）
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("分包合同申请，乙方重名校验（去掉空格，特殊字符，大小写）")
+    @GetMapping("/biz/crm/subcontract/checkSecondName")
+    public CommonResult<CheckResult> checkSecondName(@Valid CheckSecondNameParam checkSecondNameParam) {
+        return CommonResult.data(subcontractService.checkSecondName(checkSecondNameParam));
+    }
+
 }

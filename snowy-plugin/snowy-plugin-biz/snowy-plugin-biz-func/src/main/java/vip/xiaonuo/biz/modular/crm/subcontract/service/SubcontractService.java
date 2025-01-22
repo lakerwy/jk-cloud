@@ -17,9 +17,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -105,4 +105,11 @@ public interface SubcontractService extends IService<Subcontract> {
      * @return
      */
     Page<SubContractInfoVo> limitPage(SubcontractPageParam subcontractPageParam);
+
+    /**
+     * 分包合同申请，乙方重名校验（去掉空格，特殊字符，大小写）
+     * @param checkSecondNameParam
+     * @return
+     */
+    CheckResult checkSecondName(CheckSecondNameParam checkSecondNameParam);
 }

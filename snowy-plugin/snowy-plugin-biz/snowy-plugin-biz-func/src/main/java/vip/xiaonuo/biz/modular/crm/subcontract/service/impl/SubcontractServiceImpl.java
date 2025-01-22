@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.crm.subcontract.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
+import vip.xiaonuo.biz.modular.crm.subcontract.util.MyUtil;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -44,6 +47,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -311,5 +315,33 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
             queryWrapper.orderByDesc("a.REGISTER_DATE").orderByDesc("a.CONTRACT_NO");
         }
         return subcontractMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public CheckResult checkSecondName(CheckSecondNameParam checkSecondNameParam) {
+        CheckResult result = new CheckResult();
+        //寻找主合同下的分包合同
+        QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Subcontract::getHetongId,checkSecondNameParam.getHetongId());
+        queryWrapper.lambda().in(Subcontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().isNotNull(Subcontract::getCounterparty);
+        queryWrapper.lambda().ne(Subcontract::getCounterparty,"");
+        List<Subcontract> subcontractList = this.list(queryWrapper);
+        List<String> msgList = new ArrayList<>();
+        Boolean isExist = false;
+        //循环校验
+        if(CollUtil.isNotEmpty(subcontractList)) {
+            String newName = MyUtil.removeSpcChar(checkSecondNameParam.getCounterparty());
+            for (Subcontract item : subcontractList){
+                String oldName = MyUtil.removeSpcChar(item.getCounterparty());
+                if (newName.equals(oldName)) {
+                    isExist = true;
+                    msgList.add(item.getContractNo() + " - " + item.getCounterparty());
+                }
+            }
+        }
+        result.setIsExist(isExist);
+        result.setMsgList(msgList);
+        return result;
     }
 }
