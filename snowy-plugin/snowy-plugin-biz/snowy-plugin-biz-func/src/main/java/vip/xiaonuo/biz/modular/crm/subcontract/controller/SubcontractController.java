@@ -27,6 +27,8 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SupplierVo;
+import vip.xiaonuo.biz.modular.procure.service.ProcureApiService;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -51,6 +53,9 @@ public class SubcontractController {
 
     @Resource
     private SubcontractService subcontractService;
+
+    @Resource
+    ProcureApiService procureApiService;
 
     /**
      * 获取业务表-CRM-分包合同分页
@@ -175,4 +180,17 @@ public class SubcontractController {
         return CommonResult.data(subcontractService.checkSecondName(checkSecondNameParam));
     }
 
+
+    /**
+     * 招采平台：获取供应商信息分页
+     *
+     * @author pzh
+     * @date  2025/01/22 15:52
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("招采平台：获取供应商信息分页")
+    @GetMapping("/biz/procure/supplier/page")
+    public CommonResult<Page<SupplierVo>> supplierPage(SupplierPageParam supplierPageParam) {
+        return CommonResult.data(procureApiService.supplierPage(supplierPageParam));
+    }
 }

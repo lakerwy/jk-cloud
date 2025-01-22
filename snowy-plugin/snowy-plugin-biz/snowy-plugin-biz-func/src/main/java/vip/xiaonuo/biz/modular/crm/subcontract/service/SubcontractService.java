@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SupplierVo;
 
 import java.util.List;
 

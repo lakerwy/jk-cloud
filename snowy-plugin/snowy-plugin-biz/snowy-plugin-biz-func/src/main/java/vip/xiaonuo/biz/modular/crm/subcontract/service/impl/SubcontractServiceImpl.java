@@ -16,10 +16,14 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -28,10 +32,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
+import vip.xiaonuo.biz.modular.procure.config.ProcureProperties;
+import vip.xiaonuo.biz.modular.crm.subcontract.enums.ProcureApiEnum;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.util.MyUtil;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.CheckResult;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SupplierVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -47,9 +54,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 业务表-CRM-分包合同Service接口实现类
@@ -70,6 +75,11 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
 
     @Resource
     FlwCommonApi flwCommonApi;
+
+    @Resource
+    ProcureProperties procureProperties;
+
+
     @Override
     public Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
@@ -316,6 +326,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         }
         return subcontractMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
+
 
     @Override
     public CheckResult checkSecondName(CheckSecondNameParam checkSecondNameParam) {
