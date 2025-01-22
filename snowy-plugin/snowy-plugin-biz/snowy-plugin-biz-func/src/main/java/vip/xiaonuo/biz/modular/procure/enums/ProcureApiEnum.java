@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.modular.crm.subcontract.enums;
+package vip.xiaonuo.biz.modular.procure.enums;
 
 import lombok.Getter;
 
