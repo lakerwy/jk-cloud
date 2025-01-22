@@ -23,7 +23,7 @@ public class CarFinishTaskListener implements TaskListener {
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         String businessKey = processInstance.getBusinessKey();
-        String driverId = String.valueOf(delegateTask.getVariable("driverId"));
+        String driverId = String.valueOf(delegateTask.getVariable("driverUserId"));
         String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
         String endMileage = String.valueOf(delegateTask.getVariable("endMileage"));
         CarUtil.updateApplyStatus("4", businessKey); //更新用车申请单状态为已完成

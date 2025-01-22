@@ -35,7 +35,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
 //            String processInstanceId = historicProcessInstance.getId();
             String id = String.valueOf(json.get("id"));
             String vehicleId = String.valueOf(json.get("vehicleId"));
-            String driverId = String.valueOf(json.get("driverId"));
+            String driverId = String.valueOf(json.get("driverUserId"));
             CarUtil.updateApplyStatus("6", id); //更新用车申请单状态为已拒绝
             CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
             CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用

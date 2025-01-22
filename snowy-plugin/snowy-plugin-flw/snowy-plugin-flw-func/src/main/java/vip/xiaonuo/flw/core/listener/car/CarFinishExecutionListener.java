@@ -18,7 +18,7 @@ public class CarFinishExecutionListener implements ExecutionListener {
         log.info("shen>>> 执行监听器：{}事件触发，流程id为：{}，当前活动节点为：{}",
                 execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
         String id = String.valueOf(execution.getVariable("id"));
-        String driverId = String.valueOf(execution.getVariable("driverId"));
+        String driverId = String.valueOf(execution.getVariable("driverUserId"));
         String driverIdAgain = String.valueOf(execution.getVariable("driverIdAgain"));
         String vehicleId = String.valueOf(execution.getVariable("vehicleId"));
         String endMileage = String.valueOf(execution.getVariable("endMileage"));
