@@ -20,7 +20,7 @@ public class CarDispatchTaskListener implements TaskListener {
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         String businessKey = processInstance.getBusinessKey();
-        String driverId = String.valueOf(delegateTask.getVariable("driverId"));
+        String driverId = String.valueOf(delegateTask.getVariable("driverUserId"));
         String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
 
         CarUtil.updateApplyStatus("3", businessKey);// 更新用车申请单状态为已派车
