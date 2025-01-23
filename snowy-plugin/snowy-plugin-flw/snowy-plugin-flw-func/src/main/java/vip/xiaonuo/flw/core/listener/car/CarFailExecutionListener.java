@@ -55,7 +55,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
                         historicVariableInstance.getValue()));
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
-        String driverId = String.valueOf(variableJsonObject.get("driverId"));
+        String driverId = String.valueOf(variableJsonObject.get("driverUserId"));
         CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
@@ -72,7 +72,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
                         historicVariableInstance.getValue()));
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
-        String driverId = String.valueOf(variableJsonObject.get("driverId"));
+        String driverId = String.valueOf(variableJsonObject.get("driverUserId"));
         CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
@@ -89,7 +89,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
                         historicVariableInstance.getValue()));
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
-        String driverId = String.valueOf(variableJsonObject.get("driverId"));
+        String driverId = String.valueOf(variableJsonObject.get("driverUserId"));
         CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
