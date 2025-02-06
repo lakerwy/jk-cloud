@@ -74,6 +74,10 @@ public enum BizCommonEnum {
 
     REG_SUBSIDY("REG_SUBSIDY","REG_SUBSIDY","RegSubsidyServiceImpl"), //注册补贴（新版）审批
 
+    SUB_GZ("SUB_GZ","SUB_GZ","SubGzServiceImpl"), //分公司-工资发放-审批
+
+    SUB_FUND("SUB_FUND","SUB_FUND","SubFundServiceImpl"), //分公司-五险一金-审批
+
     BIZ_BID_FEE_APPLY("BIZ_BID_FEE","BIZ_BID_FEE","BidFeeServiceImpl"),   //投标费用审批
 
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
