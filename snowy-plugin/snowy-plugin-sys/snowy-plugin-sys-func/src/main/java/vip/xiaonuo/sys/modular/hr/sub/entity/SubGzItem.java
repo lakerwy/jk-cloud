@@ -1,0 +1,115 @@
+package vip.xiaonuo.sys.modular.hr.sub.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 分公司-工资发放 - 工资|奖金明细实体
+ *
+ * @author yong.ye
+ * @date  2025/02/06 09:11
+ **/
+@Getter
+@Setter
+@TableName("SUB_GZ_ITEM")
+public class SubGzItem {
+
+    /** 主键ID */
+    @TableId
+    @ApiModelProperty(value = "主键ID", position = 1)
+    private String id;
+
+    /** 工资发放流程主键id */
+    @ApiModelProperty(value = "工资发放流程主键id", position = 2)
+    private String subGzId;
+
+    /** 明细类别：工资|奖金 */
+    @ApiModelProperty(value = "明细类别：工资|奖金", position = 3)
+    private String type;
+
+    /** 所属月份 */
+    @ApiModelProperty(value = "所属月份", position = 4)
+    private String yM;
+
+    /** 姓名 */
+    @ApiModelProperty(value = "姓名", position = 5)
+    private String userName;
+
+    /** 身份证号 */
+    @ApiModelProperty(value = "身份证号", position = 6)
+    private String idCardNumber;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门", position = 7)
+    private String orgName;
+
+    /** 职位 */
+    @ApiModelProperty(value = "职位", position = 8)
+    private String duty;
+
+    /** 用工性质 */
+    @ApiModelProperty(value = "用工性质", position = 9)
+    private String nature;
+
+    /** 应发工资合计|应发奖金合计 */
+    @ApiModelProperty(value = "应发工资合计|应发奖金合计", position = 10)
+    private BigDecimal yf;
+
+    /** 五险（个人部分） */
+    @ApiModelProperty(value = "五险（个人部分）", position = 11)
+    private BigDecimal ins;
+
+    /** 公积金（个人部分） */
+    @ApiModelProperty(value = "公积金（个人部分）", position = 12)
+    private BigDecimal gjj;
+
+    /** 本月应扣税额|应扣税额 */
+    @ApiModelProperty(value = "本月应扣税额|应扣税额", position = 13)
+    private BigDecimal yk;
+
+    /** 实发工资|实发奖金 */
+    @ApiModelProperty(value = "实发工资|实发奖金", position = 14)
+    private BigDecimal sf;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 15)
+    private String memo;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 16)
+    private String attach;
+
+    /** 租户id */
+    @ApiModelProperty(value = "租户id", position = 17)
+    private String tenantId;
+
+    /** 删除标志 */
+    @ApiModelProperty(value = "删除标志", position = 18)
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private String deleteFlag;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间", position = 19)
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /** 创建用户 */
+    @ApiModelProperty(value = "创建用户", position = 20)
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    /** 修改时间 */
+    @ApiModelProperty(value = "修改时间", position = 21)
+    @TableField(fill = FieldFill.UPDATE)
+    private Date updateTime;
+
+    /** 修改用户 */
+    @ApiModelProperty(value = "修改用户", position = 22)
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateUser;
+}
