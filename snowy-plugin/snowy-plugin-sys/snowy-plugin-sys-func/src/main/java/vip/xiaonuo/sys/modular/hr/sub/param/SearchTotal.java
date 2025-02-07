@@ -30,4 +30,9 @@ public class SearchTotal {
     /** 所属大区 */
     @ApiModelProperty(value = "所属大区")
     private String region;
+
+
+    /** 报表类型：1 应发工资人数  2 实发工资人数  3 应发工资总额  4 实发工资总额  5 实缴五险人数  6 实缴五险一金总额 */
+    @ApiModelProperty(value = "报表类型：1 应发工资人数  2 实发工资人数  3 应发工资总额  4 实发工资总额  5 实缴五险人数  6 实缴五险一金总额")
+    private String reportType;
 }

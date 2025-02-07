@@ -2,4 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.sub.mapper.SubGzMapper">
 
+    <select id="getSubGzList" resultType="vip.xiaonuo.sys.modular.hr.sub.entity.SubGz" >
+        select a.* from SUB_GZ a ${ew.customSqlSegment}
+    </select>
+
+    <select id="getMonthVoList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo" >
+        select a.Y_M as yM,a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,
+               sum(a.GZ_YF_NUM) as gzYfNum,
+               sum(a.GZ_SF_NUM) as gzSfNum,
+               sum(a.YF_GZ_TOTAL) as yfGzTotal,
+               sum(a.GZ_TAX_TOTAL) as gzTaxTotal,
+               sum(a.SF_GZ_TOTAL) as sfGzTotal,
+               sum(a.JJ_YF_NUM) as jjYfNum,
+               sum(a.JJ_SF_NUM) as jjSfNum,
+               sum(a.YF_JJ_TOTAL) as yfJjTotal,
+               sum(a.JJ_TAX_TOTAL) as jjTaxTotal,
+               sum(a.SF_JJ_TOTAL) as sfJjTotal
+        from SUB_GZ a ${ew.customSqlSegment}
+        group by a.Y_M,a.REGION,a.ORG_ID,a.ORG_NAME
+    </select>
+
+    <select id="getSubGzItemList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubGzItemVo" >
+        select a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,a.Y_M as flwYM,
+               b.*
+        from SUB_GZ a join SUB_GZ_ITEM b on a.ID = b.SUB_GZ_ID
+            ${ew.customSqlSegment}
+    </select>
 </mapper>

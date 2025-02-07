@@ -31,81 +31,81 @@ public class MonthVo {
 
     /** 工资总额 - 工资应发人数 */
     @ApiModelProperty(value = "工资总额 - 工资应发人数", position = 11)
-    private Integer gzYfNum;
+    private Integer gzYfNum = 0;
 
     /** 工资总额 - 工资实发人数 */
     @ApiModelProperty(value = "工资总额 - 工资实发人数", position = 12)
-    private Integer gzSfNum;
+    private Integer gzSfNum = 0;
 
     /** 工资总额 - 应发工资合计 */
     @ApiModelProperty(value = "工资总额 - 应发工资合计", position = 13)
-    private BigDecimal yfGzTotal;
+    private BigDecimal yfGzTotal = BigDecimal.ZERO;
 
     /** 工资总额 - 五险（个人部分） */
     @ApiModelProperty(value = "工资总额 - 五险（个人部分）", position = 14)
-    private BigDecimal insTotal;
+    private BigDecimal insTotal = BigDecimal.ZERO;
 
     /** 工资总额 - 公积金（个人部分） */
     @ApiModelProperty(value = "工资总额 - 公积金（个人部分）", position = 15)
-    private BigDecimal gjjTotal;
+    private BigDecimal gjjTotal = BigDecimal.ZERO;
 
     /** 工资总额 - 工资应扣税额合计 */
     @ApiModelProperty(value = "工资总额 - 工资应扣税额合计", position = 16)
-    private BigDecimal gzTaxTotal;
+    private BigDecimal gzTaxTotal = BigDecimal.ZERO;
 
     /** 工资总额 - 实发工资合计 */
     @ApiModelProperty(value = "工资总额 - 实发工资合计", position = 17)
-    private BigDecimal sfGzTotal;
+    private BigDecimal sfGzTotal = BigDecimal.ZERO;
 
     /** 奖金 - 奖金应发人数 */
     @ApiModelProperty(value = "奖金 - 奖金应发人数", position = 21)
-    private Integer jjYfNum;
+    private Integer jjYfNum = 0;
 
     /** 奖金 - 奖金实发人数 */
     @ApiModelProperty(value = "奖金 - 奖金实发人数", position = 22)
-    private Integer jjSfNum;
+    private Integer jjSfNum = 0;
 
     /** 奖金 - 应发奖金合计 */
     @ApiModelProperty(value = "奖金 - 应发奖金合计", position = 23)
-    private BigDecimal yfJjTotal;
+    private BigDecimal yfJjTotal = BigDecimal.ZERO;
 
     /** 奖金 - 奖金应扣税额合计 */
     @ApiModelProperty(value = "奖金 - 奖金应扣税额合计", position = 24)
-    private BigDecimal jjTaxTotal;
+    private BigDecimal jjTaxTotal = BigDecimal.ZERO;
 
     /** 奖金 - 实发奖金合计 */
     @ApiModelProperty(value = "奖金 - 实发奖金合计", position = 25)
-    private BigDecimal sfJjTotal;
+    private BigDecimal sfJjTotal = BigDecimal.ZERO;
 
     /** 五险一金 - 应缴五险人数 */
     @ApiModelProperty(value = "五险一金 - 应缴五险人数", position = 31)
-    private Integer yjWxNum;
+    private Integer yjWxNum = 0;
 
     /** 五险一金 - 实缴五险人数 */
     @ApiModelProperty(value = "五险一金 - 实缴五险人数", position = 32)
-    private Integer sjWxNum;
+    private Integer sjWxNum = 0;
 
     /** 五险一金 - 应缴五险总额 */
     @ApiModelProperty(value = "五险一金 - 应缴五险总额", position = 33)
-    private BigDecimal yjWxTotal;
+    private BigDecimal yjWxTotal = BigDecimal.ZERO;
 
     /** 五险一金 - 实缴五险总额 */
     @ApiModelProperty(value = "五险一金 - 实缴五险总额", position = 34)
-    private BigDecimal sjWxTotal;
+    private BigDecimal sjWxTotal = BigDecimal.ZERO;
 
     /** 五险一金 - 应缴公积金人数 */
     @ApiModelProperty(value = "五险一金 - 应缴公积金人数", position = 35)
-    private Integer yjGjjNum;
+    private Integer yjGjjNum = 0;
 
     /** 五险一金 - 实缴公积金人数 */
     @ApiModelProperty(value = "五险一金 - 实缴公积金人数", position = 36)
-    private Integer sjGjjNum;
+    private Integer sjGjjNum = 0;
 
     /** 五险一金 - 应缴公积金总额 */
     @ApiModelProperty(value = "五险一金 - 应缴公积金总额", position = 37)
-    private BigDecimal yjGjjTotal;
+    private BigDecimal yjGjjTotal = BigDecimal.ZERO;
 
     /** 五险一金 - 实缴公积金总额 */
     @ApiModelProperty(value = "五险一金 - 实缴公积金总额", position = 38)
-    private BigDecimal sjGjjTotal;
+    private BigDecimal sjGjjTotal = BigDecimal.ZERO;
 }

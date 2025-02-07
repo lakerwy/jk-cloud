@@ -2,4 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.sub.mapper.SubFundMapper">
 
+    <select id="getSubFundList" resultType="vip.xiaonuo.sys.modular.hr.sub.entity.SubFund" >
+        select a.* from SUB_FUND a ${ew.customSqlSegment}
+    </select>
+
+    <select id="getMonthVoList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo" >
+        select a.Y_M as yM,a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,
+               sum(a.YJ_WX_NUM) as yjWxNum,
+               sum(a.SJ_WX_NUM) as sjWxNum,
+               sum(a.YJ_WX_TOTAL) as yjWxTotal,
+               sum(a.SJ_WX_TOTAL) as sjWxTotal,
+               sum(a.YJ_GJJ_NUM) as yjGjjNum,
+               sum(a.SJ_GJJ_NUM) as sjGjjNum,
+               sum(a.YJ_GJJ_TOTAL) as yjGjjTotal,
+               sum(a.SJ_GJJ_TOTAL) as sjGjjTotal
+        from SUB_FUND a ${ew.customSqlSegment}
+        group by a.Y_M,a.REGION,a.ORG_ID,a.ORG_NAME
+    </select>
+
+    <select id="getSubFundItemList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFundItemVo" >
+        select a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,a.Y_M as flwYM,
+               b.*
+        from SUB_FUND a join SUB_FUND_ITEM b on a.ID = b.SUB_FUND_ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>
