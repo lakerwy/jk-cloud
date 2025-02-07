@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "cmb")
 public class CmbProperties {
+    private Boolean enabled;
     private String url;
     private String publicKey;
     private String privateKey;

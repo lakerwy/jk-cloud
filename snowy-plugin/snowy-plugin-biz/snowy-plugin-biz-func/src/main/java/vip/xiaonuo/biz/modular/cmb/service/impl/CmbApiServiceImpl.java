@@ -28,16 +28,14 @@ public class CmbApiServiceImpl implements CmbApiService {
     CmbProperties cmbProperties;
 
     @Override
-    public JSONObject dclismod(CmbDclismodParam param){
-        // 业务接口名
-        String funcode = "DCLISMOD";
+    public JSONObject sendRequest(CmbApiParam param){
+        if(!cmbProperties.getEnabled()){
+            throw new CommonException("招商银行API未启用！请检查配置");
+        }
+        String funcode = param.getFuncode();
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("buscod",param.getBuscod());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getRequestParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
             // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
@@ -47,7 +45,40 @@ public class CmbApiServiceImpl implements CmbApiService {
         }catch (Exception e){
             throw new CommonException("调用招商银行【{}】接口失败：{}", funcode, e.getMessage());
         }
+    }
 
+    @Override
+    public JSONObject sendRequest(String funcode, Object param){
+        try {
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
+            String data = reqParam.toString();
+            // 发送请求
+            DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
+                    cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
+            String response = dchelper.sendRequest(data, funcode);
+            return JSONUtil.parseObj(response);
+        }catch (Exception e){
+            throw new CommonException("调用招商银行【{}】接口失败：{}", funcode, e.getMessage());
+        }
+    }
+
+    @Override
+    public JSONObject dclismod(CmbDclismodParam param) {
+        // 业务接口名
+        String funcode = "DCLISMOD";
+        try {
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
+            String data = reqParam.toString();
+            // 发送请求
+            DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
+                    cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
+            String response = dchelper.sendRequest(data, funcode);
+            return JSONUtil.parseObj(response);
+        }catch (Exception e){
+            throw new CommonException("调用招商银行【{}】接口失败：{}", funcode, e.getMessage());
+        }
     }
 
     @Override
@@ -55,14 +86,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "DCLISACC";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("buscod",param.getBuscod());
-            body.set("busmod",param.getBusmod());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -77,13 +104,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "NTQACINF";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("ntqacinfx", param.getNtqacinfx());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -98,13 +122,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "NTQABINF";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("ntqabinfy", param.getNtqabinfy());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -119,13 +140,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "NTACCBBK";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("fctval", param.getFctval());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -140,13 +158,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "NTQADINF";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("ntqadinfx", param.getNtqadinfx());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -161,14 +176,10 @@ public class CmbApiServiceImpl implements CmbApiService {
         // 业务接口名
         String funcode = "trsQryByBreakPoint";
         try {
-            // 构建基本请求参数
-            JSONObject reqParam = CmbApiParamUtil.getBaseParam(funcode, cmbProperties.getUid());
-            // 构建body
-            JSONObject body = new JSONObject();
-            body.set("TRANSQUERYBYBREAKPOINT_X1", param.getTRANSQUERYBYBREAKPOINT_X1());
-            body.set("TRANSQUERYBYBREAKPOINT_Y1", param.getTRANSQUERYBYBREAKPOINT_Y1());
-            reqParam.getJSONObject("request").set("body", body);
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
             String data = reqParam.toString();
+            // 发送请求
             DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
                     cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
             String response = dchelper.sendRequest(data, funcode);
@@ -178,4 +189,21 @@ public class CmbApiServiceImpl implements CmbApiService {
         }
     }
 
+    @Override
+    public JSONObject dctrspdf(CmbDctrspdfParam param) {
+        // 业务接口名
+        String funcode = "DCTRSPDF";
+        try {
+            // 构建请求参数
+            JSONObject reqParam = CmbApiParamUtil.getParam(funcode, cmbProperties.getUid(), param);
+            String data = reqParam.toString();
+            // 发送请求
+            DcHelper dchelper = new DcHelper(cmbProperties.getUrl(), cmbProperties.getUid(),
+                    cmbProperties.getPrivateKey(), cmbProperties.getPublicKey(), cmbProperties.getSymKey());
+            String response = dchelper.sendRequest(data, funcode);
+            return JSONUtil.parseObj(response);
+        }catch (Exception e){
+            throw new CommonException("调用招商银行【{}】接口失败：{}", funcode, e.getMessage());
+        }
+    }
 }

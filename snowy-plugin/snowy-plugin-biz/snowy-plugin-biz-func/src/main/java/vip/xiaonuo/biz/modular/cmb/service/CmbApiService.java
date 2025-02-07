@@ -9,6 +9,18 @@ import vip.xiaonuo.biz.modular.cmb.param.*;
  * @date 2024/02/06 10:30
  */
 public interface CmbApiService {
+
+    /**
+     * @param param 请求参数
+     */
+    JSONObject sendRequest(CmbApiParam param);
+
+    /**
+     * @param funcode 接口编码
+     * @param param 请求参数
+     */
+    JSONObject sendRequest(String funcode, Object param);
+
     /**
      * 账务查询：1.可经办业务模式查询DCLISMOD
      */
@@ -43,4 +55,9 @@ public interface CmbApiService {
      * 账务查询：7.账户交易信息查询trsQryByBreakPoint
      */
     JSONObject trsQryByBreakPoint(CmbTrsQryByBreakPointParam param);
+
+    /**
+     * 账务查询：8.PDF文件对账单获取DCTRSPDF
+     */
+    JSONObject dctrspdf(CmbDctrspdfParam param);
 }
