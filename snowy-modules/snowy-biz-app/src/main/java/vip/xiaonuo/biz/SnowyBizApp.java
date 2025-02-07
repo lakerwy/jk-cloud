@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 import vip.xiaonuo.common.runner.AppStartupListener;
+
+import java.security.Security;
 
 /**
  * SpringBoot方式启动类
@@ -53,6 +56,9 @@ public class SnowyBizApp {
     public static void main(String[] args) {
         SpringApplication springApplication = new SpringApplication(SnowyBizApp.class);
         springApplication.run(args);
+        // 装载BC库,必须在应用的启动类中调用此函数
+        Security.addProvider(new BouncyCastleProvider());
+        System.setProperty("sun.net.http.retryPost", "false");
         log.info(">>> {}", SnowyBizApp.class.getSimpleName().toUpperCase() + " STARTING SUCCESS");
     }
 
