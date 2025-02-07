@@ -38,60 +38,68 @@ public class SubGzParam {
     @ApiModelProperty(value = "大区经理", position = 7)
     private String managerName;
 
-    /** 应缴五险人数 */
-    @ApiModelProperty(value = "应缴五险人数", position = 8)
-    private Integer yjWxNum;
+    /** 工资应发人数 */
+    @ApiModelProperty(value = "工资应发人数", position = 8)
+    private Integer gzYfNum;
 
-    /** 实缴五险人数 */
-    @ApiModelProperty(value = "实缴五险人数", position = 9)
-    private Integer sjWxNum;
+    /** 工资实发人数 */
+    @ApiModelProperty(value = "工资实发人数", position = 9)
+    private Integer gzSfNum;
 
-    /** 应缴五险总额 */
-    @ApiModelProperty(value = "应缴五险总额", position = 10)
-    private BigDecimal yjWxTotal;
+    /** 应发工资合计 */
+    @ApiModelProperty(value = "应发工资合计", position = 10)
+    private BigDecimal yfGzTotal;
 
-    /** 实缴五险总额 */
-    @ApiModelProperty(value = "实缴五险总额", position = 11)
-    private BigDecimal sjWxTotal;
+    /** 实发工资合计 */
+    @ApiModelProperty(value = "实发工资合计", position = 11)
+    private BigDecimal sfGzTotal;
 
-    /** 应缴公积金人数 */
-    @ApiModelProperty(value = "应缴公积金人数", position = 12)
-    private Integer yjGjjNum;
+    /** 奖金应发人数 */
+    @ApiModelProperty(value = "奖金应发人数", position = 12)
+    private Integer jjYfNum;
 
-    /** 实缴公积金人数 */
-    @ApiModelProperty(value = "实缴公积金人数", position = 13)
-    private Integer sjGjjNum;
+    /** 奖金实发人数 */
+    @ApiModelProperty(value = "奖金实发人数", position = 13)
+    private Integer jjSfNum;
 
-    /** 应缴公积金总额 */
-    @ApiModelProperty(value = "应缴公积金总额", position = 14)
-    private BigDecimal yjGjjTotal;
+    /** 应发奖金合计 */
+    @ApiModelProperty(value = "应发奖金合计", position = 14)
+    private BigDecimal yfJjTotal;
 
-    /** 实缴公积金总额 */
-    @ApiModelProperty(value = "实缴公积金总额", position = 15)
-    private BigDecimal sjGjjTotal;
+    /** 实发奖金合计 */
+    @ApiModelProperty(value = "实发奖金合计", position = 15)
+    private BigDecimal sfJjTotal;
+
+    /** 工资应扣税额合计 */
+    @ApiModelProperty(value = "工资应扣税额合计", position = 16)
+    private BigDecimal gzTaxTotal;
+
+    /** 奖金应扣税额合计 */
+    @ApiModelProperty(value = "奖金应扣税额合计", position = 17)
+    private BigDecimal jjTaxTotal;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 16)
+    @ApiModelProperty(value = "附件", position = 18)
     private String attach;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 17)
+    @ApiModelProperty(value = "备注", position = 19)
     private String memo;
 
     /** SN */
-    @ApiModelProperty(value = "SN", position = 25)
+    @ApiModelProperty(value = "SN", position = 27)
     private String sn;
 
     /** 模型Id */
-    @ApiModelProperty(value = "模型Id", position = 26)
+    @ApiModelProperty(value = "模型Id", position = 28)
     private String modelId;
 
     /** 流程实例Id */
-    @ApiModelProperty(value = "流程实例Id", position = 27)
+    @ApiModelProperty(value = "流程实例Id", position = 29)
     private String processInstanceId;
 
     /** 流程状态 */
-    @ApiModelProperty(value = "流程状态", position = 28)
+    @ApiModelProperty(value = "流程状态", position = 30)
     private String status;
 
     /** 工资发放表-明细 */
