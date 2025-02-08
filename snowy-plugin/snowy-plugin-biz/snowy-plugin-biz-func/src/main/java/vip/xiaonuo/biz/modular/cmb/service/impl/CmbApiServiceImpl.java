@@ -206,4 +206,10 @@ public class CmbApiServiceImpl implements CmbApiService {
             throw new CommonException("调用招商银行【{}】接口失败：{}", funcode, e.getMessage());
         }
     }
+
+    @Override
+    public void callback(String request) {
+        System.out.printf("招商银行回调：{}%n", request);
+        log.info("招商银行回调：{}", request);
+    }
 }

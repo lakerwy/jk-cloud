@@ -60,4 +60,6 @@ public interface CmbApiService {
      * 账务查询：8.PDF文件对账单获取DCTRSPDF
      */
     JSONObject dctrspdf(CmbDctrspdfParam param);
+
+    void callback(String request);
 }
