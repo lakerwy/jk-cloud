@@ -14,6 +14,10 @@ import java.math.BigDecimal;
 @Setter
 public class YearGzVo {
 
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 1)
+    private Integer no;
+
     /** 所属大区 */
     @ApiModelProperty(value = "所属大区", position = 1)
     private String region;
@@ -32,53 +36,53 @@ public class YearGzVo {
 
     /** 1月 */
     @ApiModelProperty(value = "1月", position = 11)
-    private BigDecimal num1;
+    private BigDecimal num1 = BigDecimal.ZERO;
 
     /** 2月 */
     @ApiModelProperty(value = "2月", position = 12)
-    private BigDecimal num2;
+    private BigDecimal num2 = BigDecimal.ZERO;
 
     /** 3月 */
     @ApiModelProperty(value = "3月", position = 13)
-    private BigDecimal num3;
+    private BigDecimal num3 = BigDecimal.ZERO;
 
     /** 4月 */
     @ApiModelProperty(value = "4月", position = 14)
-    private BigDecimal num4;
+    private BigDecimal num4 = BigDecimal.ZERO;
 
     /** 5月 */
     @ApiModelProperty(value = "5月", position = 15)
-    private BigDecimal num5;
+    private BigDecimal num5 = BigDecimal.ZERO;
 
     /** 6月 */
     @ApiModelProperty(value = "6月", position = 16)
-    private BigDecimal num6;
+    private BigDecimal num6 = BigDecimal.ZERO;
 
     /** 7月 */
     @ApiModelProperty(value = "7月", position = 17)
-    private BigDecimal num7;
+    private BigDecimal num7 = BigDecimal.ZERO;
 
     /** 8月 */
     @ApiModelProperty(value = "8月", position = 18)
-    private BigDecimal num8;
+    private BigDecimal num8 = BigDecimal.ZERO;
 
     /** 9月 */
     @ApiModelProperty(value = "9月", position = 19)
-    private BigDecimal num9;
+    private BigDecimal num9 = BigDecimal.ZERO;
 
     /** 10月 */
     @ApiModelProperty(value = "10月", position = 20)
-    private BigDecimal num10;
+    private BigDecimal num10 = BigDecimal.ZERO;
 
     /** 11月 */
     @ApiModelProperty(value = "11月", position = 21)
-    private BigDecimal num11;
+    private BigDecimal num11 = BigDecimal.ZERO;
 
     /** 12月 */
     @ApiModelProperty(value = "12月", position = 22)
-    private BigDecimal num12;
+    private BigDecimal num12 = BigDecimal.ZERO;
 
     /** 小计 */
     @ApiModelProperty(value = "小计", position = 23)
-    private BigDecimal total;
+    private BigDecimal total = BigDecimal.ZERO;
 }

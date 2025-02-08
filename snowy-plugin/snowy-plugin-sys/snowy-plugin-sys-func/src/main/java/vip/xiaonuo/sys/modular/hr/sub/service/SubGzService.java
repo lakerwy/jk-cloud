@@ -7,7 +7,9 @@ import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearGzVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearNumVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.YearVo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -86,4 +88,18 @@ public interface SubGzService extends IService<SubGz> {
      * @return
      */
     List<YearGzVo> yearGzTotal(SearchTotal searchTotal);
+
+    /**
+     * 导出打印报表
+     * @param searchTotal
+     * @param response
+     */
+    void genExcel(SearchTotal searchTotal, HttpServletResponse response);
+
+    /**
+     * 年度汇总
+     * @param searchTotal
+     * @return
+     */
+    List<YearVo> yearTotal(SearchTotal searchTotal);
 }

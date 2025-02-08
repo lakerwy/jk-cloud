@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 @Setter
 public class MonthVo {
 
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 1)
+    private Integer no;
+
     /** 所属大区 */
     @ApiModelProperty(value = "所属大区", position = 1)
     private String region;

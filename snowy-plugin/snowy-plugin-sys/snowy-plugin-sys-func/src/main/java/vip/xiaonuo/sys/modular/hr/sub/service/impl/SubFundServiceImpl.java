@@ -54,6 +54,7 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
     @Override
     public Page<SubFund> page(SubFundPageParam subFundPageParam) {
         QueryWrapper<SubFund> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubFund::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(subFundPageParam.getOrgId())) {
             queryWrapper.lambda().eq(SubFund::getOrgId, subFundPageParam.getOrgId());
         }

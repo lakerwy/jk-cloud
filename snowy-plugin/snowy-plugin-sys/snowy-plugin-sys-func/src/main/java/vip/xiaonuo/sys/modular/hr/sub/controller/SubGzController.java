@@ -20,8 +20,10 @@ import vip.xiaonuo.sys.modular.hr.sub.service.SubGzService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearGzVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearNumVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.YearVo;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -158,5 +160,34 @@ public class SubGzController {
     @GetMapping("/sys/hr/sub/gz/yearGzTotal")
     public CommonResult<List<YearGzVo>> yearGzTotal(@Valid SearchTotal searchTotal) {
         return CommonResult.data(subGzService.yearGzTotal(searchTotal));
+    }
+
+
+    /**
+     * 获取分公司 - 工资数据 - 年度汇总
+     *
+     * @author yong.ye
+     * @date  2025/02/06 09:09
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("获取分公司 - 工资数据 -年度汇总")
+    @GetMapping("/sys/hr/sub/gz/yearTotal")
+    public CommonResult<List<YearVo>> yearTotal(@Valid SearchTotal searchTotal) {
+        return CommonResult.data(subGzService.yearTotal(searchTotal));
+    }
+
+
+    /**
+     * 分公司工资数据报表 - 生成打印Excel 【月度统计|年度统计】
+     *
+     * @author yong.ye
+     * @date  2024/09/28 11:30
+     */
+    @ApiOperationSupport(order = 99)
+    @ApiOperation("分公司工资数据报表 - 生成打印Excel")
+    @CommonLog("分公司工资数据报表 - 生成打印Excel")
+    @PostMapping("/sys/hr/sub/gz/genExcel")
+    public void genExcel(@RequestBody @Valid SearchTotal searchTotal, HttpServletResponse response) {
+        subGzService.genExcel(searchTotal,response);
     }
 }

@@ -12,6 +12,10 @@ import lombok.Setter;
 @Setter
 public class YearNumVo {
 
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 1)
+    private Integer no;
+
     /** 所属大区 */
     @ApiModelProperty(value = "所属大区", position = 1)
     private String region;

@@ -23,7 +23,7 @@
     <select id="getSubFundItemList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFundItemVo" >
         select a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,a.Y_M as flwYM,
                b.*
-        from SUB_FUND a join SUB_FUND_ITEM b on a.ID = b.SUB_FUND_ID
+        from SUB_FUND a join SUB_FUND_ITEM b on a.ID = b.SUB_FUND_ID and b.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}
     </select>
 

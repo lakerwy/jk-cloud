@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class SubUtils {
@@ -26,9 +27,17 @@ public class SubUtils {
     }
 
 
-
-
-
+    /**
+     * double 保留小数
+     * @param value 值
+     * @param scale 小数位数
+     * @return
+     */
+    public static double getDoubleVal(double value,int scale){
+        BigDecimal bd = new BigDecimal(value).setScale(scale, RoundingMode.HALF_UP);
+        double result = bd.doubleValue();
+        return result;
+    }
 
 
 }
