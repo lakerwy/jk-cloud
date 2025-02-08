@@ -26,7 +26,7 @@ import java.util.Base64;
 /**
  *
  **/
-public class VerifySigDemo {
+public class VerifySigUtil {
 
     static {
         Security.addProvider(new BouncyCastleProvider());

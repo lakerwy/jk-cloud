@@ -35,8 +35,8 @@ public class CmbCallbackApiController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("通用回调接口")
     @PostMapping("/openApi/biz/cmb/callback")
-    public CommonResult<String> callback(@RequestBody String request) {
-        cmbApiService.callback(request);
+    public CommonResult<String> callback(@RequestBody String receiveEncryptMsg) {
+        cmbApiService.callback(receiveEncryptMsg);
         return CommonResult.ok();
     }
 }
