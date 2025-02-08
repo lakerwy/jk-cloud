@@ -286,4 +286,8 @@ public class BizProjectEditParam {
     /** 所属单位 */
     @ApiModelProperty(value = "所属单位", position = 200)
     private String unit;
+
+    /** 经营部门 */
+    @ApiModelProperty(value = "经营部门", position = 200)
+    private String manageDept;
 }
