@@ -1,8 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.reg.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -75,4 +77,9 @@ public class RegSubsidyResultAddParam {
     @ApiModelProperty(value = "身份证号", position = 15)
     private String idCardNumber;
 
+    /** 注册成功日期 */
+    @ApiModelProperty(value = "注册成功日期", position = 30)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date regDate;
 }

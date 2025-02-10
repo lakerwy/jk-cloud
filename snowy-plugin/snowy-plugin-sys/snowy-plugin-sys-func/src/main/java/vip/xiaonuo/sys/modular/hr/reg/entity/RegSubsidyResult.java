@@ -1,9 +1,12 @@
 package vip.xiaonuo.sys.modular.hr.reg.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -113,4 +116,10 @@ public class RegSubsidyResult {
     @ApiModelProperty(value = "数据权限控制字段", position = 22)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 注册成功日期 */
+    @ApiModelProperty(value = "注册成功日期", position = 30)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date regDate;
 }
