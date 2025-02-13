@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.dingtalk.service;
 
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncAttendDataParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 
@@ -28,4 +29,16 @@ public interface DingDingSyncService {
      * @param syncDeptParam
      */
     void syncDept(SyncDeptParam syncDeptParam);
+
+    /**
+     * 同步 - 钉钉 - 考勤数据
+     * @param syncAttendDataParam
+     */
+    void syncAttendData(SyncAttendDataParam syncAttendDataParam);
+
+    /**
+     * 同步 - 钉钉 - 考勤数据
+     * @param syncAttendDataParam（异步处理）
+     */
+    void syncAttendDataAsync(SyncAttendDataParam syncAttendDataParam);
 }

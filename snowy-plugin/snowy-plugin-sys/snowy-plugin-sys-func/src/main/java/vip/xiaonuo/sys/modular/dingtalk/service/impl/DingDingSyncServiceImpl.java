@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.*;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -17,12 +18,16 @@ import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
+import vip.xiaonuo.sys.modular.dingtalk.config.DingAttendSyncProperties;
 import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
 import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncAttendDataParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
+import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
+import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -30,10 +35,11 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
+import java.time.YearMonth;
+
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -62,6 +68,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     @Resource
     private DingSyncProperties dingSyncProperties;
 
+    @Resource
+    private DingAttendSyncProperties dingAttendSyncProperties;
+
     /**
      * 钉钉组织架构顶层部门id
      */
@@ -69,6 +78,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private HrEmpAttendDingdingService hrEmpAttendDingdingService;
 
     /**
      * 同步逻辑说明 【暂停】：
@@ -464,6 +476,252 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         /********************************************* 清理缓存 **********************************************************/
         commonCacheOperator.removeKeys(ORG_FIRST_CODE_CACHE_KEY);
 
+    }
+
+    @Override
+    public void syncAttendData(SyncAttendDataParam syncAttendDataParam) {
+        log.info("----- 钉钉考勤数据同步 --- 开始 -----");
+        long startTime = System.currentTimeMillis();
+        // 给定的年月，例如202501
+        String yearMonthStr = syncAttendDataParam.getYM();
+        // 定义日期格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // 解析给定的字符串为YearMonth对象
+        YearMonth yearMonth = YearMonth.parse(yearMonthStr, formatter);
+        // 获取该月的第一天和最后一天，并格式化为字符串
+        String firstDay = yearMonth.atDay(1).format(outputFormatter);
+        String lastDay = yearMonth.atEndOfMonth().format(outputFormatter);
+        log.info("----- 钉钉考勤数据同步 --- 同步时间范围：{}-{} -----",firstDay,lastDay);
+        // 获取钉钉用户列表
+        List<SysUser> dingSysUserList = sysUserService.getDingUser();
+        List<HrEmpAttendDingding> existList = hrEmpAttendDingdingService.list(new LambdaQueryWrapper<HrEmpAttendDingding>().eq(HrEmpAttendDingding::getYearMonth, yearMonthStr));
+        if(CollUtil.isNotEmpty(existList)){
+            // 筛选掉当月已存在的用户考勤数据
+            dingSysUserList = dingSysUserList.stream()
+                    .filter(x -> existList.stream().noneMatch(y -> y.getUserId().equals(x.getId()) && yearMonthStr.equals(y.getYearMonth())))
+                    .collect(Collectors.toList());
+        }
+        // 测试用，只取10个用户
+//        dingSysUserList = dingSysUserList.subList(0,10);
+        if(CollUtil.isEmpty(dingSysUserList)){
+            log.info("----- 钉钉考勤数据同步 --- 无需同步 -----");
+            return;
+        }
+        // 获取钉钉token
+        String access_Token = CommonDingDingUtil.getToken(dingAttendSyncProperties.getAppKey(), dingAttendSyncProperties.getAppSecret());
+        // 获取考勤报表列定义
+        OapiAttendanceGetattcolumnsResponse.AttColumnsForTopVo attcolumns = CommonDingDingUtil.getAttcolumns(access_Token);
+        if(ObjectUtil.isEmpty(attcolumns) || CollUtil.isEmpty(attcolumns.getColumns())){
+            log.info("----- 钉钉考勤数据同步 --- 获取考勤报表列为空 -----");
+            return;
+        }
+        // 筛选需要的列，并填充列ID
+        Map<String, Long> columnMap = SyncUtils.getAttendColumnMap();
+        List<String> columnNames = new ArrayList<>(columnMap.keySet());
+        List<Long> columnIdList = attcolumns.getColumns().stream()
+            .filter(x -> {
+                if(columnNames.contains(x.getName())){
+                    columnMap.put(x.getName(), x.getId());
+                    return true;
+                }
+                return false;
+            })
+            .map(OapiAttendanceGetattcolumnsResponse.ColumnForTopVo::getId).collect(Collectors.toList());
+        // 列ID转为字符串，用逗号分隔
+        String column_id_list = columnIdList.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining(","));
+        List<HrEmpAttendDingding> hrEmpAttendDingdingList = new ArrayList<>();
+        for (SysUser sysUser : dingSysUserList) {
+            HrEmpAttendDingding hrEmpAttendDingding = new HrEmpAttendDingding();
+            String dingUserId = sysUser.getDingUserId();
+            // 获取考勤报表列值
+            OapiAttendanceGetcolumnvalResponse.ColumnValListForTopVo columnValVo = CommonDingDingUtil.getColumnval(access_Token, dingUserId, column_id_list,
+                    firstDay + " 00:00:00", lastDay +" 23:59:59");
+            // 考勤报表列值为空
+            if(ObjectUtil.isEmpty(columnValVo)){
+                continue;
+            }
+            List<OapiAttendanceGetcolumnvalResponse.ColumnValForTopVo> columnVals = columnValVo.getColumnVals();
+            if(ObjectUtil.isEmpty(columnVals)){
+                continue;
+            }
+            // key,value反转
+            Map<Long,String> reversedMap = columnMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+            columnVals.forEach(column_vals -> {
+                Long id = column_vals.getColumnVo().getId();
+                String value = reversedMap.get(id);
+                switch (value){
+                    case "应出勤天数":
+                        float requiredDay = 0.0f;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            // 将 value 转换为 float 并累加
+                            requiredDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
+                                    .reduce(0.0f, Float::sum);
+                        }
+                        hrEmpAttendDingding.setRequiredDay(requiredDay);
+                        break;
+                    case "出勤天数":
+                        float realDay = 0.0f;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            realDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
+                                    .reduce(0.0f, Float::sum);
+                        }
+                        hrEmpAttendDingding.setRealDay(realDay);
+                        break;
+                    case "上班缺卡次数":
+                        Integer upMissNum = 0;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            upMissNum = column_vals.getColumnVals().stream().mapToInt(item -> Integer.parseInt(item.getValue())).sum();
+                        }
+                        hrEmpAttendDingding.setUpMissNum(upMissNum);
+                        break;
+                    case "下班缺卡次数":
+                        Integer downMissNum = 0;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            downMissNum = column_vals.getColumnVals().stream().mapToInt(item -> Integer.parseInt(item.getValue())).sum();
+                        }
+                        hrEmpAttendDingding.setDownMissNum(downMissNum);
+                        break;
+                    case "加班总时长":
+                        float overtimeHour = 0.0f;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            overtimeHour = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
+                                    .reduce(0.0f, Float::sum);
+                        }
+                        hrEmpAttendDingding.setOvertimeHour(overtimeHour);
+                        break;
+                    case "旷工天数":
+                        float minerDay = 0.0f;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            minerDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
+                                    .reduce(0.0f, Float::sum);
+                        }
+                        hrEmpAttendDingding.setMinerDay(minerDay);
+                        break;
+                    case "迟到次数":
+                        Integer lateNum = 0;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            lateNum = column_vals.getColumnVals().stream().mapToInt(item -> Integer.parseInt(item.getValue())).sum();
+                        }
+                        hrEmpAttendDingding.setLateNum(lateNum);
+                        break;
+                    case "严重迟到次数":
+                        Integer extremelyLateNum = 0;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            extremelyLateNum = column_vals.getColumnVals().stream().mapToInt(item -> Integer.parseInt(item.getValue())).sum();
+                        }
+                        hrEmpAttendDingding.setExtremelyLateNum(extremelyLateNum);
+                        break;
+                    case "考勤结果":
+                        // 迟到A,B,C类
+                        Integer lateNumA = 0;
+                        Integer lateNumB = 0;
+                        Integer lateNumC = 0;
+                        // 实扣未打卡(上班、下班)
+                        Integer realUpMissNum = 0;
+                        Integer realDownMissNum = 0;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
+                            for (OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal item : column_vals.getColumnVals()){
+                                realUpMissNum += item.getValue().contains("上班1缺卡") ? 1:0;
+                                realDownMissNum += item.getValue().contains("下班2缺卡") ? 1:0;
+                                Integer lateMins = SyncUtils.getLateMins(item.getValue());
+                                if(ObjectUtil.isNotNull(lateMins)){
+                                    if(lateMins <= 15){
+                                        lateNumA ++;
+                                    }else if(lateMins <= 30){
+                                        lateNumB ++;
+                                    }else if(lateMins <= 45){
+                                        lateNumC ++;
+                                    }
+                                }
+                            }
+                        }
+                        hrEmpAttendDingding.setRealUpMissNum(realUpMissNum);
+                        hrEmpAttendDingding.setRealDownMissNum(realDownMissNum);
+                        hrEmpAttendDingding.setLateNumA(lateNumA);
+                        hrEmpAttendDingding.setLateNumB(lateNumB);
+                        hrEmpAttendDingding.setLateNumC(lateNumC);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            // 需要的列（假期）
+            String leave_names = "事假,病假,婚假,产假,丧假,年假,调休";
+            OapiAttendanceGetleavetimebynamesResponse.ColumnValListForTopVo leaveTimeVo = CommonDingDingUtil.getLeavetimebynames(access_Token, dingUserId, leave_names,
+                    firstDay + " 00:00:00", lastDay + " 23:59:59");
+            if(ObjectUtil.isNotEmpty(leaveTimeVo)){
+                List<OapiAttendanceGetleavetimebynamesResponse.ColumnValForTopVo> columnList = leaveTimeVo.getColumns();
+                if(CollUtil.isNotEmpty(columnList)){
+                    columnList.forEach(column_vals -> {
+                        String columnName = column_vals.getColumnvo().getName();
+                        float value = 0.0f;
+                        if(CollUtil.isNotEmpty(column_vals.getColumnvals())){
+                            value = column_vals.getColumnvals().stream().map(item -> Float.parseFloat(item.getValue()))
+                                    .reduce(0.0f, Float::sum);
+                        }
+                        switch (columnName) {
+                            case "事假":
+                                hrEmpAttendDingding.setWorkDay(value);
+                                break;
+                            case "病假":
+                                hrEmpAttendDingding.setSickDay(value);
+                                break;
+                            case "婚假":
+                                hrEmpAttendDingding.setMarryDay(value);
+                                break;
+                            case "产假":
+                                hrEmpAttendDingding.setMaterDay(value);
+                                break;
+                            case "丧假":
+                                hrEmpAttendDingding.setFunDay(value);
+                            break;
+                            case "年假":
+                                hrEmpAttendDingding.setYearDay(value);
+                                break;
+                            case "调休":
+                                hrEmpAttendDingding.setAdjustHour(value);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
+            }
+            hrEmpAttendDingding.setYearMonth(yearMonthStr);
+            hrEmpAttendDingding.setUserName(sysUser.getName());
+            hrEmpAttendDingding.setIdCardNumber(sysUser.getIdCardNumber());
+            hrEmpAttendDingding.setFirstOrgName(sysUser.getFirstOrgName());
+            hrEmpAttendDingding.setOrgName(sysUser.getOrgName());
+            hrEmpAttendDingding.setUserId(sysUser.getId());
+            hrEmpAttendDingding.setPersonnelId(sysUser.getPersonnelId());
+            isFull(hrEmpAttendDingding);// 是否全勤
+            hrEmpAttendDingdingList.add(hrEmpAttendDingding);
+        }
+        hrEmpAttendDingdingList.forEach(x -> x.setNote(DateUtil.now()+"：钉钉同步考勤数据"));
+        hrEmpAttendDingdingService.saveBatch(hrEmpAttendDingdingList);
+        long endTime = System.currentTimeMillis();
+        log.info("----- 钉钉考勤数据同步 --- 完成耗时：{}ms，同步用户数量：{} -----", endTime-startTime , hrEmpAttendDingdingList.size());
+    }
+
+    // 是否全勤
+    private void isFull(HrEmpAttendDingding entity){
+        if(entity.getWorkDay() > 0 || entity.getSickDay() > 0 || entity.getMarryDay() > 0
+                || entity.getMaterDay() > 0 || entity.getFunDay() > 0 || entity.getYearDay() > 0
+                || entity.getAdjustHour() > 0 || entity.getLateNum() > 0
+                || entity.getExtremelyLateNum() > 0 || entity.getUpMissNum() > 0
+                || entity.getDownMissNum() > 0 || entity.getMinerDay() > 0){
+            entity.setIsFull("否");
+        }else{
+            entity.setIsFull("是");
+        }
+    }
+
+    @Override
+    public void syncAttendDataAsync(SyncAttendDataParam syncAttendDataParam) {
+        CompletableFuture.runAsync(() -> {
+            syncAttendData(syncAttendDataParam);
+        });
     }
 
 }

@@ -3,7 +3,6 @@ package vip.xiaonuo.sys.modular.dingtalk.utils;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -12,7 +11,11 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SyncUtils {
 
@@ -115,4 +118,41 @@ public class SyncUtils {
         }
         return null;
     }
+
+    /**
+     * 【获取考勤列名称-ID映射】
+     * @return
+     */
+    public static Map<String,Long> getAttendColumnMap(){
+        Map<String,Long> map = new HashMap<>();
+        map.put("应出勤天数",null);
+        map.put("出勤天数",null);
+        map.put("迟到次数",null);
+        map.put("严重迟到次数",null);
+        map.put("上班缺卡次数",null);
+        map.put("下班缺卡次数",null);
+        map.put("旷工天数",null);
+        map.put("加班总时长",null);
+        map.put("考勤结果",null);
+        return map;
+    }
+
+    public static Integer getLateMins(String input){
+        String regex = "迟到(\\d+)"; // 匹配 "迟到" 后面的数字
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        Integer lateMins = null;
+        // 查找匹配的数字
+        if (matcher.find()) {
+            String number = matcher.group(1); // 提取捕获组中的数字
+            System.out.println("迟到的时间: " + number + " 分钟");
+            try {
+                lateMins = Integer.parseInt(number);
+            }catch (Exception ignored){
+
+            }
+        }
+        return lateMins;
+    }
+
 }

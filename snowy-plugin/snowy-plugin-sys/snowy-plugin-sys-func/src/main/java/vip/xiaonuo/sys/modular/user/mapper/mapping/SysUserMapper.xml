@@ -30,4 +30,23 @@
         </if>
     </select>
 
+    <select id="getDingUser" resultType="vip.xiaonuo.sys.modular.user.entity.SysUser">
+        select distinct a.*,
+            b.THIRD_ID as dingUserId,
+            c.ID as personnelId,
+            c.ID_NUMBER idCardNumber,
+            d.NAME orgName
+        from SYS_USER a
+            join AUTH_THIRD_USER b on a.ID = b.USER_ID
+            left join PERSONNEL c on a.ID = c.USER_ID
+            left join SYS_ORG d on a.ORG_ID = d.ID
+        where
+            a.DELETE_FLAG='NOT_DELETE'
+            and a.USER_STATUS ='ENABLE'
+            and b.DELETE_FLAG='NOT_DELETE'
+            and b.CATEGORY='DingDing'
+            and c.DELETE_FLAG='NOT_DELETE'
+            and d.DELETE_FLAG='NOT_DELETE'
+    </select>
+
 </mapper>

@@ -2211,4 +2211,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         CommonDataChangeEventCenter.doAddWithData(SysDataTypeEnum.USER.getValue(), JSONUtil.createArray().put(sysUser));
         return sysUser;
     }
+
+    @Override
+    public List<SysUser> getDingUser() {
+        return sysUserMapper.getDingUser();
+    }
 }

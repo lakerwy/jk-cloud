@@ -7,6 +7,7 @@ import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.*;
 import com.dingtalk.api.response.*;
 import com.taobao.api.ApiException;
+import com.taobao.api.internal.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -303,6 +304,67 @@ public class CommonDingDingUtil {
             OapiV2UserGetbymobileResponse rsp = client.execute(req, access_token);
             return rsp.getResult();
         }catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * 获取考勤报表列定义
+     * @param access_token 钉钉内部应用 token
+     * @return
+     */
+    public static OapiAttendanceGetattcolumnsResponse.AttColumnsForTopVo getAttcolumns(String access_token){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/attendance/getattcolumns");
+            OapiAttendanceGetattcolumnsRequest req = new OapiAttendanceGetattcolumnsRequest();
+            OapiAttendanceGetattcolumnsResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * 获取考勤报表列值
+     * @param access_token 钉钉内部应用 token
+     * @return
+     */
+    public static OapiAttendanceGetcolumnvalResponse.ColumnValListForTopVo getColumnval(String access_token, String userid,
+                                                                                        String column_id_list, String from_date, String to_date){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/attendance/getcolumnval");
+            OapiAttendanceGetcolumnvalRequest req = new OapiAttendanceGetcolumnvalRequest();
+            req.setUserid(userid);
+            req.setColumnIdList(column_id_list);
+            req.setFromDate(StringUtils.parseDateTime(from_date));
+            req.setToDate(StringUtils.parseDateTime(to_date));
+            OapiAttendanceGetcolumnvalResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * 获取报表假期数据
+     * @param access_token 钉钉内部应用 token
+     * @return
+     */
+    public static OapiAttendanceGetleavetimebynamesResponse.ColumnValListForTopVo getLeavetimebynames(String access_token, String userid,
+                                                                                        String leave_names, String from_date, String to_date){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/attendance/getleavetimebynames");
+            OapiAttendanceGetleavetimebynamesRequest req = new OapiAttendanceGetleavetimebynamesRequest();
+            req.setUserid(userid);
+            req.setLeaveNames(leave_names);
+            req.setFromDate(StringUtils.parseDateTime(from_date));
+            req.setToDate(StringUtils.parseDateTime(to_date));
+            OapiAttendanceGetleavetimebynamesResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
             return null;
         }
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.sys.modular.dingtalk.param.SyncAttendDataParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
@@ -74,4 +75,27 @@ public class DingDingSyncController {
         return CommonResult.ok();
     }
 
+    /**
+     * 同步 - 钉钉 - 考勤数据
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("同步 - 钉钉 - 考勤数据")
+    @CommonLog("同步 - 钉钉 - 考勤数据")
+    @PostMapping("/sys/dingTalk/syncAttendData")
+    public CommonResult<String> syncAttendData(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
+        dingDingSyncService.syncAttendData(syncAttendDataParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 同步 - 钉钉 - 考勤数据
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("同步 - 钉钉 - 考勤数据（异步处理）")
+    @CommonLog("同步 - 钉钉 - 考勤数据（异步处理）")
+    @PostMapping("/sys/dingTalk/syncAttendDataAsync")
+    public CommonResult<String> syncAttendDataAsync(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
+        dingDingSyncService.syncAttendDataAsync(syncAttendDataParam);
+        return CommonResult.ok();
+    }
 }

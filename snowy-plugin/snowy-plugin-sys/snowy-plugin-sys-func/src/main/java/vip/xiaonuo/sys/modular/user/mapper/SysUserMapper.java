@@ -28,4 +28,6 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     List<SysUser> getDingSysUser();
 
     List<SysUser> getDingSysUserByIds(List<String> thirdIds);
+
+    List<SysUser> getDingUser();
 }

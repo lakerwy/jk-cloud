@@ -329,4 +329,8 @@ public class SysUser extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "【钉钉组织架构同步】钉钉用户直属主管Id", position = 100)
     @TableField(exist = false)
     private String dingDirectorId;
+
+    /** 花名册Id */
+    @ApiModelProperty(value = "花名册Id", position = 100)
+    private String personnelId;
 }

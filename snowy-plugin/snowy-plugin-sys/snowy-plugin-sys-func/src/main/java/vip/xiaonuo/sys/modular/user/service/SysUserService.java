@@ -546,4 +546,9 @@ public interface SysUserService extends IService<SysUser> {
      * 根据钉钉用户id,获取钉钉用户列表（SysUser+AuthThirdUser）
      */
     List<SysUser> getDingSysUserByIds(List<String> thirdIds);
+
+    /**
+     * 获取钉钉用户列表（SysUser+AuthThirdUser+Personnel）
+     */
+    List<SysUser> getDingUser();
 }
