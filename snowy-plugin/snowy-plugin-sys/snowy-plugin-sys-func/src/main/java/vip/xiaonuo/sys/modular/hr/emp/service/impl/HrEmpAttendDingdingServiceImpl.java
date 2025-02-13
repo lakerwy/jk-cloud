@@ -85,8 +85,8 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
                 .eq(HrEmpAttendDingding::getYearMonth, hrEmpAttendDingdingAddParam.getYearMonth())
         );
         if(count > 0) {
-            throw new CommonException("用户ID：{}，所属月份：{}，考勤数据已存在",
-                    hrEmpAttendDingdingAddParam.getUserId(), hrEmpAttendDingdingAddParam.getYearMonth());
+            throw new CommonException("用户ID：{}，姓名：{}，所属月份：{}，考勤数据已存在",
+                    hrEmpAttendDingdingAddParam.getUserId(), hrEmpAttendDingdingAddParam.getUserName(),hrEmpAttendDingdingAddParam.getYearMonth());
         }
         this.save(hrEmpAttendDingding);
     }
@@ -103,8 +103,8 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
                 .notIn(HrEmpAttendDingding::getId, hrEmpAttendDingdingEditParam.getId())
         );
         if(count > 0) {
-            throw new CommonException("用户ID：{}，所属月份：{}，考勤数据已存在",
-                    hrEmpAttendDingdingEditParam.getUserId(), hrEmpAttendDingdingEditParam.getYearMonth());
+            throw new CommonException("用户ID：{}，姓名：{}，所属月份：{}，考勤数据已存在",
+                    hrEmpAttendDingdingEditParam.getUserId(), hrEmpAttendDingdingEditParam.getUserName(),hrEmpAttendDingdingEditParam.getYearMonth());
         }
         this.updateById(hrEmpAttendDingding);
     }

@@ -48,7 +48,7 @@ public class HrEmpAttendDingdingController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取员工月度考勤(钉钉)分页")
-    @SaCheckPermission("/sys/emp/page")
+//    @SaCheckPermission("/sys/emp/page")
     @GetMapping("/sys/emp/page")
     public CommonResult<Page<HrEmpAttendDingding>> page(HrEmpAttendDingdingPageParam hrEmpAttendDingdingPageParam) {
         return CommonResult.data(hrEmpAttendDingdingService.page(hrEmpAttendDingdingPageParam));
@@ -63,7 +63,7 @@ public class HrEmpAttendDingdingController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加员工月度考勤(钉钉)")
     @CommonLog("添加员工月度考勤(钉钉)")
-    @SaCheckPermission("/sys/emp/add")
+//    @SaCheckPermission("/sys/emp/add")
     @PostMapping("/sys/emp/add")
     public CommonResult<String> add(@RequestBody @Valid HrEmpAttendDingdingAddParam hrEmpAttendDingdingAddParam) {
         hrEmpAttendDingdingService.add(hrEmpAttendDingdingAddParam);
@@ -79,7 +79,7 @@ public class HrEmpAttendDingdingController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑员工月度考勤(钉钉)")
     @CommonLog("编辑员工月度考勤(钉钉)")
-    @SaCheckPermission("/sys/emp/edit")
+//    @SaCheckPermission("/sys/emp/edit")
     @PostMapping("/sys/emp/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrEmpAttendDingdingEditParam hrEmpAttendDingdingEditParam) {
         hrEmpAttendDingdingService.edit(hrEmpAttendDingdingEditParam);
@@ -95,7 +95,7 @@ public class HrEmpAttendDingdingController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除员工月度考勤(钉钉)")
     @CommonLog("删除员工月度考勤(钉钉)")
-    @SaCheckPermission("/sys/emp/delete")
+//    @SaCheckPermission("/sys/emp/delete")
     @PostMapping("/sys/emp/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrEmpAttendDingdingIdParam> hrEmpAttendDingdingIdParamList) {
@@ -111,7 +111,7 @@ public class HrEmpAttendDingdingController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取员工月度考勤(钉钉)详情")
-    @SaCheckPermission("/sys/emp/detail")
+//    @SaCheckPermission("/sys/emp/detail")
     @GetMapping("/sys/emp/detail")
     public CommonResult<HrEmpAttendDingding> detail(@Valid HrEmpAttendDingdingIdParam hrEmpAttendDingdingIdParam) {
         return CommonResult.data(hrEmpAttendDingdingService.detail(hrEmpAttendDingdingIdParam));
