@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.dev.feign.DingTalkFeign;
+import vip.xiaonuo.sys.feign.DingTalkFeign;
 import vip.xiaonuo.sys.modular.hr.emp.provider.DingTalkApiProvider;
 
 /**
@@ -30,7 +30,7 @@ import vip.xiaonuo.sys.modular.hr.emp.provider.DingTalkApiProvider;
 @RequiredArgsConstructor
 @RestController
 @Configuration
-public class DingTalkApiContextBean implements DingTalkFeign {
+public class DingTalkFeignProvider implements DingTalkFeign {
 
     private final DingTalkApiProvider dingTalkApiProvider;
 
