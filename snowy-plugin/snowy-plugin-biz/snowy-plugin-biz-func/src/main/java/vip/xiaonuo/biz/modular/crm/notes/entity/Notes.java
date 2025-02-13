@@ -108,4 +108,8 @@ public class Notes {
     @ApiModelProperty(value = "更新人", position = 18)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 扫描件 */
+    @ApiModelProperty(value = "扫描件", position = 20)
+    private String attach;
 }

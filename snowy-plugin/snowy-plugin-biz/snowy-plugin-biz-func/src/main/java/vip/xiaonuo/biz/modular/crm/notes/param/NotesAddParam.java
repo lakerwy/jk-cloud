@@ -84,4 +84,7 @@ public class NotesAddParam {
     @ApiModelProperty(value = "合作人（历史表Notes.Partner）", position = 13)
     private String partner;
 
+    /** 扫描件 */
+    @ApiModelProperty(value = "扫描件", position = 20)
+    private String attach;
 }

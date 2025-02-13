@@ -105,4 +105,7 @@ public class NotesInfoVo {
 //    @ApiModelProperty(value = "伙伴名称", position = 20)
 //    private String partnerName;
 
+    /** 扫描件 */
+    @ApiModelProperty(value = "扫描件", position = 20)
+    private String attach;
 }
