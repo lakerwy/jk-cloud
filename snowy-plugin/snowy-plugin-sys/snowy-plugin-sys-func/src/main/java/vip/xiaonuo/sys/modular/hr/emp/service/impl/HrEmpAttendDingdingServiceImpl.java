@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.OperationLogEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
@@ -20,7 +21,9 @@ import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingEditParam;
 import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingIdParam;
 import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingPageParam;
 import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
+import vip.xiaonuo.util.modular.log.service.OperationLogService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -31,6 +34,9 @@ import java.util.List;
  **/
 @Service
 public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingdingMapper, HrEmpAttendDingding> implements HrEmpAttendDingdingService {
+
+    @Resource
+    private OperationLogService operationLogService;
 
     @Override
     public Page<HrEmpAttendDingding> page(HrEmpAttendDingdingPageParam hrEmpAttendDingdingPageParam) {
@@ -89,12 +95,14 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
                     hrEmpAttendDingdingAddParam.getUserId(), hrEmpAttendDingdingAddParam.getUserName(),hrEmpAttendDingdingAddParam.getYearMonth());
         }
         this.save(hrEmpAttendDingding);
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(HrEmpAttendDingdingEditParam hrEmpAttendDingdingEditParam) {
         HrEmpAttendDingding hrEmpAttendDingding = this.queryEntity(hrEmpAttendDingdingEditParam.getId());
+        HrEmpAttendDingding orinObj = BeanUtil.toBean(hrEmpAttendDingding, HrEmpAttendDingding.class);
         BeanUtil.copyProperties(hrEmpAttendDingdingEditParam, hrEmpAttendDingding);
         // 判断是否存在
         long count = this.count(new LambdaQueryWrapper<HrEmpAttendDingding>()
@@ -107,6 +115,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
                     hrEmpAttendDingdingEditParam.getUserId(), hrEmpAttendDingdingEditParam.getUserName(),hrEmpAttendDingdingEditParam.getYearMonth());
         }
         this.updateById(hrEmpAttendDingding);
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_UPDATE,hrEmpAttendDingdingEditParam,orinObj,hrEmpAttendDingding);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -114,6 +123,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
     public void delete(List<HrEmpAttendDingdingIdParam> hrEmpAttendDingdingIdParamList) {
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(hrEmpAttendDingdingIdParamList, HrEmpAttendDingdingIdParam::getId));
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList);
     }
 
     @Override
