@@ -93,7 +93,7 @@ public class DingDingSyncController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("同步 - 钉钉 - 考勤数据（异步处理）")
     @CommonLog("同步 - 钉钉 - 考勤数据（异步处理）")
-    @PostMapping("/sys/dingTalk/syncAttendDAsync")
+    @PostMapping("/sys/dingTalk/syncAttendAsync")
     public CommonResult<String> syncAttendAsync(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
         dingDingSyncService.syncAttendAsync(syncAttendDataParam);
         return CommonResult.ok();
