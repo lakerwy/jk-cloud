@@ -29,6 +29,7 @@ import vip.xiaonuo.util.modular.log.param.OperationLogPageParam;
 import vip.xiaonuo.util.modular.log.service.OperationLogService;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -117,10 +118,10 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     }
 
     @Override
-    public void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2) {
+    public void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2, String[] excludeFields) {
         convertToDateTime(obj1);
         convertToDateTime(obj2);
-        JSONObject jsonObject = compareObj(obj1, obj2);
+        JSONObject jsonObject = compareObj(obj1, obj2,excludeFields);
         // 创建日志对象
         OperationLogEntity log = new OperationLogEntity();
         log.setCategory(operationLogEnum.getCategory());
@@ -146,10 +147,11 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         }
     }
 
-    private static JSONObject compareObj(Object obj1, Object obj2){
+    private static JSONObject compareObj(Object obj1, Object obj2, String[] excludeFields){
         // 比较字段值
         Map<String, String> originalValues = null;
         Map<String, String> updatedValues = null;
+        boolean exclude = excludeFields != null && excludeFields.length > 0;
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         try {
@@ -157,6 +159,10 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
             updatedValues = BeanUtils.describe(obj2);
             for (Map.Entry<String, String> entry : originalValues.entrySet()) {
                 String fieldName = entry.getKey();
+                // 需要排除的字段
+                if(exclude && Arrays.asList(excludeFields).contains(fieldName)) {
+                    continue;
+                }
                 String originalValue = entry.getValue();
                 String updatedValue = updatedValues.get(fieldName);
                 if (updatedValue != null && !originalValue.equals(updatedValue)) {

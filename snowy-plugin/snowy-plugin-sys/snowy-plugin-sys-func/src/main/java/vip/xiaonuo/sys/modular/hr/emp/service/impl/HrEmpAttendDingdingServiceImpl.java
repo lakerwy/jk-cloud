@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.hr.emp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -94,6 +95,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
             throw new CommonException("用户ID：{}，姓名：{}，所属月份：{}，考勤数据已存在",
                     hrEmpAttendDingdingAddParam.getUserId(), hrEmpAttendDingdingAddParam.getUserName(),hrEmpAttendDingdingAddParam.getYearMonth());
         }
+        hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口add新增");
         this.save(hrEmpAttendDingding);
         operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam);
     }
@@ -114,8 +116,10 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
             throw new CommonException("用户ID：{}，姓名：{}，所属月份：{}，考勤数据已存在",
                     hrEmpAttendDingdingEditParam.getUserId(), hrEmpAttendDingdingEditParam.getUserName(),hrEmpAttendDingdingEditParam.getYearMonth());
         }
+        hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口edit编辑；"+(StrUtil.isNotBlank(orinObj.getNote())?orinObj.getNote():""));
         this.updateById(hrEmpAttendDingding);
-        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_UPDATE,hrEmpAttendDingdingEditParam,orinObj,hrEmpAttendDingding);
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_UPDATE,hrEmpAttendDingdingEditParam,orinObj,
+                hrEmpAttendDingding,new String[]{"note"});
     }
 
     @Transactional(rollbackFor = Exception.class)

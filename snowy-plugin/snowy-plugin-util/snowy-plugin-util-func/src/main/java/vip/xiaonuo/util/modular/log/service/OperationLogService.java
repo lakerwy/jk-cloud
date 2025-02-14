@@ -85,6 +85,7 @@ public interface OperationLogService extends IService<OperationLogEntity> {
      * @param param 请求参数
      * @param obj1 修改前的对象
      * @param obj2 修改后的对象
+     * @param excludeFields 需要忽略的字段（为空表示不忽略）
      **/
-    void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2);
+    void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2,String[] excludeFields);
 }
