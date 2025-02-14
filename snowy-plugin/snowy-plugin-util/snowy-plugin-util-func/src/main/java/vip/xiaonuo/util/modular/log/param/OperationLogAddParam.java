@@ -27,6 +27,10 @@ public class OperationLogAddParam {
     @ApiModelProperty(value = "功能名称", position = 3)
     private String name;
 
+    /** 业务主键ID */
+    @ApiModelProperty(value = "业务主键ID", position = 4)
+    private String businessId;
+
     /** 请求参数 */
     @ApiModelProperty(value = "请求参数", position = 7)
     private String paramJson;

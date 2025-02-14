@@ -75,17 +75,17 @@ public class DingDingSyncController {
         return CommonResult.ok();
     }
 
-    /**
-     * 同步 - 钉钉 - 考勤数据
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("同步 - 钉钉 - 考勤数据")
-    @CommonLog("同步 - 钉钉 - 考勤数据")
-    @PostMapping("/sys/dingTalk/syncAttendData")
-    public CommonResult<String> syncAttendData(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
-        dingDingSyncService.syncAttendData(syncAttendDataParam);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 同步 - 钉钉 - 考勤数据
+//     */
+//    @ApiOperationSupport(order = 3)
+//    @ApiOperation("同步 - 钉钉 - 考勤数据")
+//    @CommonLog("同步 - 钉钉 - 考勤数据")
+//    @PostMapping("/sys/dingTalk/syncAttendData")
+//    public CommonResult<String> syncAttendData(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
+//        dingDingSyncService.syncAttendData(syncAttendDataParam);
+//        return CommonResult.ok();
+//    }
 
     /**
      * 同步 - 钉钉 - 考勤数据
@@ -93,9 +93,16 @@ public class DingDingSyncController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("同步 - 钉钉 - 考勤数据（异步处理）")
     @CommonLog("同步 - 钉钉 - 考勤数据（异步处理）")
-    @PostMapping("/sys/dingTalk/syncAttendDataAsync")
-    public CommonResult<String> syncAttendDataAsync(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
-        dingDingSyncService.syncAttendDataAsync(syncAttendDataParam);
+    @PostMapping("/sys/dingTalk/syncAttendDAsync")
+    public CommonResult<String> syncAttendAsync(@RequestBody @Valid SyncAttendDataParam syncAttendDataParam) {
+        dingDingSyncService.syncAttendAsync(syncAttendDataParam);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("同步 - 钉钉 - 考勤同步状态查询")
+    @PostMapping("/sys/dingTalk/syncAttendStatus")
+    public CommonResult<Boolean> syncStatus() {
+        return CommonResult.data(dingDingSyncService.syncAttendStatus());
     }
 }

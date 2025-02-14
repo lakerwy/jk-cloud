@@ -33,12 +33,18 @@ public interface DingDingSyncService {
     /**
      * 同步 - 钉钉 - 考勤数据
      * @param syncAttendDataParam
+     * @param type
      */
-    void syncAttendData(SyncAttendDataParam syncAttendDataParam);
+    void syncAttendData(SyncAttendDataParam syncAttendDataParam, String type);
 
     /**
      * 同步 - 钉钉 - 考勤数据
      * @param syncAttendDataParam（异步处理）
      */
-    void syncAttendDataAsync(SyncAttendDataParam syncAttendDataParam);
+    void syncAttendAsync(SyncAttendDataParam syncAttendDataParam);
+
+    /**
+     * 同步 - 钉钉 - 考勤同步状态查询
+     */
+    Boolean syncAttendStatus();
 }

@@ -10,8 +10,6 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static cn.dev33.satoken.SaManager.log;
-
 /**
  * 钉钉API provider
  *
@@ -33,6 +31,6 @@ public class DingTalkApiProvider implements DingTalkApi {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         String lastMonth = sdf.format(calendar.getTime());
         syncAttendDataParam.setYM(lastMonth);
-        dingDingSyncService.syncAttendData(syncAttendDataParam);
+        dingDingSyncService.syncAttendData(syncAttendDataParam, "定时任务触发");
     }
 }

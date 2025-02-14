@@ -55,6 +55,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         if(ObjectUtil.isNotEmpty(operationLogPageParam.getStartTime()) && ObjectUtil.isNotEmpty(operationLogPageParam.getEndTime())) {
             queryWrapper.lambda().between(OperationLogEntity::getOpTime,operationLogPageParam.getStartTime(),operationLogPageParam.getEndTime());
         }
+        if(ObjectUtil.isNotEmpty(operationLogPageParam.getBusinessId())) {
+            queryWrapper.lambda().eq(OperationLogEntity::getBusinessId, operationLogPageParam.getBusinessId());
+        }
         if(ObjectUtil.isNotEmpty(operationLogPageParam.getSearchKey())) {
             queryWrapper.lambda().and(q->q.like(OperationLogEntity::getCategory, operationLogPageParam.getSearchKey())
                     .or().like(OperationLogEntity::getMemo,operationLogPageParam.getSearchKey()));
@@ -107,18 +110,21 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
 
     @Override
     public void saveLog(OperationLogEnum operationLogEnum,Object param) {
+        JSONObject json = JSONUtil.parseObj(param);
         // 创建日志对象
         OperationLogEntity log = new OperationLogEntity();
         log.setCategory(operationLogEnum.getCategory());
         log.setName(operationLogEnum.getName());
         log.setOpTime(DateTime.now());
         log.setOpUser(StpLoginUserUtil.getLoginUser().getName());
-        log.setParamJson(JSONUtil.toJsonStr(param));
+        log.setBusinessId(json.getStr("id"));
+        log.setParamJson(json.toString());
         this.save(log);
     }
 
     @Override
     public void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2, String[] excludeFields) {
+        JSONObject json = JSONUtil.parseObj(param);
         convertToDateTime(obj1);
         convertToDateTime(obj2);
         JSONObject jsonObject = compareObj(obj1, obj2,excludeFields);
@@ -126,9 +132,10 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         OperationLogEntity log = new OperationLogEntity();
         log.setCategory(operationLogEnum.getCategory());
         log.setName(operationLogEnum.getName());
+        log.setBusinessId(json.getStr("id"));
         log.setOpTime(DateTime.now());
         log.setOpUser(StpLoginUserUtil.getLoginUser().getName());
-        log.setParamJson(JSONUtil.toJsonStr(param));
+        log.setParamJson(json.toString());
         log.setUpdateJson(jsonObject.toString());
         this.save(log);
     }

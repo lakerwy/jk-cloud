@@ -48,4 +48,7 @@ public class OperationLogPageParam {
     @ApiModelProperty(value = "结束时间")
     private String endTime;
 
+    @ApiModelProperty(value = "业务主键ID")
+    private String businessId;
+
 }

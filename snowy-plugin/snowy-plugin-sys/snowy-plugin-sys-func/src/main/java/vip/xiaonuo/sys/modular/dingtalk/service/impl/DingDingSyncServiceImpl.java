@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.*;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -41,6 +40,7 @@ import javax.annotation.Resource;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
@@ -81,6 +81,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 
     @Resource
     private HrEmpAttendDingdingService hrEmpAttendDingdingService;
+
+    private static final AtomicInteger syncAttendCount = new AtomicInteger(0);
 
     /**
      * 同步逻辑说明 【暂停】：
@@ -479,7 +481,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     }
 
     @Override
-    public void syncAttendData(SyncAttendDataParam syncAttendDataParam) {
+    public void syncAttendData(SyncAttendDataParam syncAttendDataParam, String type) {
         log.info("----- 钉钉考勤数据同步 --- 开始 -----");
         long startTime = System.currentTimeMillis();
         // 给定的年月，例如202501
@@ -495,13 +497,14 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         log.info("----- 钉钉考勤数据同步 --- 同步时间范围：{}-{} -----",firstDay,lastDay);
         // 获取钉钉用户列表
         List<SysUser> dingSysUserList = sysUserService.getDingUser();
-        List<HrEmpAttendDingding> existList = hrEmpAttendDingdingService.list(new LambdaQueryWrapper<HrEmpAttendDingding>().eq(HrEmpAttendDingding::getYearMonth, yearMonthStr));
-        if(CollUtil.isNotEmpty(existList)){
-            // 筛选掉当月已存在的用户考勤数据
-            dingSysUserList = dingSysUserList.stream()
-                    .filter(x -> existList.stream().noneMatch(y -> y.getUserId().equals(x.getId()) && yearMonthStr.equals(y.getYearMonth())))
-                    .collect(Collectors.toList());
-        }
+//        List<HrEmpAttendDingding> existList = hrEmpAttendDingdingService.list(new LambdaQueryWrapper<HrEmpAttendDingding>().eq(HrEmpAttendDingding::getYearMonth, yearMonthStr));
+        hrEmpAttendDingdingService.remove(new LambdaQueryWrapper<HrEmpAttendDingding>().eq(HrEmpAttendDingding::getYearMonth, yearMonthStr));
+//        if(CollUtil.isNotEmpty(existList)){
+//            // 筛选掉当月已存在的用户考勤数据
+//            dingSysUserList = dingSysUserList.stream()
+//                    .filter(x -> existList.stream().noneMatch(y -> y.getUserId().equals(x.getId()) && yearMonthStr.equals(y.getYearMonth())))
+//                    .collect(Collectors.toList());
+//        }
         // 测试用，只取10个用户
 //        dingSysUserList = dingSysUserList.subList(0,10);
         if(CollUtil.isEmpty(dingSysUserList)){
@@ -698,7 +701,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             isFull(hrEmpAttendDingding);// 是否全勤
             hrEmpAttendDingdingList.add(hrEmpAttendDingding);
         }
-        hrEmpAttendDingdingList.forEach(x -> x.setNote(DateUtil.now()+"：钉钉同步考勤数据"));
+        hrEmpAttendDingdingList.forEach(x -> x.setNote(String.format(DateUtil.now()+"：钉钉同步考勤数据【】",type)));
         hrEmpAttendDingdingService.saveBatch(hrEmpAttendDingdingList);
         long endTime = System.currentTimeMillis();
         log.info("----- 钉钉考勤数据同步 --- 完成耗时：{}ms，同步用户数量：{} -----", endTime-startTime , hrEmpAttendDingdingList.size());
@@ -718,10 +721,28 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     }
 
     @Override
-    public void syncAttendDataAsync(SyncAttendDataParam syncAttendDataParam) {
+    public void syncAttendAsync(SyncAttendDataParam syncAttendDataParam) {
+        if (syncAttendStatus()) {
+            throw new CommonException("上次同步暂未结束，请稍后再试");
+        }
+        syncAttendCount.incrementAndGet();
         CompletableFuture.runAsync(() -> {
-            syncAttendData(syncAttendDataParam);
+            syncAttendData(syncAttendDataParam, "手动触发");
+            decrementSyncAttendCountSafely();
         });
+    }
+
+    private void decrementSyncAttendCountSafely() {
+        if (syncAttendCount.get() > 0) {
+            syncAttendCount.decrementAndGet();
+        }
+    }
+
+    @Override
+    public Boolean syncAttendStatus() {
+        int i = syncAttendCount.get();
+        log.info("考勤同步任务数量{}",i);
+        return i > 0;
     }
 
 }
