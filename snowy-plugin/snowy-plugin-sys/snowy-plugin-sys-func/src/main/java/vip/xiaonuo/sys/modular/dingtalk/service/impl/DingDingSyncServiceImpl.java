@@ -701,7 +701,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             isFull(hrEmpAttendDingding);// 是否全勤
             hrEmpAttendDingdingList.add(hrEmpAttendDingding);
         }
-        hrEmpAttendDingdingList.forEach(x -> x.setNote(String.format(DateUtil.now()+"：钉钉同步考勤数据【】",type)));
+        hrEmpAttendDingdingList.forEach(x -> x.setNote(String.format(DateUtil.now()+"：钉钉同步考勤数据【%s】",type)));
         hrEmpAttendDingdingService.saveBatch(hrEmpAttendDingdingList);
         long endTime = System.currentTimeMillis();
         log.info("----- 钉钉考勤数据同步 --- 完成耗时：{}ms，同步用户数量：{} -----", endTime-startTime , hrEmpAttendDingdingList.size());
@@ -741,7 +741,6 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     @Override
     public Boolean syncAttendStatus() {
         int i = syncAttendCount.get();
-        log.info("考勤同步任务数量{}",i);
         return i > 0;
     }
 
