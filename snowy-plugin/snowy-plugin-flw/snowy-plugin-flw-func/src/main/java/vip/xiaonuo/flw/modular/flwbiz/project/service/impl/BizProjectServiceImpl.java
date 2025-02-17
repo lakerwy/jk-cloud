@@ -72,7 +72,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
-
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectPageParam.getEndApplyTime())) {
             queryWrapper.between("a.APPLY_TIME", bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
         }
