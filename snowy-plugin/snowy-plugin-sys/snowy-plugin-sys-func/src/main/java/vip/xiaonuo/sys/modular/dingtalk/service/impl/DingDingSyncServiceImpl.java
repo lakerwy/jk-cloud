@@ -541,16 +541,13 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             OapiAttendanceGetcolumnvalResponse.ColumnValListForTopVo columnValVo = CommonDingDingUtil.getColumnval(access_Token, dingUserId, column_id_list,
                     firstDay + " 00:00:00", lastDay +" 23:59:59");
             // 考勤报表列值为空
-            if(ObjectUtil.isEmpty(columnValVo)){
-                continue;
-            }
-            List<OapiAttendanceGetcolumnvalResponse.ColumnValForTopVo> columnVals = columnValVo.getColumnVals();
-            if(ObjectUtil.isEmpty(columnVals)){
+            if(ObjectUtil.isEmpty(columnValVo) || CollUtil.isEmpty(columnValVo.getColumnVals())){
+                log.info("----- 钉钉考勤数据同步 --- 获取考勤报表列值为空 -----");
                 continue;
             }
             // key,value反转
             Map<Long,String> reversedMap = columnMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-            columnVals.forEach(column_vals -> {
+            columnValVo.getColumnVals().forEach(column_vals -> {
                 Long id = column_vals.getColumnVo().getId();
                 String value = reversedMap.get(id);
                 switch (value){
@@ -653,44 +650,43 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             String leave_names = "事假,病假,婚假,产假,丧假,年假,调休";
             OapiAttendanceGetleavetimebynamesResponse.ColumnValListForTopVo leaveTimeVo = CommonDingDingUtil.getLeavetimebynames(access_Token, dingUserId, leave_names,
                     firstDay + " 00:00:00", lastDay + " 23:59:59");
-            if(ObjectUtil.isNotEmpty(leaveTimeVo)){
-                List<OapiAttendanceGetleavetimebynamesResponse.ColumnValForTopVo> columnList = leaveTimeVo.getColumns();
-                if(CollUtil.isNotEmpty(columnList)){
-                    columnList.forEach(column_vals -> {
-                        String columnName = column_vals.getColumnvo().getName();
-                        float value = 0.0f;
-                        if(CollUtil.isNotEmpty(column_vals.getColumnvals())){
-                            value = column_vals.getColumnvals().stream().map(item -> Float.parseFloat(item.getValue()))
-                                    .reduce(0.0f, Float::sum);
-                        }
-                        switch (columnName) {
-                            case "事假":
-                                hrEmpAttendDingding.setWorkDay(value);
-                                break;
-                            case "病假":
-                                hrEmpAttendDingding.setSickDay(value);
-                                break;
-                            case "婚假":
-                                hrEmpAttendDingding.setMarryDay(value);
-                                break;
-                            case "产假":
-                                hrEmpAttendDingding.setMaterDay(value);
-                                break;
-                            case "丧假":
-                                hrEmpAttendDingding.setFunDay(value);
-                            break;
-                            case "年假":
-                                hrEmpAttendDingding.setYearDay(value);
-                                break;
-                            case "调休":
-                                hrEmpAttendDingding.setAdjustHour(value);
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                }
+            if(ObjectUtil.isEmpty(leaveTimeVo) || CollUtil.isEmpty(leaveTimeVo.getColumns())){
+                log.info("----- 钉钉考勤数据同步 --- 获取考勤报表假期数据为空 -----");
+                continue;
             }
+            leaveTimeVo.getColumns().forEach(column_vals -> {
+                String columnName = column_vals.getColumnvo().getName();
+                float value = 0.0f;
+                if(CollUtil.isNotEmpty(column_vals.getColumnvals())){
+                    value = column_vals.getColumnvals().stream().map(item -> Float.parseFloat(item.getValue()))
+                            .reduce(0.0f, Float::sum);
+                }
+                switch (columnName) {
+                    case "事假":
+                        hrEmpAttendDingding.setWorkDay(value);
+                        break;
+                    case "病假":
+                        hrEmpAttendDingding.setSickDay(value);
+                        break;
+                    case "婚假":
+                        hrEmpAttendDingding.setMarryDay(value);
+                        break;
+                    case "产假":
+                        hrEmpAttendDingding.setMaterDay(value);
+                        break;
+                    case "丧假":
+                        hrEmpAttendDingding.setFunDay(value);
+                    break;
+                    case "年假":
+                        hrEmpAttendDingding.setYearDay(value);
+                        break;
+                    case "调休":
+                        hrEmpAttendDingding.setAdjustHour(value);
+                        break;
+                    default:
+                        break;
+                }
+            });
             hrEmpAttendDingding.setYearMonth(yearMonthStr);
             hrEmpAttendDingding.setUserName(sysUser.getName());
             hrEmpAttendDingding.setIdCardNumber(sysUser.getIdCardNumber());
