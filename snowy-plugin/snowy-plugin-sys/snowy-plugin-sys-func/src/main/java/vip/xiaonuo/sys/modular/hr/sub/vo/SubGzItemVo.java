@@ -23,4 +23,8 @@ public class SubGzItemVo extends SubGzItem {
     /** 流程记录 - 所属年月 */
     @ApiModelProperty(value = "流程记录 - 所属年月", position = 400)
     private String flwYM;
+
+    /** 流程类型：工资|奖金|工资+奖金 */
+    @ApiModelProperty(value = "流程类型：工资|奖金|工资+奖金", position = 500)
+    private String flwType;
 }

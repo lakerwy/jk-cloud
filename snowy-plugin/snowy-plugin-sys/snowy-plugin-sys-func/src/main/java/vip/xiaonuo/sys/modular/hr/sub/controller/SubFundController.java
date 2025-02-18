@@ -113,4 +113,21 @@ public class SubFundController {
     public CommonResult<SubFund> detail(@Valid SubFundIdParam subFundIdParam) {
         return CommonResult.data(subFundService.detail(subFundIdParam));
     }
+
+
+
+
+    /**
+     * 分公司五险一金数据 - 校验
+     *
+     * @author yong.ye
+     * @date  2025/02/28 11:30
+     */
+    @ApiOperationSupport(order = 88)
+    @ApiOperation("分公司五险一金数据 - 校验")
+    @CommonLog("分公司五险一金数据 - 校验")
+    @PostMapping("/sys/hr/sub/fund/check")
+    public CommonResult<SubFundParam> check(@RequestBody @Valid SubFundParam subFundParam) {
+        return CommonResult.data(subFundService.check(subFundParam));
+    }
 }

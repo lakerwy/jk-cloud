@@ -23,7 +23,7 @@
     </select>
 
     <select id="getSubGzItemList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubGzItemVo" >
-        select a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,a.Y_M as flwYM,
+        select a.REGION as region,a.ORG_ID as orgId,a.ORG_NAME as orgName,a.Y_M as flwYM,a.TYPE as flwType,
                b.*
         from SUB_GZ a join SUB_GZ_ITEM b on a.ID = b.SUB_GZ_ID and b.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}

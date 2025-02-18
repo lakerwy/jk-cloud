@@ -35,12 +35,16 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubFund;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubGz;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubGzItem;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
+import vip.xiaonuo.sys.modular.hr.sub.enums.SubFundItemTypeEnum;
 import vip.xiaonuo.sys.modular.hr.sub.enums.SubGzItemTypeEnum;
+import vip.xiaonuo.sys.modular.hr.sub.enums.SubGzTypeEnum;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubFundMapper;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubGzMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubGzItemService;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubGzService;
+import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelService;
 import vip.xiaonuo.sys.modular.hr.sub.util.SubUtils;
 import vip.xiaonuo.sys.modular.hr.sub.vo.*;
 
@@ -50,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -77,25 +82,33 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     @Resource
     private SubFundMapper subFundMapper;
 
-    /**
-     * SubGz - 工资奖金  - 人数
-     */
-    public static final String[] NUM_GZ_REPORT_TYPE_LIST = {"1","2"};
+    @Resource
+    private SubPersonnelService subPersonnelService;
 
     /**
-     * SubFund - 五险一金 - 人数
+     * SubGz - 工资奖金  - 报表
      */
-    public static final String[] NUM_FUND_REPORT_TYPE_LIST = {"5"};
+    public static final String[] GZ_REPORT_TYPE_LIST = {"1","2","3","4"};
 
     /**
-     * SubGz - 工资奖金  - 总额
+     * SubFund - 五险一金 - 报表
      */
-    public static final String[] GZ_REPORT_TYPE_LIST = {"3","4"};
+    public static final String[] FUND_REPORT_TYPE_LIST = {"5","6","7","8"};
 
     /**
-     * SubFund - 五险一金 - 总额
+     * SubGz - 特殊报表
      */
-    public static final String[] FUND_REPORT_TYPE_LIST = {"6"};
+    public static final String[] SPECIAL_REPORT_TYPE_LIST = {"9"};
+
+    /**
+     * SubGz - 报表 - 求平均
+     */
+    public static final String[] AVG_REPORT_TYPE_LIST = {"1","2","5","7"};
+
+    /**
+     * SubGz - 报表 - 求小计
+     */
+    public static final String[] TOTAL_REPORT_TYPE_LIST = {"3","4","6","8"};
 
     /**
      * 构造12月
@@ -128,12 +141,20 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         if(ObjectUtil.isNotEmpty(subGzPageParam.getStatus())) {
             queryWrapper.lambda().eq(SubGz::getStatus, subGzPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(subGzPageParam.getType())){
+            queryWrapper.lambda().eq(SubGz::getType,subGzPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(subGzPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SubGz::getSn,subGzPageParam.getSearchKey())
+                    .or().like(SubGz::getRegion,subGzPageParam.getSearchKey())
+                    .or().like(SubGz::getOrgName,subGzPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(subGzPageParam.getSortField(), subGzPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subGzPageParam.getSortOrder());
             queryWrapper.orderBy(true, subGzPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subGzPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SubGz::getId);
+            queryWrapper.lambda().orderByDesc(SubGz::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -162,7 +183,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         this.save(subGz);
         //处理发票
         List<SubGzItem> subGzItemList = new ArrayList<>();
+        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
         if(CollUtil.isNotEmpty(subGzParam.getGzList())){
+            subGzParam.getGzList().forEach(item->matchNature(item,subPersonnelList));
             List<SubGzItem> tmpItems = BeanUtil.copyToList(subGzParam.getGzList(), SubGzItem.class);
             tmpItems.forEach(x->{
                 x.setSubGzId(subGz.getId());
@@ -171,6 +194,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             subGzItemList.addAll(tmpItems);
         }
         if(CollUtil.isNotEmpty(subGzParam.getJjList())){
+            subGzParam.getJjList().forEach(item->matchNature(item,subPersonnelList));
             List<SubGzItem> tmpItems = BeanUtil.copyToList(subGzParam.getJjList(), SubGzItem.class);
             tmpItems.forEach(x->{
                 x.setSubGzId(subGz.getId());
@@ -342,130 +366,65 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     }
 
     @Override
-    public List<YearNumVo> yearNumTotal(SearchTotal searchTotal) {
+    public List<YearReportVo> yearReport(SearchTotal searchTotal) {
         if(ObjectUtil.isEmpty(searchTotal.getReportType())){
             throw new CommonException("报表类型必填");
         }
-
         //数据源
         List<MonthVo> dataList = new ArrayList<>();
-
-        /* 不同的报表 - 数据源不一致 */
-        if(CollectionUtil.newArrayList(NUM_GZ_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
-            dataList = getSubGzMonthVoList(searchTotal,"year",null);
-        } else if (CollectionUtil.newArrayList(NUM_FUND_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
-            dataList = getSubFundMonthVoList(searchTotal,"year");
-        }else {
-            throw new CommonException("不支持的报表类型");
-        }
-
-        //构建结果集
-        List<YearNumVo> result = new ArrayList<>();
-        if(CollUtil.isNotEmpty(dataList)){
-            dataList.forEach(data->{
-                YearNumVo tmp = result.stream().filter(x -> data.getRegion().equals(x.getRegion()) && data.getOrgId().equals(x.getOrgId()) && data.getOrgName().equals(x.getOrgName())).findFirst().orElse(null);
-                if(ObjectUtil.isEmpty(tmp)){
-                    YearNumVo tmpYearNumVo = new YearNumVo();
-                    tmpYearNumVo.setYM(searchTotal.getYM());
-                    tmpYearNumVo.setRegion(data.getRegion());
-                    tmpYearNumVo.setOrgId(data.getOrgId());
-                    tmpYearNumVo.setOrgName(data.getOrgName());
-                    result.add(tmpYearNumVo);
-                }
-            });
-            /*构造12月数据*/
-            List<String> monthList = CollectionUtil.newArrayList(MONTH_LIST);
-            for (YearNumVo obj : result) {
-                Integer sumNums = 0;
-                for (String month : monthList) {
-                    String tmpYM = obj.getYM() + "-" + month;
-                    MonthVo tmpData = dataList.stream().filter(x -> obj.getRegion().equals(x.getRegion()) && obj.getOrgId().equals(x.getOrgId()) && obj.getOrgName().equals(x.getOrgName()) && tmpYM.equals(x.getYM())).findFirst().orElse(null);
-                    Integer tmpNums = 0;
-                    if(ObjectUtil.isNotEmpty(tmpData)){
-                        if("1".equals(searchTotal.getReportType())){
-                            tmpNums = tmpData.getGzYfNum();
-                        } else if ("2".equals(searchTotal.getReportType())) {
-                            tmpNums = tmpData.getGzSfNum();
-                        } else if("5".equals(searchTotal.getReportType())){
-                            tmpNums = tmpData.getSjWxNum();
-                        }
-                    }
-                    sumNums = sumNums + tmpNums;
-                    switch (month){
-                        case "01": obj.setNum1(tmpNums); break;
-                        case "02": obj.setNum2(tmpNums); break;
-                        case "03": obj.setNum3(tmpNums); break;
-                        case "04": obj.setNum4(tmpNums); break;
-                        case "05": obj.setNum5(tmpNums); break;
-                        case "06": obj.setNum6(tmpNums); break;
-                        case "07": obj.setNum7(tmpNums); break;
-                        case "08": obj.setNum8(tmpNums); break;
-                        case "09": obj.setNum9(tmpNums); break;
-                        case "10": obj.setNum10(tmpNums); break;
-                        case "11": obj.setNum11(tmpNums); break;
-                        case "12": obj.setNum12(tmpNums); break;
-                        default:break;
-                    }
-                }
-                obj.setAvgNum(SubUtils.getDoubleVal(sumNums/12.0,2));
-            }
-        }
-        result.sort(Comparator.comparing(YearNumVo::getYM).thenComparing(YearNumVo::getRegion).thenComparing(YearNumVo::getOrgName));
-        if(CollUtil.isNotEmpty(result)) {
-            // 赋予序号 1,2,3...
-            AtomicInteger counter = new AtomicInteger(1);
-            result.forEach(p -> p.setNo(counter.getAndIncrement()));
-        }
-        return result;
-    }
-
-    @Override
-    public List<YearGzVo> yearGzTotal(SearchTotal searchTotal) {
-        if(ObjectUtil.isEmpty(searchTotal.getReportType())){
-            throw new CommonException("报表类型必填");
-        }
-
-        //数据源
-        List<MonthVo> dataList = new ArrayList<>();
-
         /* 不同的报表 - 数据源不一致 */
         if(CollectionUtil.newArrayList(GZ_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
-            dataList = getSubGzMonthVoList(searchTotal, "year",null);
+            dataList = getSubGzMonthVoList(searchTotal,"year",null);
         } else if (CollectionUtil.newArrayList(FUND_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
             dataList = getSubFundMonthVoList(searchTotal,"year");
-        }else {
+        }else if (CollectionUtil.newArrayList(SPECIAL_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
+            dataList = getSubGzMonthVoList(searchTotal,"year",null);
+        } else {
             throw new CommonException("不支持的报表类型");
         }
-
         //构建结果集
-        List<YearGzVo> result = new ArrayList<>();
-        if(CollUtil.isNotEmpty(dataList)){
-            dataList.forEach(data->{
-                YearGzVo tmp = result.stream().filter(x -> data.getRegion().equals(x.getRegion()) && data.getOrgId().equals(x.getOrgId()) && data.getOrgName().equals(x.getOrgName())).findFirst().orElse(null);
-                if(ObjectUtil.isEmpty(tmp)){
-                    YearGzVo tmpYearNumVo = new YearGzVo();
-                    tmpYearNumVo.setYM(searchTotal.getYM());
-                    tmpYearNumVo.setRegion(data.getRegion());
-                    tmpYearNumVo.setOrgId(data.getOrgId());
-                    tmpYearNumVo.setOrgName(data.getOrgName());
-                    result.add(tmpYearNumVo);
+        List<YearReportVo> result = new ArrayList<>();
+        if(CollUtil.isNotEmpty(dataList)) {
+            dataList.forEach(data -> {
+                YearReportVo tmp = result.stream().filter(x -> data.getRegion().equals(x.getRegion()) && data.getOrgId().equals(x.getOrgId()) && data.getOrgName().equals(x.getOrgName())).findFirst().orElse(null);
+                if (ObjectUtil.isEmpty(tmp)) {
+                    YearReportVo tmpYearReportVo = new YearReportVo();
+                    tmpYearReportVo.setYM(searchTotal.getYM());
+                    tmpYearReportVo.setRegion(data.getRegion());
+                    tmpYearReportVo.setOrgId(data.getOrgId());
+                    tmpYearReportVo.setOrgName(data.getOrgName());
+                    result.add(tmpYearReportVo);
                 }
             });
+        }
+        //数据处理
+        if(CollectionUtil.newArrayList(GZ_REPORT_TYPE_LIST).contains(searchTotal.getReportType()) ||
+           CollectionUtil.newArrayList(FUND_REPORT_TYPE_LIST).contains(searchTotal.getReportType())){
             /*构造12月数据*/
             List<String> monthList = CollectionUtil.newArrayList(MONTH_LIST);
-            for (YearGzVo obj : result) {
+            for (YearReportVo obj : result) {
                 BigDecimal sumNums = BigDecimal.ZERO;
                 for (String month : monthList) {
                     String tmpYM = obj.getYM() + "-" + month;
                     MonthVo tmpData = dataList.stream().filter(x -> obj.getRegion().equals(x.getRegion()) && obj.getOrgId().equals(x.getOrgId()) && obj.getOrgName().equals(x.getOrgName()) && tmpYM.equals(x.getYM())).findFirst().orElse(null);
                     BigDecimal tmpNums = BigDecimal.ZERO;
                     if(ObjectUtil.isNotEmpty(tmpData)){
-                        if("3".equals(searchTotal.getReportType())){
+                        if("1".equals(searchTotal.getReportType())){
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getGzYfNum());
+                        } else if ("2".equals(searchTotal.getReportType())) {
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getGzSfNum());
+                        } else if("5".equals(searchTotal.getReportType())){
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getSjWxNum());
+                        } else if("7".equals(searchTotal.getReportType())){
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getSjGjjNum());
+                        } else if ("3".equals(searchTotal.getReportType())) {
                             tmpNums = tmpData.getYfGzTotal();
                         } else if ("4".equals(searchTotal.getReportType())) {
                             tmpNums = tmpData.getSfGzTotal();
-                        } else if("6".equals(searchTotal.getReportType())){
-                            tmpNums = tmpData.getSjWxTotal().add(tmpData.getSjGjjTotal());
+                        } else if ("6".equals(searchTotal.getReportType())) {
+                            tmpNums = tmpData.getSjWxTotal();
+                        } else if ("8".equals(searchTotal.getReportType())) {
+                            tmpNums = tmpData.getSjGjjTotal();
                         }
                     }
                     sumNums = sumNums.add(tmpNums);
@@ -485,10 +444,25 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                         default:break;
                     }
                 }
-                obj.setTotal(sumNums);
+                if(CollectionUtil.newArrayList(AVG_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
+                    obj.setAvgTotal(sumNums.divide(new BigDecimal(12),2, RoundingMode.HALF_UP));
+                }else if(CollectionUtil.newArrayList(TOTAL_REPORT_TYPE_LIST).contains(searchTotal.getReportType())){
+                    obj.setAvgTotal(sumNums);
+                }
+            }
+        }else if(CollectionUtil.newArrayList(SPECIAL_REPORT_TYPE_LIST).contains(searchTotal.getReportType())){
+            for (YearReportVo obj : result) {
+                List<MonthVo> tmpDataList = dataList.stream().filter(x -> obj.getRegion().equals(x.getRegion()) && obj.getOrgId().equals(x.getOrgId()) && obj.getOrgName().equals(x.getOrgName())).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(tmpDataList)){
+                    obj.setNum1(SubUtils.intToBigDecimal(SubUtils.sumTotal(tmpDataList.stream().map(x->x.getJjYfNum()).collect(Collectors.toList()))));
+                    obj.setNum2(SubUtils.intToBigDecimal(SubUtils.sumTotal(tmpDataList.stream().map(x->x.getJjSfNum()).collect(Collectors.toList()))));
+                    obj.setNum3(SubUtils.addTotal(tmpDataList.stream().map(x->x.getYfJjTotal()).collect(Collectors.toList())));
+                    obj.setNum4(SubUtils.addTotal(tmpDataList.stream().map(x->x.getJjTaxTotal()).collect(Collectors.toList())));
+                    obj.setNum5(SubUtils.addTotal(tmpDataList.stream().map(x->x.getSfJjTotal()).collect(Collectors.toList())));
+                }
             }
         }
-        result.sort(Comparator.comparing(YearGzVo::getYM).thenComparing(YearGzVo::getRegion).thenComparing(YearGzVo::getOrgName));
+        result.sort(Comparator.comparing(YearReportVo::getYM).thenComparing(YearReportVo::getRegion).thenComparing(YearReportVo::getOrgName));
         if(CollUtil.isNotEmpty(result)) {
             // 赋予序号 1,2,3...
             AtomicInteger counter = new AtomicInteger(1);
@@ -496,6 +470,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         }
         return result;
     }
+
 
     @Override
     public void genExcel(SearchTotal searchTotal, HttpServletResponse response) {
@@ -587,7 +562,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             fundQueryWrapper.eq("a.ORG_ID", searchTotal.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(searchTotal.getOrgName())){
-            fundQueryWrapper.like("a.ORG_NAME", searchTotal.getOrgName());
+            fundQueryWrapper.eq("a.ORG_NAME", searchTotal.getOrgName());
         }
         if("month".equals(type)){
             fundQueryWrapper.eq("a.Y_M", searchTotal.getYM());
@@ -604,7 +579,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     }
 
     /**
-     * 根据查询条件，获取月度|年度统计源数据 【工资发放】
+     * 根据查询条件，获取月度|年度统计源数据 【工资发放】 - 其中，月度统计携带出工资奖金明细(同一条件下)
      * @param searchTotal 查询条件
      * @param type 年度|月度
      * @return
@@ -621,7 +596,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             gzQueryWrapper.eq("a.ORG_ID", searchTotal.getOrgId());
         }
         if (ObjectUtil.isNotEmpty(searchTotal.getOrgName())) {
-            gzQueryWrapper.like("a.ORG_NAME", searchTotal.getOrgName());
+            gzQueryWrapper.eq("a.ORG_NAME", searchTotal.getOrgName());
         }
         if("month".equals(type)){
             gzQueryWrapper.eq("a.Y_M", searchTotal.getYM());
@@ -636,7 +611,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         }
         //月报表 - 带出工资详情数据
         if("month".equals(type)) {
-            gzItemList = subGzMapper.getSubGzItemList(gzQueryWrapper);
+            gzItemList = subGzMapper.getSubGzItemList(gzQueryWrapper);  //以SubGz表条件为基准
         }
         return subGzMapper.getMonthVoList(gzQueryWrapper);
     }
@@ -688,9 +663,11 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 Integer yfGzNumSum = 0;
                 Integer sfGzNumSum = 0;
                 Integer sjWxNumSum = 0;
+                Integer sjGjjNumSum = 0;
                 BigDecimal yfGzAmountSum = BigDecimal.ZERO;
                 BigDecimal sfGzAmountSum = BigDecimal.ZERO;
-                BigDecimal sjWxYjAmountSum = BigDecimal.ZERO;
+                BigDecimal sjWxAmountSum = BigDecimal.ZERO;
+                BigDecimal sjGjjAmountSum = BigDecimal.ZERO;
                 for (String month : monthList) {
                     String tmpYM = obj.getYM() + "-" + month;
                     MonthVo tmpGzData = gzDataList.stream().filter(x -> obj.getRegion().equals(x.getRegion()) && obj.getOrgId().equals(x.getOrgId()) && obj.getOrgName().equals(x.getOrgName()) && tmpYM.equals(x.getYM())).findFirst().orElse(null);
@@ -698,9 +675,11 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     Integer tmpYfGzNum = 0;
                     Integer tmpSfGzNum = 0;
                     Integer tmpSjWxNum = 0;
+                    Integer tmpSjGjjNum = 0;
                     BigDecimal tmpYfGzAmount = BigDecimal.ZERO;
                     BigDecimal tmpSfGzAmount = BigDecimal.ZERO;
-                    BigDecimal tmpSjWxYjAmount = BigDecimal.ZERO;
+                    BigDecimal tmpSjWxAmount = BigDecimal.ZERO;
+                    BigDecimal tmpSjGjjAmount = BigDecimal.ZERO;
                     if(ObjectUtil.isNotEmpty(tmpGzData)){
                         tmpYfGzNum = tmpGzData.getGzYfNum();
                         tmpSfGzNum = tmpGzData.getGzSfNum();
@@ -709,14 +688,18 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     }
                     if(ObjectUtil.isNotEmpty(tmpFundData)){
                         tmpSjWxNum = tmpFundData.getSjWxNum();
-                        tmpSjWxYjAmount = tmpFundData.getSjWxTotal().add(tmpFundData.getSjGjjTotal());
+                        tmpSjGjjNum = tmpFundData.getSjGjjNum();
+                        tmpSjWxAmount = tmpFundData.getSjWxTotal();
+                        tmpSjGjjAmount = tmpFundData.getSjGjjTotal();
                     }
                     yfGzNumSum = yfGzNumSum + tmpYfGzNum;
                     sfGzNumSum = sfGzNumSum + tmpSfGzNum;
                     yfGzAmountSum = yfGzAmountSum.add(tmpYfGzAmount);
                     sfGzAmountSum = sfGzAmountSum.add(tmpSfGzAmount);
                     sjWxNumSum = sjWxNumSum + tmpSjWxNum;
-                    sjWxYjAmountSum = sjWxYjAmountSum.add(tmpSjWxYjAmount);
+                    sjGjjNumSum = sjGjjNumSum + tmpSjGjjNum;
+                    sjWxAmountSum = sjWxAmountSum.add(tmpSjWxAmount);
+                    sjGjjAmountSum = sjGjjAmountSum.add(tmpSjGjjAmount);
 
                     switch (month){
                         case "01":
@@ -725,7 +708,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount1(tmpYfGzAmount);
                             obj.setSfGzAmount1(tmpSfGzAmount);
                             obj.setSjWxNum1(tmpSjWxNum);
-                            obj.setSjWxYjAmount1(tmpSjWxYjAmount);
+                            obj.setSjWxAmount1(tmpSjWxAmount);
+                            obj.setSjGjjNum1(tmpSjGjjNum);
+                            obj.setSjGjjAmount1(tmpSjGjjAmount);
                             break;
                         case "02":
                             obj.setYfGzNum2(tmpYfGzNum);
@@ -733,7 +718,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount2(tmpYfGzAmount);
                             obj.setSfGzAmount2(tmpSfGzAmount);
                             obj.setSjWxNum2(tmpSjWxNum);
-                            obj.setSjWxYjAmount2(tmpSjWxYjAmount);
+                            obj.setSjWxAmount2(tmpSjWxAmount);
+                            obj.setSjGjjNum2(tmpSjGjjNum);
+                            obj.setSjGjjAmount2(tmpSjGjjAmount);
                             break;
                         case "03":
                             obj.setYfGzNum3(tmpYfGzNum);
@@ -741,7 +728,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount3(tmpYfGzAmount);
                             obj.setSfGzAmount3(tmpSfGzAmount);
                             obj.setSjWxNum3(tmpSjWxNum);
-                            obj.setSjWxYjAmount3(tmpSjWxYjAmount);
+                            obj.setSjWxAmount3(tmpSjWxAmount);
+                            obj.setSjGjjNum3(tmpSjGjjNum);
+                            obj.setSjGjjAmount3(tmpSjGjjAmount);
                             break;
                         case "04":
                             obj.setYfGzNum4(tmpYfGzNum);
@@ -749,7 +738,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount4(tmpYfGzAmount);
                             obj.setSfGzAmount4(tmpSfGzAmount);
                             obj.setSjWxNum4(tmpSjWxNum);
-                            obj.setSjWxYjAmount4(tmpSjWxYjAmount);
+                            obj.setSjWxAmount4(tmpSjWxAmount);
+                            obj.setSjGjjNum4(tmpSjGjjNum);
+                            obj.setSjGjjAmount4(tmpSjGjjAmount);
                             break;
                         case "05":
                             obj.setYfGzNum5(tmpYfGzNum);
@@ -757,7 +748,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount5(tmpYfGzAmount);
                             obj.setSfGzAmount5(tmpSfGzAmount);
                             obj.setSjWxNum5(tmpSjWxNum);
-                            obj.setSjWxYjAmount5(tmpSjWxYjAmount);
+                            obj.setSjWxAmount5(tmpSjWxAmount);
+                            obj.setSjGjjNum5(tmpSjGjjNum);
+                            obj.setSjGjjAmount5(tmpSjGjjAmount);
                             break;
                         case "06":
                             obj.setYfGzNum6(tmpYfGzNum);
@@ -765,7 +758,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount6(tmpYfGzAmount);
                             obj.setSfGzAmount6(tmpSfGzAmount);
                             obj.setSjWxNum6(tmpSjWxNum);
-                            obj.setSjWxYjAmount6(tmpSjWxYjAmount);
+                            obj.setSjWxAmount6(tmpSjWxAmount);
+                            obj.setSjGjjNum6(tmpSjGjjNum);
+                            obj.setSjGjjAmount6(tmpSjGjjAmount);
                             break;
                         case "07":
                             obj.setYfGzNum7(tmpYfGzNum);
@@ -773,7 +768,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount7(tmpYfGzAmount);
                             obj.setSfGzAmount7(tmpSfGzAmount);
                             obj.setSjWxNum7(tmpSjWxNum);
-                            obj.setSjWxYjAmount7(tmpSjWxYjAmount);
+                            obj.setSjWxAmount7(tmpSjWxAmount);
+                            obj.setSjGjjNum7(tmpSjGjjNum);
+                            obj.setSjGjjAmount7(tmpSjGjjAmount);
                             break;
                         case "08":
                             obj.setYfGzNum8(tmpYfGzNum);
@@ -781,7 +778,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount8(tmpYfGzAmount);
                             obj.setSfGzAmount8(tmpSfGzAmount);
                             obj.setSjWxNum8(tmpSjWxNum);
-                            obj.setSjWxYjAmount8(tmpSjWxYjAmount);
+                            obj.setSjWxAmount8(tmpSjWxAmount);
+                            obj.setSjGjjNum8(tmpSjGjjNum);
+                            obj.setSjGjjAmount8(tmpSjGjjAmount);
                             break;
                         case "09":
                             obj.setYfGzNum9(tmpYfGzNum);
@@ -789,7 +788,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount9(tmpYfGzAmount);
                             obj.setSfGzAmount9(tmpSfGzAmount);
                             obj.setSjWxNum9(tmpSjWxNum);
-                            obj.setSjWxYjAmount9(tmpSjWxYjAmount);
+                            obj.setSjWxAmount9(tmpSjWxAmount);
+                            obj.setSjGjjNum9(tmpSjGjjNum);
+                            obj.setSjGjjAmount9(tmpSjGjjAmount);
                             break;
                         case "10":
                             obj.setYfGzNum10(tmpYfGzNum);
@@ -797,7 +798,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount10(tmpYfGzAmount);
                             obj.setSfGzAmount10(tmpSfGzAmount);
                             obj.setSjWxNum10(tmpSjWxNum);
-                            obj.setSjWxYjAmount10(tmpSjWxYjAmount);
+                            obj.setSjWxAmount10(tmpSjWxAmount);
+                            obj.setSjGjjNum10(tmpSjGjjNum);
+                            obj.setSjGjjAmount10(tmpSjGjjAmount);
                             break;
                         case "11":
                             obj.setYfGzNum11(tmpYfGzNum);
@@ -805,7 +808,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount11(tmpYfGzAmount);
                             obj.setSfGzAmount11(tmpSfGzAmount);
                             obj.setSjWxNum11(tmpSjWxNum);
-                            obj.setSjWxYjAmount11(tmpSjWxYjAmount);
+                            obj.setSjWxAmount11(tmpSjWxAmount);
+                            obj.setSjGjjNum11(tmpSjGjjNum);
+                            obj.setSjGjjAmount11(tmpSjGjjAmount);
                             break;
                         case "12":
                             obj.setYfGzNum12(tmpYfGzNum);
@@ -813,7 +818,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setYfGzAmount12(tmpYfGzAmount);
                             obj.setSfGzAmount12(tmpSfGzAmount);
                             obj.setSjWxNum12(tmpSjWxNum);
-                            obj.setSjWxYjAmount12(tmpSjWxYjAmount);
+                            obj.setSjWxAmount12(tmpSjWxAmount);
+                            obj.setSjGjjNum12(tmpSjGjjNum);
+                            obj.setSjGjjAmount12(tmpSjGjjAmount);
                             break;
                         default:break;
                     }
@@ -823,7 +830,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 obj.setYfGzTotal(yfGzAmountSum);
                 obj.setSfGzTotal(sfGzAmountSum);
                 obj.setSjWxAvgNum(SubUtils.getDoubleVal(sjWxNumSum/12.0,2));
-                obj.setSjWxYjTotal(sjWxYjAmountSum);
+                obj.setSjWxTotal(sjWxAmountSum);
+                obj.setSjGjjAvgNum(SubUtils.getDoubleVal(sjGjjNumSum/12.0,2));
+                obj.setSjGjjTotal(sjGjjAmountSum);
             }
         }
 
@@ -834,6 +843,101 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             result.forEach(p -> p.setNo(counter.getAndIncrement()));
         }
         return result;
+    }
+
+    @Override
+    public SubGzParam check(SubGzParam subGzParam) {
+        //1. 校验是否可以发起【奖金】
+        if(SubGzTypeEnum.JJ.getValue().equals(subGzParam.getType()) || SubGzTypeEnum.GZ_JJ.getValue().equals(subGzParam.getType())){
+            QueryWrapper<SubGz> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(SubGz::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            queryWrapper.lambda().in(SubGz::getType,SubGzTypeEnum.JJ.getValue(),SubGzTypeEnum.GZ_JJ.getValue());
+            String year = StrUtil.sub(subGzParam.getYM(),0,4);
+            queryWrapper.lambda().likeRight(SubGz::getYM,year);
+            queryWrapper.lambda().eq(SubGz::getRegion,subGzParam.getRegion());
+            queryWrapper.lambda().eq(SubGz::getOrgId,subGzParam.getOrgId());
+            queryWrapper.lambda().eq(SubGz::getOrgName,subGzParam.getOrgName());
+            List<SubGz> tmpGzList = this.list(queryWrapper);
+            if(CollUtil.isNotEmpty(tmpGzList)){
+                throw new CommonException("大区：{}，分公司：{}，年度：{}，已存在奖金数据，不可发起流程！",subGzParam.getRegion(),subGzParam.getOrgName(),year);
+            }
+        }
+        
+        //2. 校验工资数据【重复|花名册匹配用工性质|已存在|金额不一致|】
+        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
+        if(CollUtil.isNotEmpty(subGzParam.getGzList())){
+            //准备数据
+            QueryWrapper<SubGz> gzQueryWrapper = new QueryWrapper<>();
+            gzQueryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            gzQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+            gzQueryWrapper.eq("a.Y_M",subGzParam.getYM());
+            gzQueryWrapper.eq("a.REGION",subGzParam.getRegion());
+            gzQueryWrapper.eq("a.ORG_ID",subGzParam.getOrgId());
+            gzQueryWrapper.eq("a.ORG_NAME",subGzParam.getOrgName());
+            gzQueryWrapper.eq("b.TYPE",SubGzItemTypeEnum.GZ.getValue());
+            List<SubGzItemVo> tmpGzItemList = subGzMapper.getSubGzItemList(gzQueryWrapper);
+
+            QueryWrapper<SubFund> fundQueryWrapper = new QueryWrapper<>();
+            fundQueryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            fundQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+            fundQueryWrapper.eq("a.Y_M",subGzParam.getYM());
+            fundQueryWrapper.eq("a.REGION",subGzParam.getRegion());
+            fundQueryWrapper.eq("a.ORG_ID",subGzParam.getOrgId());
+            fundQueryWrapper.eq("a.ORG_NAME",subGzParam.getOrgName());
+            List<SubFundItemVo> tmpFundItemList = subFundMapper.getSubFundItemList(fundQueryWrapper);
+
+            //校验
+            List<SubGzItemEditParam> tmpData = subGzParam.getGzList();
+            for (SubGzItemEditParam item : subGzParam.getGzList()) {
+                String errMsg = "";
+                List<SubGzItemEditParam> tmpCFFilter = tmpData.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
+                if(tmpCFFilter.size() > 1){
+                    errMsg = "人员信息重复，不可发起！";
+                }
+                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
+                    matchNature(item,subPersonnelList);
+                    if(ObjectUtil.isEmpty(item.getNature())){
+                        errMsg = "人员未匹配到用工性质，请补充！";
+                    }
+                }
+                if(ObjectUtil.isEmpty(errMsg) && CollUtil.isNotEmpty(tmpGzItemList)){
+                    List<SubGzItemVo> tmpCZFilter = tmpGzItemList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
+                    if(tmpCZFilter.size() > 0){
+                        errMsg = "已有人员在审或审核通过数据，不可重复发起！";
+                    }
+                }
+                if(ObjectUtil.isEmpty(errMsg) && CollUtil.isNotEmpty(tmpFundItemList)){
+                    SubFundItemVo tmpFundItemIns = tmpFundItemList.stream().filter(x -> SubFundItemTypeEnum.INS.getValue().equals(x.getType()) && item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
+                    SubFundItemVo tmpFundItemGjj = tmpFundItemList.stream().filter(x -> SubFundItemTypeEnum.GJJ.getValue().equals(x.getType()) && item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
+                    boolean insFlag = (ObjectUtil.isNotEmpty(tmpFundItemIns) && item.getIns().compareTo(tmpFundItemIns.getSjPer()) != 0) ? true : false;  //true 代表不一致
+                    boolean gjjFlag = (ObjectUtil.isNotEmpty(tmpFundItemGjj) && item.getIns().compareTo(tmpFundItemGjj.getSjPer()) != 0) ? true : false;
+                    if(insFlag && gjjFlag) errMsg = "五险与公积金（个人部分）不一致！";
+                    else if (insFlag) errMsg = "五险（个人部分）不一致！";
+                    else if (gjjFlag) errMsg = "公积金（个人部分）不一致！";
+                }
+                item.setErrMsg(errMsg);
+            }
+        }
+        
+        //3. 校验奖金数据【重复|匹配用工性质】
+        if(CollUtil.isNotEmpty(subGzParam.getJjList())){
+            List<SubGzItemEditParam> tmpData = subGzParam.getJjList();
+            for (SubGzItemEditParam item : subGzParam.getJjList()) {
+                String errMsg = "";
+                List<SubGzItemEditParam> tmpCFFilter = tmpData.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
+                if (tmpCFFilter.size() > 1) {
+                    errMsg = "人员信息重复，不可发起！";
+                }
+                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
+                    matchNature(item,subPersonnelList);
+                    if(ObjectUtil.isEmpty(item.getNature())){
+                        errMsg = "人员未匹配到用工性质，请补充！";
+                    }
+                }
+                item.setErrMsg(errMsg);
+            }
+        }
+        return subGzParam;
     }
 
 
@@ -951,22 +1055,79 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 result.setSjWxNum12(result.getSjWxNum12()+item.getSjWxNum12());
                 result.setSjWxAvgNum(result.getSjWxAvgNum()+item.getSjWxAvgNum());
 
-                result.setSjWxYjAmount1(result.getSjWxYjAmount1().add(item.getSjWxYjAmount1()));
-                result.setSjWxYjAmount2(result.getSjWxYjAmount2().add(item.getSjWxYjAmount2()));
-                result.setSjWxYjAmount3(result.getSjWxYjAmount3().add(item.getSjWxYjAmount3()));
-                result.setSjWxYjAmount4(result.getSjWxYjAmount4().add(item.getSjWxYjAmount4()));
-                result.setSjWxYjAmount5(result.getSjWxYjAmount5().add(item.getSjWxYjAmount5()));
-                result.setSjWxYjAmount6(result.getSjWxYjAmount6().add(item.getSjWxYjAmount6()));
-                result.setSjWxYjAmount7(result.getSjWxYjAmount7().add(item.getSjWxYjAmount7()));
-                result.setSjWxYjAmount8(result.getSjWxYjAmount8().add(item.getSjWxYjAmount8()));
-                result.setSjWxYjAmount9(result.getSjWxYjAmount9().add(item.getSjWxYjAmount9()));
-                result.setSjWxYjAmount10(result.getSjWxYjAmount10().add(item.getSjWxYjAmount10()));
-                result.setSjWxYjAmount11(result.getSjWxYjAmount11().add(item.getSjWxYjAmount11()));
-                result.setSjWxYjAmount12(result.getSjWxYjAmount12().add(item.getSjWxYjAmount12()));
-                result.setSjWxYjTotal(result.getSjWxYjTotal().add(item.getSjWxYjTotal()));
+                result.setSjWxAmount1(result.getSjWxAmount1().add(item.getSjWxAmount1()));
+                result.setSjWxAmount2(result.getSjWxAmount2().add(item.getSjWxAmount2()));
+                result.setSjWxAmount3(result.getSjWxAmount3().add(item.getSjWxAmount3()));
+                result.setSjWxAmount4(result.getSjWxAmount4().add(item.getSjWxAmount4()));
+                result.setSjWxAmount5(result.getSjWxAmount5().add(item.getSjWxAmount5()));
+                result.setSjWxAmount6(result.getSjWxAmount6().add(item.getSjWxAmount6()));
+                result.setSjWxAmount7(result.getSjWxAmount7().add(item.getSjWxAmount7()));
+                result.setSjWxAmount8(result.getSjWxAmount8().add(item.getSjWxAmount8()));
+                result.setSjWxAmount9(result.getSjWxAmount9().add(item.getSjWxAmount9()));
+                result.setSjWxAmount10(result.getSjWxAmount10().add(item.getSjWxAmount10()));
+                result.setSjWxAmount11(result.getSjWxAmount11().add(item.getSjWxAmount11()));
+                result.setSjWxAmount12(result.getSjWxAmount12().add(item.getSjWxAmount12()));
+                result.setSjWxTotal(result.getSjWxTotal().add(item.getSjWxTotal()));
+
+
+                result.setSjGjjNum1(result.getSjGjjNum1()+item.getSjGjjNum1());
+                result.setSjGjjNum2(result.getSjGjjNum2()+item.getSjGjjNum2());
+                result.setSjGjjNum3(result.getSjGjjNum3()+item.getSjGjjNum3());
+                result.setSjGjjNum4(result.getSjGjjNum4()+item.getSjGjjNum4());
+                result.setSjGjjNum5(result.getSjGjjNum5()+item.getSjGjjNum5());
+                result.setSjGjjNum6(result.getSjGjjNum6()+item.getSjGjjNum6());
+                result.setSjGjjNum7(result.getSjGjjNum7()+item.getSjGjjNum7());
+                result.setSjGjjNum8(result.getSjGjjNum8()+item.getSjGjjNum8());
+                result.setSjGjjNum9(result.getSjGjjNum9()+item.getSjGjjNum9());
+                result.setSjGjjNum10(result.getSjGjjNum10()+item.getSjGjjNum10());
+                result.setSjGjjNum11(result.getSjGjjNum11()+item.getSjGjjNum11());
+                result.setSjGjjNum12(result.getSjGjjNum12()+item.getSjGjjNum12());
+                result.setSjGjjAvgNum(result.getSjGjjAvgNum()+item.getSjGjjAvgNum());
+
+                result.setSjGjjAmount1(result.getSjGjjAmount1().add(item.getSjGjjAmount1()));
+                result.setSjGjjAmount2(result.getSjGjjAmount2().add(item.getSjGjjAmount2()));
+                result.setSjGjjAmount3(result.getSjGjjAmount3().add(item.getSjGjjAmount3()));
+                result.setSjGjjAmount4(result.getSjGjjAmount4().add(item.getSjGjjAmount4()));
+                result.setSjGjjAmount5(result.getSjGjjAmount5().add(item.getSjGjjAmount5()));
+                result.setSjGjjAmount6(result.getSjGjjAmount6().add(item.getSjGjjAmount6()));
+                result.setSjGjjAmount7(result.getSjGjjAmount7().add(item.getSjGjjAmount7()));
+                result.setSjGjjAmount8(result.getSjGjjAmount8().add(item.getSjGjjAmount8()));
+                result.setSjGjjAmount9(result.getSjGjjAmount9().add(item.getSjGjjAmount9()));
+                result.setSjGjjAmount10(result.getSjGjjAmount10().add(item.getSjGjjAmount10()));
+                result.setSjGjjAmount11(result.getSjGjjAmount11().add(item.getSjGjjAmount11()));
+                result.setSjGjjAmount12(result.getSjGjjAmount12().add(item.getSjGjjAmount12()));
+                result.setSjGjjTotal(result.getSjGjjTotal().add(item.getSjGjjTotal()));
             });
         }
         return result;
+    }
+
+    /**
+     * 分公司花名册匹配员工用工性质
+     * @param item
+     * @param subPersonnelList
+     */
+    public void matchNature(SubGzItemEditParam item, List<SubPersonnel> subPersonnelList){
+        //导入用工性质为空，匹配分公司花名册
+        if(CollUtil.isNotEmpty(subPersonnelList) && ObjectUtil.isEmpty(item.getNature())){
+            SubPersonnel subPersonnel = subPersonnelList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdNumber())
+                    && item.getUserName().equals(x.getName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(subPersonnel)){
+                item.setNature(subPersonnel.getEmployNature());
+            }
+        }
+    }
+
+    /**
+     * 获取分公司花名册
+     * @return
+     */
+    public List<SubPersonnel> getSubPersonnelList(String orgName){
+        QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubPersonnel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
+        queryWrapper.lambda().like(SubPersonnel::getDept,orgName);
+        return subPersonnelService.list(queryWrapper);
     }
 
 }

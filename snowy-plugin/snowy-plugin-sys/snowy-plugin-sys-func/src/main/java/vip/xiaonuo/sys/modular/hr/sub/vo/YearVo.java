@@ -315,55 +315,169 @@ public class YearVo {
 
 
 
-    /** 实缴五险一金总额：1月 */
-    @ApiModelProperty(value = "实缴五险一金总额：1月", position = 511)
-    private BigDecimal sjWxYjAmount1 = BigDecimal.ZERO;
+    /** 实缴五险总额：1月 */
+    @ApiModelProperty(value = "实缴五险总额：1月", position = 511)
+    private BigDecimal sjWxAmount1 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：2月 */
-    @ApiModelProperty(value = "实缴五险一金总额：2月", position = 512)
-    private BigDecimal sjWxYjAmount2 = BigDecimal.ZERO;
+    /** 实缴五险总额：2月 */
+    @ApiModelProperty(value = "实缴五险总额：2月", position = 512)
+    private BigDecimal sjWxAmount2 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：3月 */
-    @ApiModelProperty(value = "实缴五险一金总额：3月", position = 513)
-    private BigDecimal sjWxYjAmount3 = BigDecimal.ZERO;
+    /** 实缴五险总额：3月 */
+    @ApiModelProperty(value = "实缴五险总额：3月", position = 513)
+    private BigDecimal sjWxAmount3 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：4月 */
-    @ApiModelProperty(value = "实缴五险一金总额：4月", position = 514)
-    private BigDecimal sjWxYjAmount4 = BigDecimal.ZERO;
+    /** 实缴五险总额：4月 */
+    @ApiModelProperty(value = "实缴五险总额：4月", position = 514)
+    private BigDecimal sjWxAmount4 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：5月 */
-    @ApiModelProperty(value = "实缴五险一金总额：5月", position = 515)
-    private BigDecimal sjWxYjAmount5 = BigDecimal.ZERO;
+    /** 实缴五险总额：5月 */
+    @ApiModelProperty(value = "实缴五险总额：5月", position = 515)
+    private BigDecimal sjWxAmount5 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：6月 */
-    @ApiModelProperty(value = "实缴五险一金总额：6月", position = 516)
-    private BigDecimal sjWxYjAmount6 = BigDecimal.ZERO;
+    /** 实缴五险总额：6月 */
+    @ApiModelProperty(value = "实缴五险总额：6月", position = 516)
+    private BigDecimal sjWxAmount6 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：7月 */
-    @ApiModelProperty(value = "实缴五险一金总额：7月", position = 517)
-    private BigDecimal sjWxYjAmount7 = BigDecimal.ZERO;
+    /** 实缴五险总额：7月 */
+    @ApiModelProperty(value = "实缴五险总额：7月", position = 517)
+    private BigDecimal sjWxAmount7 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：8月 */
-    @ApiModelProperty(value = "实缴五险一金总额：8月", position = 518)
-    private BigDecimal sjWxYjAmount8 = BigDecimal.ZERO;
+    /** 实缴五险总额：8月 */
+    @ApiModelProperty(value = "实缴五险总额：8月", position = 518)
+    private BigDecimal sjWxAmount8 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：9月 */
-    @ApiModelProperty(value = "实缴五险一金总额：9月", position = 519)
-    private BigDecimal sjWxYjAmount9 = BigDecimal.ZERO;
+    /** 实缴五险总额：9月 */
+    @ApiModelProperty(value = "实缴五险总额：9月", position = 519)
+    private BigDecimal sjWxAmount9 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：10月 */
-    @ApiModelProperty(value = "实缴五险一金总额：10月", position = 520)
-    private BigDecimal sjWxYjAmount10 = BigDecimal.ZERO;
+    /** 实缴五险总额：10月 */
+    @ApiModelProperty(value = "实缴五险总额：10月", position = 520)
+    private BigDecimal sjWxAmount10 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：11月 */
-    @ApiModelProperty(value = "实缴五险一金总额：11月", position = 521)
-    private BigDecimal sjWxYjAmount11 = BigDecimal.ZERO;
+    /** 实缴五险总额：11月 */
+    @ApiModelProperty(value = "实缴五险总额：11月", position = 521)
+    private BigDecimal sjWxAmount11 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：12月 */
-    @ApiModelProperty(value = "实缴五险一金总额：12月", position = 522)
-    private BigDecimal sjWxYjAmount12 = BigDecimal.ZERO;
+    /** 实缴五险总额：12月 */
+    @ApiModelProperty(value = "实缴五险总额：12月", position = 522)
+    private BigDecimal sjWxAmount12 = BigDecimal.ZERO;
 
-    /** 实缴五险一金总额：小计 */
-    @ApiModelProperty(value = "实缴五险一金总额：小计", position = 523)
-    private BigDecimal sjWxYjTotal = BigDecimal.ZERO;
+    /** 实缴五险总额：小计 */
+    @ApiModelProperty(value = "实缴五险总额：小计", position = 523)
+    private BigDecimal sjWxTotal = BigDecimal.ZERO;
+
+
+
+
+
+    /** 实缴公积金人数（人）： 1月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：1月人数", position = 611)
+    private Integer sjGjjNum1 = 0;
+
+    /** 实缴公积金人数（人）：2月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：2月人数", position = 612)
+    private Integer sjGjjNum2 = 0;
+
+    /** 实缴公积金人数（人）：3月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：3月人数", position = 613)
+    private Integer sjGjjNum3 = 0;
+
+    /** 实缴公积金人数（人）：4月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：4月人数", position = 614)
+    private Integer sjGjjNum4 = 0;
+
+    /** 实缴公积金人数（人）：5月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：5月人数", position = 615)
+    private Integer sjGjjNum5 = 0;
+
+    /** 实缴公积金人数（人）：6月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：6月人数", position = 616)
+    private Integer sjGjjNum6 = 0;
+
+    /** 实缴公积金人数（人）：7月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：7月人数", position = 617)
+    private Integer sjGjjNum7 = 0;
+
+    /** 实缴公积金人数（人）：8月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：8月人数", position = 618)
+    private Integer sjGjjNum8 = 0;
+
+    /** 实缴公积金人数（人）：9月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：9月人数", position = 619)
+    private Integer sjGjjNum9 = 0;
+
+    /** 实缴公积金人数（人）：10月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：10月人数", position = 620)
+    private Integer sjGjjNum10 = 0;
+
+    /** 实缴公积金人数（人）：11月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：11月人数", position = 621)
+    private Integer sjGjjNum11 = 0;
+
+    /** 实缴公积金人数（人）：12月人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：12月人数", position = 622)
+    private Integer sjGjjNum12 = 0;
+
+    /** 实缴公积金人数（人）：平均人数 */
+    @ApiModelProperty(value = "实缴公积金人数（人）：平均人数", position = 623)
+    private Double sjGjjAvgNum = 0d;
+
+
+
+
+
+
+
+    /** 实缴公积金总额：1月 */
+    @ApiModelProperty(value = "实缴公积金总额：1月", position = 711)
+    private BigDecimal sjGjjAmount1 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：2月 */
+    @ApiModelProperty(value = "实缴公积金总额：2月", position = 712)
+    private BigDecimal sjGjjAmount2 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：3月 */
+    @ApiModelProperty(value = "实缴公积金总额：3月", position = 713)
+    private BigDecimal sjGjjAmount3 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：4月 */
+    @ApiModelProperty(value = "实缴公积金总额：4月", position = 714)
+    private BigDecimal sjGjjAmount4 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：5月 */
+    @ApiModelProperty(value = "实缴公积金总额：5月", position = 715)
+    private BigDecimal sjGjjAmount5 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：6月 */
+    @ApiModelProperty(value = "实缴公积金总额：6月", position = 716)
+    private BigDecimal sjGjjAmount6 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：7月 */
+    @ApiModelProperty(value = "实缴公积金总额：7月", position = 717)
+    private BigDecimal sjGjjAmount7 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：8月 */
+    @ApiModelProperty(value = "实缴公积金总额：8月", position = 718)
+    private BigDecimal sjGjjAmount8 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：9月 */
+    @ApiModelProperty(value = "实缴公积金总额：9月", position = 719)
+    private BigDecimal sjGjjAmount9 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：10月 */
+    @ApiModelProperty(value = "实缴公积金总额：10月", position = 720)
+    private BigDecimal sjGjjAmount10 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：11月 */
+    @ApiModelProperty(value = "实缴公积金总额：11月", position = 721)
+    private BigDecimal sjGjjAmount11 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：12月 */
+    @ApiModelProperty(value = "实缴公积金总额：12月", position = 722)
+    private BigDecimal sjGjjAmount12 = BigDecimal.ZERO;
+
+    /** 实缴公积金总额：小计 */
+    @ApiModelProperty(value = "实缴公积金总额：小计", position = 723)
+    private BigDecimal sjGjjTotal = BigDecimal.ZERO;
 }

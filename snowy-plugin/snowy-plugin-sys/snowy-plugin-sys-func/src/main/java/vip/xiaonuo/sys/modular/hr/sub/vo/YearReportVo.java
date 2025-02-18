@@ -7,12 +7,12 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 /**
- * 年度 - 工资 统计
+ * 年度统计
  */
 
 @Getter
 @Setter
-public class YearGzVo {
+public class YearReportVo {
 
     /** 序号 */
     @ApiModelProperty(value = "序号", position = 1)
@@ -82,7 +82,7 @@ public class YearGzVo {
     @ApiModelProperty(value = "12月", position = 22)
     private BigDecimal num12 = BigDecimal.ZERO;
 
-    /** 小计 */
-    @ApiModelProperty(value = "小计", position = 23)
-    private BigDecimal total = BigDecimal.ZERO;
+    /** 平均值|小计 */
+    @ApiModelProperty(value = "平均值|小计", position = 23)
+    private BigDecimal avgTotal = BigDecimal.ZERO;
 }

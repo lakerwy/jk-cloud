@@ -24,12 +24,16 @@ public class SubGz {
     private String id;
 
     /** 部门Id */
-    @ApiModelProperty(value = "部门Id", position = 2)
+    @ApiModelProperty(value = "部门Id - 分公司id", position = 2)
     private String orgId;
 
     /** 部门 */
-    @ApiModelProperty(value = "部门", position = 3)
+    @ApiModelProperty(value = "部门 - 分公司名称", position = 3)
     private String orgName;
+
+    /** 类型：工资|奖金|工资+奖金 */
+    @ApiModelProperty(value = "类型：工资|奖金|工资+奖金", position = 3)
+    private String type;
 
     /** 所属月份 */
     @ApiModelProperty(value = "所属月份", position = 4)

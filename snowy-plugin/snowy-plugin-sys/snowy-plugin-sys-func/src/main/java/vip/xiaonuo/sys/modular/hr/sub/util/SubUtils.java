@@ -28,6 +28,24 @@ public class SubUtils {
 
 
     /**
+     * 求和
+     * @param itemList
+     * @return
+     */
+    public static Integer sumTotal(List<Integer> itemList){
+        Integer result = 0;
+        if(CollUtil.isNotEmpty(itemList)){
+            for (Integer item : itemList) {
+                if(ObjectUtil.isNotEmpty(item)) {
+                    result = result + item;
+                }
+            }
+        }
+        return result;
+    }
+
+
+    /**
      * double 保留小数
      * @param value 值
      * @param scale 小数位数
@@ -38,6 +56,17 @@ public class SubUtils {
         double result = bd.doubleValue();
         return result;
     }
+
+
+    /**
+     * Int to BigDecimal
+     * @param value
+     * @return
+     */
+    public static BigDecimal intToBigDecimal(Integer value){
+        return new BigDecimal(value);
+    }
+
 
 
 }

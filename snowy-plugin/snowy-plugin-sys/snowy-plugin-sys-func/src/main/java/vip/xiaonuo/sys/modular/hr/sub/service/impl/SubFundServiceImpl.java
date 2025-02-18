@@ -25,11 +25,17 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubFund;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubFundItem;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubGz;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.hr.sub.enums.SubFundItemTypeEnum;
+import vip.xiaonuo.sys.modular.hr.sub.enums.SubGzItemTypeEnum;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubFundMapper;
+import vip.xiaonuo.sys.modular.hr.sub.mapper.SubGzMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFundItemService;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFundService;
+import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelService;
+import vip.xiaonuo.sys.modular.hr.sub.vo.SubGzItemVo;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -50,6 +56,12 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
 
     @Resource
     private SubFundItemService subFundItemService;
+
+    @Resource
+    private SubPersonnelService subPersonnelService;
+
+    @Resource
+    private SubGzMapper subGzMapper;
 
     @Override
     public Page<SubFund> page(SubFundPageParam subFundPageParam) {
@@ -76,12 +88,17 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
         if(ObjectUtil.isNotEmpty(subFundPageParam.getStatus())) {
             queryWrapper.lambda().eq(SubFund::getStatus, subFundPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(subFundPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SubFund::getSn,subFundPageParam.getSearchKey())
+                    .or().like(SubFund::getRegion,subFundPageParam.getSearchKey())
+                    .or().like(SubFund::getOrgName,subFundPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(subFundPageParam.getSortField(), subFundPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subFundPageParam.getSortOrder());
             queryWrapper.orderBy(true, subFundPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subFundPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SubFund::getId);
+            queryWrapper.lambda().orderByDesc(SubFund::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -109,8 +126,10 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
         }
         this.save(subFund);
         //处理社保
+        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
         List<SubFundItem> subFundItemList = new ArrayList<>();
         if(CollUtil.isNotEmpty(subFundParam.getInsList())){
+            subFundParam.getInsList().forEach(item->matchNature(item,subPersonnelList));
             List<SubFundItem> tmpItems = BeanUtil.copyToList(subFundParam.getInsList(), SubFundItem.class);
             tmpItems.forEach(x->{
                 x.setSubFundId(subFund.getId());
@@ -119,6 +138,7 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
             subFundItemList.addAll(tmpItems);
         }
         if(CollUtil.isNotEmpty(subFundParam.getGjjList())){
+            subFundParam.getGjjList().forEach(item->matchNature(item,subPersonnelList));
             List<SubFundItem> tmpItems = BeanUtil.copyToList(subFundParam.getGjjList(), SubFundItem.class);
             tmpItems.forEach(x->{
                 x.setSubFundId(subFund.getId());
@@ -231,5 +251,105 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
             throw new CommonException("分公司-五险一金（流程）不存在，id值为：{}", id);
         }
         return subFund;
+    }
+
+    @Override
+    public SubFundParam check(SubFundParam subFundParam) {
+        //校验是否发起过
+        QueryWrapper<SubFund> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubFund::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().eq(SubFund::getRegion,subFundParam.getRegion());
+        queryWrapper.lambda().eq(SubFund::getOrgId,subFundParam.getOrgId());
+        queryWrapper.lambda().eq(SubFund::getOrgName,subFundParam.getOrgName());
+        queryWrapper.lambda().eq(SubFund::getYM,subFundParam.getYM());
+        List<SubFund> subFundList = this.list(queryWrapper);
+        if(CollUtil.isNotEmpty(subFundList)){
+            throw new CommonException("大区：{}，分公司：{}，年月：{}，已有在审或审核通过数据，不可发起！",subFundParam.getRegion(),subFundParam.getOrgName(),subFundParam.getYM());
+        }
+        //花名册匹配
+        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
+        if(CollUtil.isNotEmpty(subFundParam.getInsList())) {
+            //准备数据
+            QueryWrapper<SubGz> gzQueryWrapper = new QueryWrapper<>();
+            gzQueryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            gzQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+            gzQueryWrapper.eq("a.Y_M",subFundParam.getYM());
+            gzQueryWrapper.eq("a.REGION",subFundParam.getRegion());
+            gzQueryWrapper.eq("a.ORG_ID",subFundParam.getOrgId());
+            gzQueryWrapper.eq("a.ORG_NAME",subFundParam.getOrgName());
+            gzQueryWrapper.eq("b.TYPE", SubGzItemTypeEnum.GZ.getValue());
+            List<SubGzItemVo> tmpGzItemList = subGzMapper.getSubGzItemList(gzQueryWrapper);
+            //校验（重复|匹配用工性质|数据一致）
+            List<SubFundItemEditParam> tmpData = subFundParam.getInsList();
+            for (SubFundItemEditParam item : subFundParam.getInsList()) {
+                String errMsg = "";
+                List<SubFundItemEditParam> tmpCFFilter = tmpData.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
+                if (tmpCFFilter.size() > 1) {
+                    errMsg = "人员信息重复，不可发起！";
+                }
+                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
+                    matchNature(item, subPersonnelList);
+                    if (ObjectUtil.isEmpty(item.getNature())) {
+                        errMsg = "人员未匹配到用工性质，请补充！";
+                    }
+                }
+                if(ObjectUtil.isEmpty(errMsg) && CollUtil.isNotEmpty(tmpGzItemList)){
+                    SubGzItemVo tmpGzItem = tmpGzItemList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
+                    boolean flag = (ObjectUtil.isNotEmpty(tmpGzItem) && item.getSjPer().compareTo(tmpGzItem.getIns()) != 0) ? true : false;  //true 代表不一致
+                    if(flag) errMsg = "五险（个人部分）不一致！";
+                }
+                item.setErrMsg(errMsg);
+            }
+        }
+
+        if(CollUtil.isNotEmpty(subFundParam.getGjjList())) {
+            //校验（重复|匹配用工性质）
+            List<SubFundItemEditParam> tmpData = subFundParam.getGjjList();
+            for (SubFundItemEditParam item : subFundParam.getGjjList()) {
+                String errMsg = "";
+                List<SubFundItemEditParam> tmpCFFilter = tmpData.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
+                if (tmpCFFilter.size() > 1) {
+                    errMsg = "人员信息重复，不可发起！";
+                }
+                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
+                    matchNature(item, subPersonnelList);
+                    if (ObjectUtil.isEmpty(item.getNature())) {
+                        errMsg = "人员未匹配到用工性质，请补充！";
+                    }
+                }
+                item.setErrMsg(errMsg);
+            }
+        }
+        return subFundParam;
+    }
+
+
+
+    /**
+     * 分公司花名册匹配员工用工性质
+     * @param item
+     * @param subPersonnelList
+     */
+    public void matchNature(SubFundItemEditParam item, List<SubPersonnel> subPersonnelList){
+        //导入用工性质为空，匹配分公司花名册
+        if(CollUtil.isNotEmpty(subPersonnelList) && ObjectUtil.isEmpty(item.getNature())){
+            SubPersonnel subPersonnel = subPersonnelList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdNumber())
+                    && item.getUserName().equals(x.getName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(subPersonnel)){
+                item.setNature(subPersonnel.getEmployNature());
+            }
+        }
+    }
+
+    /**
+     * 获取分公司花名册
+     * @return
+     */
+    public List<SubPersonnel> getSubPersonnelList(String orgName){
+        QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubPersonnel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
+        queryWrapper.lambda().like(SubPersonnel::getDept,orgName);
+        return subPersonnelService.list(queryWrapper);
     }
 }

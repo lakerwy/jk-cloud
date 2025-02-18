@@ -1,6 +1,5 @@
 package vip.xiaonuo.sys.modular.hr.sub.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -18,8 +17,7 @@ import vip.xiaonuo.sys.modular.hr.sub.entity.SubGz;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubGzService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo;
-import vip.xiaonuo.sys.modular.hr.sub.vo.YearGzVo;
-import vip.xiaonuo.sys.modular.hr.sub.vo.YearNumVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.YearReportVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearVo;
 
 import javax.annotation.Resource;
@@ -127,7 +125,7 @@ public class SubGzController {
      * @author yong.ye
      * @date  2025/02/06 09:09
      */
-    @ApiOperationSupport(order = 10)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取分公司 - 工资数据 -月度统计")
     @GetMapping("/sys/hr/sub/gz/monthTotal")
     public CommonResult<List<MonthVo>> monthTotal(@Valid SearchTotal searchTotal) {
@@ -136,31 +134,18 @@ public class SubGzController {
 
 
     /**
-     * 获取分公司 - 工资数据 -年度统计 - 人数
+     * 获取分公司 - 工资数据 -年度统计
      *
      * @author yong.ye
      * @date  2025/02/06 09:09
      */
-    @ApiOperationSupport(order = 11)
-    @ApiOperation("获取分公司 - 工资数据 -年度统计 - 人数")
-    @GetMapping("/sys/hr/sub/gz/yearNumTotal")
-    public CommonResult<List<YearNumVo>> yearNumTotal(@Valid SearchTotal searchTotal) {
-        return CommonResult.data(subGzService.yearNumTotal(searchTotal));
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取分公司 - 工资数据 -年度统计")
+    @GetMapping("/sys/hr/sub/gz/yearReport")
+    public CommonResult<List<YearReportVo>> yearReport(@Valid SearchTotal searchTotal) {
+        return CommonResult.data(subGzService.yearReport(searchTotal));
     }
 
-
-    /**
-     * 获取分公司 - 工资数据 -年度统计 - 金额
-     *
-     * @author yong.ye
-     * @date  2025/02/06 09:09
-     */
-    @ApiOperationSupport(order = 12)
-    @ApiOperation("获取分公司 - 工资数据 -年度统计 - 金额")
-    @GetMapping("/sys/hr/sub/gz/yearGzTotal")
-    public CommonResult<List<YearGzVo>> yearGzTotal(@Valid SearchTotal searchTotal) {
-        return CommonResult.data(subGzService.yearGzTotal(searchTotal));
-    }
 
 
     /**
@@ -169,7 +154,7 @@ public class SubGzController {
      * @author yong.ye
      * @date  2025/02/06 09:09
      */
-    @ApiOperationSupport(order = 13)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("获取分公司 - 工资数据 -年度汇总")
     @GetMapping("/sys/hr/sub/gz/yearTotal")
     public CommonResult<List<YearVo>> yearTotal(@Valid SearchTotal searchTotal) {
@@ -183,11 +168,27 @@ public class SubGzController {
      * @author yong.ye
      * @date  2024/09/28 11:30
      */
-    @ApiOperationSupport(order = 99)
+    @ApiOperationSupport(order = 66)
     @ApiOperation("分公司工资数据报表 - 生成打印Excel")
     @CommonLog("分公司工资数据报表 - 生成打印Excel")
     @PostMapping("/sys/hr/sub/gz/genExcel")
     public void genExcel(@RequestBody @Valid SearchTotal searchTotal, HttpServletResponse response) {
         subGzService.genExcel(searchTotal,response);
+    }
+
+
+
+    /**
+     * 分公司工资数据报表 - 校验
+     *
+     * @author yong.ye
+     * @date  2025/02/28 11:30
+     */
+    @ApiOperationSupport(order = 88)
+    @ApiOperation("分公司工资数据报表 - 校验")
+    @CommonLog("分公司工资数据报表 - 校验")
+    @PostMapping("/sys/hr/sub/gz/check")
+    public CommonResult<SubGzParam> check(@RequestBody @Valid SubGzParam subGzParam) {
+        return CommonResult.data(subGzService.check(subGzParam));
     }
 }

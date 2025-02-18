@@ -64,4 +64,8 @@ public class SubGzPageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 类型：工资|奖金|工资+奖金 */
+    @ApiModelProperty(value = "类型：工资|奖金|工资+奖金")
+    private String type;
+
 }

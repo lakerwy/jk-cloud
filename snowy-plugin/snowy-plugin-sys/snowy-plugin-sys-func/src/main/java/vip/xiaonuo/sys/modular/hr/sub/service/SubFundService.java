@@ -62,4 +62,11 @@ public interface SubFundService extends IService<SubFund> {
      * @date  2025/02/06 09:12
      **/
     SubFund queryEntity(String id);
+
+    /**
+     * 校验
+     * @param subFundParam
+     * @return
+     */
+    SubFundParam check(SubFundParam subFundParam);
 }

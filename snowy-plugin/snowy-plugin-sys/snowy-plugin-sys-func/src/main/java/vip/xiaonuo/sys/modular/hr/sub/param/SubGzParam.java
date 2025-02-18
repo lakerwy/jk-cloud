@@ -22,6 +22,10 @@ public class SubGzParam {
     @ApiModelProperty(value = "部门", position = 3)
     private String orgName;
 
+    /** 类型：工资|奖金|工资+奖金 */
+    @ApiModelProperty(value = "类型：工资|奖金|工资+奖金", position = 3)
+    private String type;
+
     /** 所属月份 */
     @ApiModelProperty(value = "所属月份", position = 4)
     private String yM;

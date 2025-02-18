@@ -87,4 +87,10 @@ public class SubFundItemEditParam {
     @ApiModelProperty(value = "附件", position = 17)
     private String attach;
 
+
+
+
+    /** 校验结果 - 错误信息 */
+    @ApiModelProperty(value = "校验结果 - 错误信息", position = 100)
+    private String errMsg;
 }

@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubGz;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.vo.MonthVo;
-import vip.xiaonuo.sys.modular.hr.sub.vo.YearGzVo;
-import vip.xiaonuo.sys.modular.hr.sub.vo.YearNumVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.YearReportVo;
 import vip.xiaonuo.sys.modular.hr.sub.vo.YearVo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -80,14 +79,8 @@ public interface SubGzService extends IService<SubGz> {
      * @param searchTotal
      * @return
      */
-    List<YearNumVo> yearNumTotal(SearchTotal searchTotal);
+    List<YearReportVo> yearReport(SearchTotal searchTotal);
 
-    /**
-     *
-     * @param searchTotal
-     * @return
-     */
-    List<YearGzVo> yearGzTotal(SearchTotal searchTotal);
 
     /**
      * 导出打印报表
@@ -102,4 +95,12 @@ public interface SubGzService extends IService<SubGz> {
      * @return
      */
     List<YearVo> yearTotal(SearchTotal searchTotal);
+
+    /**
+     * 数据校验
+     * @param subGzParam
+     * @return
+     */
+    SubGzParam check(SubGzParam subGzParam);
+
 }
