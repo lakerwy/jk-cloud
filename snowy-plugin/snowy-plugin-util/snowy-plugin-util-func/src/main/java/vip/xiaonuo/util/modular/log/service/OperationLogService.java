@@ -68,20 +68,23 @@ public interface OperationLogService extends IService<OperationLogEntity> {
     OperationLogEntity queryEntity(String id);
 
     /**
-     * 保存日志
+     * 保存日志（适用于新增、删除操作）
      *
      * @author pzh
      * @date  2025/02/13 16:48
+     * @param operationLogEnum 日志枚举
      * @param param 请求参数
+     * @param businessId 业务主键Id
      **/
-    void saveLog(OperationLogEnum operationLogEnum,Object param);
+    void saveLog(OperationLogEnum operationLogEnum,Object param,String businessId);
 
 
     /**
-     * 保存日志
+     * 保存日志（适用于修改操作）
      *
      * @author pzh
      * @date  2025/02/13 16:48
+     * @param operationLogEnum 日志枚举
      * @param param 请求参数
      * @param obj1 修改前的对象
      * @param obj2 修改后的对象

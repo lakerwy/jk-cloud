@@ -676,7 +676,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         break;
                     case "丧假":
                         hrEmpAttendDingding.setFunDay(value);
-                    break;
+                        break;
                     case "年假":
                         hrEmpAttendDingding.setYearDay(value);
                         break;

@@ -97,7 +97,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
         }
         hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口add新增");
         this.save(hrEmpAttendDingding);
-        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam);
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam,hrEmpAttendDingding.getId());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -127,7 +127,9 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
     public void delete(List<HrEmpAttendDingdingIdParam> hrEmpAttendDingdingIdParamList) {
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(hrEmpAttendDingdingIdParamList, HrEmpAttendDingdingIdParam::getId));
-        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList);
+        hrEmpAttendDingdingIdParamList.forEach(idParam->
+            operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList,idParam.getId())
+        );
     }
 
     @Override
