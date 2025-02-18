@@ -119,7 +119,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
         hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口edit编辑；"+(StrUtil.isNotBlank(orinObj.getNote())?orinObj.getNote():""));
         this.updateById(hrEmpAttendDingding);
         operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_UPDATE,hrEmpAttendDingdingEditParam,orinObj,
-                hrEmpAttendDingding,new String[]{"note"});
+                hrEmpAttendDingding,new String[]{"note","updateTime","updateUser"});
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -29,10 +29,7 @@ import vip.xiaonuo.util.modular.log.param.OperationLogPageParam;
 import vip.xiaonuo.util.modular.log.service.OperationLogService;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 操作日志Service接口实现类
@@ -172,11 +169,13 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
                 }
                 String originalValue = entry.getValue();
                 String updatedValue = updatedValues.get(fieldName);
-                if (updatedValue != null && !originalValue.equals(updatedValue)) {
+                // 使用Objects.equals比较，避免空指针
+                if (!Objects.equals(originalValue, updatedValue)) {
                     JSONObject jsonObj = new JSONObject();
-                    jsonObj.set("fieldName", fieldName);
-                    jsonObj.set("originalValue", originalValue);
-                    jsonObj.set("updatedValue", updatedValue);
+                    jsonObj.set("fieldName",  fieldName);
+                    // 显式处理 null 值，避免显示为字符串 "null"
+                    jsonObj.set("originalValue",  originalValue != null ? originalValue : "NULL");
+                    jsonObj.set("updatedValue",  updatedValue != null ? updatedValue : "NULL");
                     jsonArray.add(jsonObj);
                 }
             }
