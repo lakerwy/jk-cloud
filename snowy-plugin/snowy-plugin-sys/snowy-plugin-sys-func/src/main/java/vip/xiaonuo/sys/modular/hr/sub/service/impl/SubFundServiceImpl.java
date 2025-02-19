@@ -126,10 +126,10 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
         }
         this.save(subFund);
         //处理社保
-        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
+//        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
         List<SubFundItem> subFundItemList = new ArrayList<>();
         if(CollUtil.isNotEmpty(subFundParam.getInsList())){
-            subFundParam.getInsList().forEach(item->matchNature(item,subPersonnelList));
+//            subFundParam.getInsList().forEach(item->matchNature(item,subPersonnelList));
             List<SubFundItem> tmpItems = BeanUtil.copyToList(subFundParam.getInsList(), SubFundItem.class);
             tmpItems.forEach(x->{
                 x.setSubFundId(subFund.getId());
@@ -138,7 +138,7 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
             subFundItemList.addAll(tmpItems);
         }
         if(CollUtil.isNotEmpty(subFundParam.getGjjList())){
-            subFundParam.getGjjList().forEach(item->matchNature(item,subPersonnelList));
+//            subFundParam.getGjjList().forEach(item->matchNature(item,subPersonnelList));
             List<SubFundItem> tmpItems = BeanUtil.copyToList(subFundParam.getGjjList(), SubFundItem.class);
             tmpItems.forEach(x->{
                 x.setSubFundId(subFund.getId());
@@ -267,7 +267,9 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
             throw new CommonException("大区：{}，分公司：{}，年月：{}，已有在审或审核通过数据，不可发起！",subFundParam.getRegion(),subFundParam.getOrgName(),subFundParam.getYM());
         }
         //花名册匹配
-        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
+//        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subFundParam.getOrgName());
+
+        Boolean isErr = Boolean.FALSE;  //错误标识字段
         if(CollUtil.isNotEmpty(subFundParam.getInsList())) {
             //准备数据
             QueryWrapper<SubGz> gzQueryWrapper = new QueryWrapper<>();
@@ -287,18 +289,22 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
                 if (tmpCFFilter.size() > 1) {
                     errMsg = "人员信息重复，不可发起！";
                 }
-                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
-                    matchNature(item, subPersonnelList);
-                    if (ObjectUtil.isEmpty(item.getNature())) {
-                        errMsg = "人员未匹配到用工性质，请补充！";
-                    }
-                }
+//                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
+//                    matchNature(item, subPersonnelList);
+//                    if (ObjectUtil.isEmpty(item.getNature())) {
+//                        errMsg = "人员未匹配到用工性质，请补充！";
+//                    }
+//                }
                 if(ObjectUtil.isEmpty(errMsg) && CollUtil.isNotEmpty(tmpGzItemList)){
                     SubGzItemVo tmpGzItem = tmpGzItemList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
                     boolean flag = (ObjectUtil.isNotEmpty(tmpGzItem) && item.getSjPer().compareTo(tmpGzItem.getIns()) != 0) ? true : false;  //true 代表不一致
                     if(flag) errMsg = "五险（个人部分）不一致！";
                 }
                 item.setErrMsg(errMsg);
+                //错误标识字段
+                if(ObjectUtil.isNotEmpty(errMsg)){
+                    isErr = true;
+                }
             }
         }
 
@@ -311,15 +317,20 @@ public class SubFundServiceImpl extends ServiceImpl<SubFundMapper, SubFund> impl
                 if (tmpCFFilter.size() > 1) {
                     errMsg = "人员信息重复，不可发起！";
                 }
-                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
-                    matchNature(item, subPersonnelList);
-                    if (ObjectUtil.isEmpty(item.getNature())) {
-                        errMsg = "人员未匹配到用工性质，请补充！";
-                    }
-                }
+//                if (ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())) {
+//                    matchNature(item, subPersonnelList);
+//                    if (ObjectUtil.isEmpty(item.getNature())) {
+//                        errMsg = "人员未匹配到用工性质，请补充！";
+//                    }
+//                }
                 item.setErrMsg(errMsg);
+                //错误标识字段
+                if(ObjectUtil.isNotEmpty(errMsg)){
+                    isErr = true;
+                }
             }
         }
+        subFundParam.setIsErr(isErr);
         return subFundParam;
     }
 

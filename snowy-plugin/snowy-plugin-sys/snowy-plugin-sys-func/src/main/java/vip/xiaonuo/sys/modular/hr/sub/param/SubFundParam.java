@@ -110,4 +110,9 @@ public class SubFundParam {
     /** 公积金附件 */
     @ApiModelProperty(value = "公积金附件", position = 32)
     private String gjjAttach;
+
+
+    /** 校验标识字段  true  */
+    @ApiModelProperty(value = "校验标识字段  true", position = 100)
+    private Boolean isErr;
 }

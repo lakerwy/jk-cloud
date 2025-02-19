@@ -183,9 +183,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         this.save(subGz);
         //处理发票
         List<SubGzItem> subGzItemList = new ArrayList<>();
-        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
+//        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
         if(CollUtil.isNotEmpty(subGzParam.getGzList())){
-            subGzParam.getGzList().forEach(item->matchNature(item,subPersonnelList));
+//            subGzParam.getGzList().forEach(item->matchNature(item,subPersonnelList));
             List<SubGzItem> tmpItems = BeanUtil.copyToList(subGzParam.getGzList(), SubGzItem.class);
             tmpItems.forEach(x->{
                 x.setSubGzId(subGz.getId());
@@ -194,7 +194,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             subGzItemList.addAll(tmpItems);
         }
         if(CollUtil.isNotEmpty(subGzParam.getJjList())){
-            subGzParam.getJjList().forEach(item->matchNature(item,subPersonnelList));
+//            subGzParam.getJjList().forEach(item->matchNature(item,subPersonnelList));
             List<SubGzItem> tmpItems = BeanUtil.copyToList(subGzParam.getJjList(), SubGzItem.class);
             tmpItems.forEach(x->{
                 x.setSubGzId(subGz.getId());
@@ -864,7 +864,8 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         }
         
         //2. 校验工资数据【重复|花名册匹配用工性质|已存在|金额不一致|】
-        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
+//        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
+        Boolean isErr = Boolean.FALSE;  //错误标识字段
         if(CollUtil.isNotEmpty(subGzParam.getGzList())){
             //准备数据
             QueryWrapper<SubGz> gzQueryWrapper = new QueryWrapper<>();
@@ -894,12 +895,12 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 if(tmpCFFilter.size() > 1){
                     errMsg = "人员信息重复，不可发起！";
                 }
-                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
-                    matchNature(item,subPersonnelList);
-                    if(ObjectUtil.isEmpty(item.getNature())){
-                        errMsg = "人员未匹配到用工性质，请补充！";
-                    }
-                }
+//                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
+//                    matchNature(item,subPersonnelList);
+//                    if(ObjectUtil.isEmpty(item.getNature())){
+//                        errMsg = "人员未匹配到用工性质，请补充！";
+//                    }
+//                }
                 if(ObjectUtil.isEmpty(errMsg) && CollUtil.isNotEmpty(tmpGzItemList)){
                     List<SubGzItemVo> tmpCZFilter = tmpGzItemList.stream().filter(x -> item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).collect(Collectors.toList());
                     if(tmpCZFilter.size() > 0){
@@ -916,6 +917,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     else if (gjjFlag) errMsg = "公积金（个人部分）不一致！";
                 }
                 item.setErrMsg(errMsg);
+                //错误标识字段
+                if(ObjectUtil.isNotEmpty(errMsg)){
+                    isErr = true;
+                }
             }
         }
         
@@ -928,15 +933,20 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 if (tmpCFFilter.size() > 1) {
                     errMsg = "人员信息重复，不可发起！";
                 }
-                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
-                    matchNature(item,subPersonnelList);
-                    if(ObjectUtil.isEmpty(item.getNature())){
-                        errMsg = "人员未匹配到用工性质，请补充！";
-                    }
-                }
+//                if(ObjectUtil.isEmpty(errMsg) && ObjectUtil.isEmpty(item.getNature())){
+//                    matchNature(item,subPersonnelList);
+//                    if(ObjectUtil.isEmpty(item.getNature())){
+//                        errMsg = "人员未匹配到用工性质，请补充！";
+//                    }
+//                }
                 item.setErrMsg(errMsg);
+                //错误标识字段
+                if(ObjectUtil.isNotEmpty(errMsg)){
+                    isErr = true;
+                }
             }
         }
+        subGzParam.setIsErr(isErr);
         return subGzParam;
     }
 
