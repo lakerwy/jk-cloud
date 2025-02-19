@@ -27,6 +27,7 @@ import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
 import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -690,7 +691,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             hrEmpAttendDingding.setYearMonth(yearMonthStr);
             hrEmpAttendDingding.setUserName(sysUser.getName());
             hrEmpAttendDingding.setIdCardNumber(sysUser.getIdCardNumber());
-            String firstOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + sysUser.getOrgId()));
+            String firstOrgName = ComputeUtil.objToString(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + sysUser.getOrgId()));
             hrEmpAttendDingding.setFirstOrgName(firstOrgName);
             hrEmpAttendDingding.setOrgName(sysUser.getOrgName());
             hrEmpAttendDingding.setUserId(sysUser.getId());
