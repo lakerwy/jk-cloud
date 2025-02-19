@@ -97,7 +97,7 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
         }
         hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口add新增");
         this.save(hrEmpAttendDingding);
-        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam,hrEmpAttendDingding.getId());
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_INSERTE,hrEmpAttendDingdingAddParam,hrEmpAttendDingding.getId(),hrEmpAttendDingding.getYearMonth());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -119,17 +119,19 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
         hrEmpAttendDingding.setNote(DateUtil.now()+"：页面接口edit编辑；"+(StrUtil.isNotBlank(orinObj.getNote())?orinObj.getNote():""));
         this.updateById(hrEmpAttendDingding);
         operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_UPDATE,hrEmpAttendDingdingEditParam,orinObj,
-                hrEmpAttendDingding,new String[]{"note","updateTime","updateUser"});
+                hrEmpAttendDingding,new String[]{"note","updateTime","updateUser"},hrEmpAttendDingding.getYearMonth());
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<HrEmpAttendDingdingIdParam> hrEmpAttendDingdingIdParamList) {
+        HrEmpAttendDingding hrEmpAttendDingding = this.queryEntity(hrEmpAttendDingdingIdParamList.get(0).getId());
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(hrEmpAttendDingdingIdParamList, HrEmpAttendDingdingIdParam::getId));
-        hrEmpAttendDingdingIdParamList.forEach(idParam->
-            operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList,idParam.getId())
-        );
+//        hrEmpAttendDingdingIdParamList.forEach(idParam->
+//            operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList,idParam.getId())
+//        );
+        operationLogService.saveLog(OperationLogEnum.DINGTALK_ATTEND_DELETE,hrEmpAttendDingdingIdParamList,null, hrEmpAttendDingding.getYearMonth());
     }
 
     @Override

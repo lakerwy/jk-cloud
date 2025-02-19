@@ -106,7 +106,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     }
 
     @Override
-    public void saveLog(OperationLogEnum operationLogEnum,Object param,String businessId) {
+    public void saveLog(OperationLogEnum operationLogEnum,Object param,String businessId, String yearMonth) {
         JSONObject json = JSONUtil.parseObj(param);
         // 创建日志对象
         OperationLogEntity log = new OperationLogEntity();
@@ -116,11 +116,12 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         log.setOpUser(StpLoginUserUtil.getLoginUser().getName());
         log.setBusinessId(businessId);
         log.setParamJson(json.toString());
+        log.setYearMonth(yearMonth);
         this.save(log);
     }
 
     @Override
-    public void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2, String[] excludeFields) {
+    public void saveLog(OperationLogEnum operationLogEnum, Object param, Object obj1, Object obj2, String[] excludeFields, String yearMonth) {
         JSONObject json = JSONUtil.parseObj(param);
         convertToDateTime(obj1);
         convertToDateTime(obj2);
@@ -134,6 +135,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         log.setOpUser(StpLoginUserUtil.getLoginUser().getName());
         log.setParamJson(json.toString());
         log.setUpdateJson(jsonObject.toString());
+        log.setYearMonth(yearMonth);
         this.save(log);
     }
 

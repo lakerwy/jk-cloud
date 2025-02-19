@@ -690,7 +690,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             hrEmpAttendDingding.setYearMonth(yearMonthStr);
             hrEmpAttendDingding.setUserName(sysUser.getName());
             hrEmpAttendDingding.setIdCardNumber(sysUser.getIdCardNumber());
-            hrEmpAttendDingding.setFirstOrgName(sysUser.getFirstOrgName());
+            String firstOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + sysUser.getOrgId()));
+            hrEmpAttendDingding.setFirstOrgName(firstOrgName);
             hrEmpAttendDingding.setOrgName(sysUser.getOrgName());
             hrEmpAttendDingding.setUserId(sysUser.getId());
             hrEmpAttendDingding.setPersonnelId(sysUser.getPersonnelId());

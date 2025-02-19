@@ -1,5 +1,6 @@
 package vip.xiaonuo.util.modular.log.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,8 +31,12 @@ public class OperationLogEditParam {
     @ApiModelProperty(value = "功能名称", position = 3)
     private String name;
 
+    /** 所属年月（这个字段目前仅钉钉考勤同步模块会使用到） */
+    @ApiModelProperty(value = "所属年月", position = 4)
+    private String yearMonth;
+
     /** 业务主键ID */
-    @ApiModelProperty(value = "业务主键ID", position = 4)
+    @ApiModelProperty(value = "业务主键ID", position = 5)
     private String businessId;
 
     /** 请求参数 */
