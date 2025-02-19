@@ -102,4 +102,12 @@ public class SubFundParam {
     /** 住房公积金缴纳情况表-明细 */
     @ApiModelProperty(value = "住房公积金缴纳情况表-明细", position = 30)
     private List<SubFundItemEditParam> gjjList;
+
+    /** 社保附件 */
+    @ApiModelProperty(value = "社保附件", position = 31)
+    private String insAttach;
+
+    /** 公积金附件 */
+    @ApiModelProperty(value = "公积金附件", position = 32)
+    private String gjjAttach;
 }

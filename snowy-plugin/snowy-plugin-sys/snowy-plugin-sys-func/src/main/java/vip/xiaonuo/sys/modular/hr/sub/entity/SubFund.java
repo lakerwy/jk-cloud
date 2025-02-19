@@ -137,4 +137,12 @@ public class SubFund {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 28)
     private String status;
+
+    /** 社保附件 */
+    @ApiModelProperty(value = "社保附件", position = 31)
+    private String insAttach;
+
+    /** 公积金附件 */
+    @ApiModelProperty(value = "公积金附件", position = 32)
+    private String gjjAttach;
 }

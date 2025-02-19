@@ -113,4 +113,13 @@ public class SubGzParam {
     /** 奖金发放表-明细 */
     @ApiModelProperty(value = "奖金发放表-明细", position = 30)
     private List<SubGzItemEditParam> jjList;
+
+
+    /** 工资附件 */
+    @ApiModelProperty(value = "工资附件", position = 31)
+    private String gzAttach;
+
+    /** 奖金附件 */
+    @ApiModelProperty(value = "奖金附件", position = 32)
+    private String jjAttach;
 }

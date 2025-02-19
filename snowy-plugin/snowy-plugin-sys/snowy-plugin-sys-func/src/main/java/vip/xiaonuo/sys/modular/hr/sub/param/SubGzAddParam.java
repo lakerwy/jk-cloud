@@ -111,4 +111,11 @@ public class SubGzAddParam {
     @ApiModelProperty(value = "流程状态", position = 30)
     private String status;
 
+    /** 工资附件 */
+    @ApiModelProperty(value = "工资附件", position = 31)
+    private String gzAttach;
+
+    /** 奖金附件 */
+    @ApiModelProperty(value = "奖金附件", position = 32)
+    private String jjAttach;
 }
