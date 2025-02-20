@@ -319,7 +319,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         //统计五险一金
         if(CollUtil.isNotEmpty(gzResult)){
             for (MonthVo item : gzResult){
-                List<SubGzItemVo> tmpGzItemList = gzItemList.stream().filter(x -> item.getYM().equals(x.getFlwYM()) && item.getRegion().equals(x.getRegion()) && item.getOrgId().equals(x.getOrgId()) && item.getOrgName().equals(x.getOrgName())).collect(Collectors.toList());
+                List<SubGzItemVo> tmpGzItemList = gzItemList.stream().filter(x -> item.getYM().equals(x.getFlwYM()) && item.getRegion().equals(x.getRegion()) && item.getOrgId().equals(x.getOrgId()) && item.getOrgName().equals(x.getFlwOrgName())).collect(Collectors.toList());
                 if(CollUtil.isNotEmpty(tmpGzItemList)){
                     item.setInsTotal(SubUtils.addTotal(tmpGzItemList.stream().map(x->x.getIns()).collect(Collectors.toList())));
                     item.setGjjTotal(SubUtils.addTotal(tmpGzItemList.stream().map(x->x.getGjj()).collect(Collectors.toList())));
