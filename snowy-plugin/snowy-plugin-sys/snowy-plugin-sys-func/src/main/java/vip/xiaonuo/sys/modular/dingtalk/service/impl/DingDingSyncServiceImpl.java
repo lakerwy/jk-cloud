@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import javax.annotation.Resource;
@@ -555,17 +556,16 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     case "应出勤天数":
                         float requiredDay = 0.0f;
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            // 将 value 转换为 float 并累加
-                            requiredDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
-                                    .reduce(0.0f, Float::sum);
+                            requiredDay = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                         }
                         hrEmpAttendDingding.setRequiredDay(requiredDay);
                         break;
                     case "出勤天数":
                         float realDay = 0.0f;
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            realDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
-                                    .reduce(0.0f, Float::sum);
+                            realDay = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                         }
                         hrEmpAttendDingding.setRealDay(realDay);
                         break;
@@ -586,16 +586,16 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     case "加班总时长":
                         float overtimeHour = 0.0f;
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            overtimeHour = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
-                                    .reduce(0.0f, Float::sum);
+                            overtimeHour = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                         }
                         hrEmpAttendDingding.setOvertimeHour(overtimeHour);
                         break;
                     case "旷工天数":
                         float minerDay = 0.0f;
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            minerDay = column_vals.getColumnVals().stream().map(item -> Float.parseFloat(item.getValue()))
-                                    .reduce(0.0f, Float::sum);
+                            minerDay = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                         }
                         hrEmpAttendDingding.setMinerDay(minerDay);
                         break;
@@ -659,8 +659,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                 String columnName = column_vals.getColumnvo().getName();
                 float value = 0.0f;
                 if(CollUtil.isNotEmpty(column_vals.getColumnvals())){
-                    value = column_vals.getColumnvals().stream().map(item -> Float.parseFloat(item.getValue()))
-                            .reduce(0.0f, Float::sum);
+                    value = column_vals.getColumnvals().stream().map(item -> new BigDecimal(item.getValue()))
+                            .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                 }
                 switch (columnName) {
                     case "事假":
