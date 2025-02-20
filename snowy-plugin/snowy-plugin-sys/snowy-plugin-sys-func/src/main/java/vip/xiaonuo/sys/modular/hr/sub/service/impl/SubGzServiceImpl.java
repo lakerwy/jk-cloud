@@ -313,8 +313,8 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     @Override
     public List<MonthVo> monthTotal(SearchTotal searchTotal) {
         /*3 构造查询数据 - 工资 + 奖金 */
-        List<SubGzItemVo> subGzItemDataList = new ArrayList<>();
-        List<MonthVo> gzResult = getSubGzMonthVoList(searchTotal,"month",subGzItemDataList);
+        List<MonthVo> gzResult = getSubGzMonthVoList(searchTotal,"month");
+        List<SubGzItemVo> subGzItemDataList = getSubGzItemVoList(searchTotal,"month");
         List<SubGzItemVo> gzItemList = subGzItemDataList.stream().filter(x->SubGzItemTypeEnum.GZ.getValue().equals(x.getType())).collect(Collectors.toList());
         //统计五险一金
         if(CollUtil.isNotEmpty(gzResult)){
@@ -374,11 +374,11 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
         List<MonthVo> dataList = new ArrayList<>();
         /* 不同的报表 - 数据源不一致 */
         if(CollectionUtil.newArrayList(GZ_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
-            dataList = getSubGzMonthVoList(searchTotal,"year",null);
+            dataList = getSubGzMonthVoList(searchTotal,"year");
         } else if (CollectionUtil.newArrayList(FUND_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
             dataList = getSubFundMonthVoList(searchTotal,"year");
         }else if (CollectionUtil.newArrayList(SPECIAL_REPORT_TYPE_LIST).contains(searchTotal.getReportType())) {
-            dataList = getSubGzMonthVoList(searchTotal,"year",null);
+            dataList = getSubGzMonthVoList(searchTotal,"year");
         } else {
             throw new CommonException("不支持的报表类型");
         }
@@ -584,7 +584,30 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
      * @param type 年度|月度
      * @return
      */
-    public List<MonthVo> getSubGzMonthVoList(SearchTotal searchTotal, String type,List<SubGzItemVo> gzItemList) {
+    public List<MonthVo> getSubGzMonthVoList(SearchTotal searchTotal, String type) {
+        QueryWrapper<SubGz> gzQueryWrapper = getGzQuery(searchTotal,type);
+        return subGzMapper.getMonthVoList(gzQueryWrapper);
+    }
+
+    /**
+     * 查询工资详情数据
+     * @param searchTotal
+     * @param type
+     * @return
+     */
+    public List<SubGzItemVo> getSubGzItemVoList(SearchTotal searchTotal, String type){
+        QueryWrapper<SubGz> gzQueryWrapper = getGzQuery(searchTotal,type);
+        return subGzMapper.getSubGzItemList(gzQueryWrapper);
+    }
+
+
+    /**
+     * 生成查询参数
+     * @param searchTotal 查询条件
+     * @param type 年度|月度
+     * @return
+     */
+    public QueryWrapper<SubGz> getGzQuery(SearchTotal searchTotal, String type){
         /* 1 构建查询条件 - 工资 */
         QueryWrapper<SubGz> gzQueryWrapper = new QueryWrapper<>();
         gzQueryWrapper.in("a.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue());
@@ -609,11 +632,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     .or().like("a.SN", searchTotal.getSearchKey())
                     .or().like("a.MANAGER_NAME", searchTotal.getSearchKey()));
         }
-        //月报表 - 带出工资详情数据
-        if("month".equals(type)) {
-            gzItemList = subGzMapper.getSubGzItemList(gzQueryWrapper);  //以SubGz表条件为基准
-        }
-        return subGzMapper.getMonthVoList(gzQueryWrapper);
+        return gzQueryWrapper;
     }
 
 
@@ -625,7 +644,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     @Override
     public List<YearVo> yearTotal(SearchTotal searchTotal){
         //数据源
-        List<MonthVo> gzDataList = getSubGzMonthVoList(searchTotal, "year",null);
+        List<MonthVo> gzDataList = getSubGzMonthVoList(searchTotal, "year");
         List<MonthVo> fundDataList = getSubFundMonthVoList(searchTotal,"year");
 
         //构建结果集
