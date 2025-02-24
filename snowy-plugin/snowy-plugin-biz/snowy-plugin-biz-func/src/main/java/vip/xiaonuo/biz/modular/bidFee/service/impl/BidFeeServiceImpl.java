@@ -382,6 +382,10 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if("公司垫付".equals(excelData.getPaymentType())){
             excelData.setPaymentDesc("-");
         }
+        // 申请单位为分公司，打印表中的“申请单位”需从原“分公司”改为“部门”
+        if("分公司".equals(excelData.getApplyUnit())){
+            excelData.setApplyUnit("部门");
+        }
         if(CollUtil.isEmpty(excelData.getCommentList())){
             return;
         }
