@@ -14,16 +14,18 @@ package vip.xiaonuo.dev.modular.file.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.*;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gexin.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,9 +33,11 @@ import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.common.util.DownloadCompressedVo;
 import vip.xiaonuo.dev.modular.es.entity.FileData;
 import vip.xiaonuo.dev.modular.es.publisher.FileDataEventPublisher;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
@@ -49,6 +53,8 @@ import vip.xiaonuo.dev.modular.file.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -758,4 +764,23 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 ////            throw new CommonException("不支持的文件引擎：{}", engine);
 ////        }
 //    }
+
+
+    @Override
+    public void downloadAndCompress(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) {
+        List<String> fileIdList = CollStreamUtil.toList(devFileIdParamList, DevFileIdParam::getId);
+        List<DevFile> devFiles = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,fileIdList));
+        List<DownloadCompressedVo> downloadCompressedVoList = new ArrayList<>();
+        devFiles.forEach(dev -> downloadCompressedVoList.add(new DownloadCompressedVo(dev.getName(),new File(dev.getStoragePath()))) );
+        try{
+            if(CollUtil.isNotEmpty(downloadCompressedVoList)){
+                String zipName = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN);
+                CommonDownloadUtil.zipFilesAndDownload(response,zipName,downloadCompressedVoList);
+            }
+        }catch (Exception e){
+            log.error("打包下载失败！e:"+e.getMessage());
+            throw new CommonException("打包下载失败！请联系管理员");
+        }
+    }
+
 }

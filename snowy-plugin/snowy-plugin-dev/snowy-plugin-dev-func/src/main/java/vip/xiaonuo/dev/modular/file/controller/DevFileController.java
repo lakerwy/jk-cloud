@@ -380,4 +380,20 @@ public class DevFileController {
 //        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
 //        return CommonResult.ok();
 //    }
+
+
+    /**
+     * 批量下载文件(打包)
+     *
+     * @author pzh
+     * @date 2025/2/24 17:10
+     **/
+    @ApiOperationSupport(order = 30)
+    @ApiOperation("批量下载文件(打包)")
+    @CommonLog("批量下载文件(打包)")
+    @PostMapping(value = "/dev/file/downloadAndCompress", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void download(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                             CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) throws IOException {
+        devFileService.downloadAndCompress(devFileIdParamList, response);
+    }
 }

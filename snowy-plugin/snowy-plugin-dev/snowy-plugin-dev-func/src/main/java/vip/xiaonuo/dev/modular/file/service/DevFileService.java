@@ -15,13 +15,15 @@ package vip.xiaonuo.dev.modular.file.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
-import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.param.DevFileListParam;
 import vip.xiaonuo.dev.modular.file.param.DevFilePageParam;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,8 @@ public interface DevFileService extends IService<DevFile> {
 
 
     void mkDir(String engine, String dirName);
+
+    void downloadAndCompress(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) throws IOException;
 
 //    void pageList(String engine, String dirPath);
 
