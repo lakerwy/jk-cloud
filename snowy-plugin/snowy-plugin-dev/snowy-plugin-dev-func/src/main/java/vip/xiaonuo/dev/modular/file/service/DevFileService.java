@@ -127,7 +127,7 @@ public interface DevFileService extends IService<DevFile> {
 
     void mkDir(String engine, String dirName);
 
-    void downloadAndCompress(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) throws IOException;
+    void downloadZip(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response);
 
 //    void pageList(String engine, String dirPath);
 

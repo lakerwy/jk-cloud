@@ -24,6 +24,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -767,19 +768,35 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
 
     @Override
-    public void downloadAndCompress(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) {
-        List<String> fileIdList = CollStreamUtil.toList(devFileIdParamList, DevFileIdParam::getId);
-        List<DevFile> devFiles = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,fileIdList));
+    public void downloadZip(@Valid @NotEmpty CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) {
         List<DownloadCompressedVo> downloadCompressedVoList = new ArrayList<>();
-        devFiles.forEach(dev -> downloadCompressedVoList.add(new DownloadCompressedVo(dev.getName(),new File(dev.getStoragePath()))) );
         try{
+            List<String> fileIdList = CollStreamUtil.toList(devFileIdParamList, DevFileIdParam::getId);
+            List<DevFile> devFiles = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,fileIdList));
+            for(DevFile devFile : devFiles){
+                if(DevFileEngineTypeEnum.LOCAL.getValue().equals(devFile.getEngine())) {
+                    File file = FileUtil.file(devFile.getStoragePath());
+                    downloadCompressedVoList.add(new DownloadCompressedVo(devFile.getName(),file,devFile.getEngine()));
+                }else if(DevFileEngineTypeEnum.MINIO.getValue().equals(devFile.getEngine())) {
+                    URL url = new URL(devFile.getStoragePath());
+                    InputStream inputStream = URLUtil.getStream(url);
+                    File tempFile = FileUtil.file(FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR
+                            + IdWorker.getIdStr() + "_" + devFile.getName());
+                    File file = FileUtil.writeFromStream(inputStream, tempFile);
+                    downloadCompressedVoList.add(new DownloadCompressedVo(devFile.getName(),file,devFile.getEngine()));
+                }
+            }
             if(CollUtil.isNotEmpty(downloadCompressedVoList)){
-                String zipName = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN);
+                String zipName = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN) + ".zip";
                 CommonDownloadUtil.zipFilesAndDownload(response,zipName,downloadCompressedVoList);
             }
-        }catch (Exception e){
-            log.error("打包下载失败！e:"+e.getMessage());
+        } catch (Exception e){
+            log.error("打包下载失败！", e);
             throw new CommonException("打包下载失败！请联系管理员");
+        }finally {
+            // 删除临时文件
+            downloadCompressedVoList.stream().filter(vo -> DevFileEngineTypeEnum.MINIO.getValue().equals(vo.getEngine()))
+                    .forEach(vo -> FileUtil.del(vo.getFile()));
         }
     }
 

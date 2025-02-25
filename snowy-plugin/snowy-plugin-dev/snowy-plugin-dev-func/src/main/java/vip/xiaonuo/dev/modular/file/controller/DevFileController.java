@@ -383,17 +383,17 @@ public class DevFileController {
 
 
     /**
-     * 批量下载文件(打包)
+     * 打包下载文件
      *
      * @author pzh
      * @date 2025/2/24 17:10
      **/
     @ApiOperationSupport(order = 30)
-    @ApiOperation("批量下载文件(打包)")
-    @CommonLog("批量下载文件(打包)")
-    @PostMapping(value = "/dev/file/downloadAndCompress", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void download(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                             CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) throws IOException {
-        devFileService.downloadAndCompress(devFileIdParamList, response);
+    @ApiOperation("打包下载文件")
+    @CommonLog("打包下载文件")
+    @PostMapping(value = "/dev/file/downloadZip", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadZip(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                             CommonValidList<DevFileIdParam> devFileIdParamList, HttpServletResponse response) {
+        devFileService.downloadZip(devFileIdParamList, response);
     }
 }
