@@ -62,5 +62,9 @@ public class FlwProcessMyPageParam {
     @ApiModelProperty(value = "结束时间")
     private String endOptDate;
 
+    /** 状态码 */
+    @ApiModelProperty(value = "状态码")
+    private String stateCode;
+
     private boolean closeDate; //关闭时间条件的标志
 }
