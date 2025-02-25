@@ -1708,8 +1708,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + orgId);
             String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + orgId);
             Map<String,String> map = new HashMap<>();
+            SysOrg sysOrg = sysOrgService.getById(orgId);
+            String category = ObjectUtil.isNotEmpty(sysOrg) ? sysOrg.getCategory() : null;
+            userList.stream().filter(user -> ObjectUtil.isNotEmpty(orgId) && orgId.equals(user.getOrgId())).forEach(user -> user.setCategory(category));
             if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
-                SysOrg sysOrg = sysOrgService.getById(orgId);
                 map = newHandleSqlIdExecution_utf8(orgId,sysOrg);
             }
             if(StrUtil.isBlank(orgName)){
@@ -1753,6 +1755,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("phone",user.getPhone());
             map.put("idNumber",user.getIdCardNumber());
             map.put("gender",user.getGender());
+            map.put("category", user.getCategory());
             return map;
         }).collect(Collectors.toList());
     }
