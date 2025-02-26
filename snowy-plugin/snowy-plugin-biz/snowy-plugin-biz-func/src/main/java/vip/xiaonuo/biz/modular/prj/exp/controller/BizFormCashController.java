@@ -188,14 +188,14 @@ public class BizFormCashController {
 
 
     /**
-     * 费用报销（二期）- 借支单 - 生成打印Excel
+     * 费用报销（二期）- 借支单|费用报销|差旅报销 - 生成打印Excel
      *
      * @author yong.ye
      * @date  2025/09/28 11:30
      */
     @ApiOperationSupport(order = 99)
-    @ApiOperation("费用报销（二期）- 借支单- 生成打印Excel")
-    @CommonLog("费用报销（二期）- 借支单 - 生成打印Excel")
+    @ApiOperation("费用报销（二期）- 借支单|费用报销|差旅报销- 生成打印Excel")
+    @CommonLog("费用报销（二期）- 借支单|费用报销|差旅报销 - 生成打印Excel")
     @PostMapping("/biz/prj/exp/print/genExcel")
     public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
         bizFormCashService.genExcel(excelParam,response);

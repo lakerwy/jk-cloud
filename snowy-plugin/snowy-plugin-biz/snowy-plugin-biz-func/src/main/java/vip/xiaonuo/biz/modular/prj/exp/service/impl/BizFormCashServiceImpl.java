@@ -265,7 +265,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 ClassPathResource classPathResource = new ClassPathResource("Cash_Template.xlsx");
                 inputStream = classPathResource.getStream();
                 CashExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), CashExcelData.class);
-
+                excelData.setCommentList(excelParam.getCommentList());
                 // 使用 EasyExcel 填充数据
                 excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -279,6 +279,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 ClassPathResource classPathResource = new ClassPathResource("Fee_Template.xlsx");
                 inputStream = classPathResource.getStream();
                 FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
+                excelData.setCommentList(excelParam.getCommentList());
                 if(ObjectUtil.isNotEmpty(excelData)){
                     if(CollUtil.isNotEmpty(excelData.getItemList())){
                         excelData.getItemList().forEach(item->{
@@ -309,6 +310,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 ClassPathResource classPathResource = new ClassPathResource("Travel_Template.xlsx");
                 inputStream = classPathResource.getStream();
                 TravelExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TravelExcelData.class);
+                excelData.setCommentList(excelParam.getCommentList());
                 if(ObjectUtil.isNotEmpty(excelData) && CollUtil.isNotEmpty(excelData.getCostList())){
                     excelData.getCostList().forEach(item->{
                             if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
