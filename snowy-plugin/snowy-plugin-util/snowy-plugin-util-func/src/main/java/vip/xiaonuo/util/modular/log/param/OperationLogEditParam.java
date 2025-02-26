@@ -39,6 +39,10 @@ public class OperationLogEditParam {
     @ApiModelProperty(value = "业务主键ID", position = 5)
     private String businessId;
 
+    /** 操作对象-用户Id */
+    @ApiModelProperty(value = "操作对象-用户Id", position = 6)
+    private String userId;
+
     /** 请求参数 */
     @ApiModelProperty(value = "请求参数", position = 7)
     private String paramJson;

@@ -69,28 +69,28 @@ public interface OperationLogService extends IService<OperationLogEntity> {
 
     /**
      * 保存日志（适用于新增、删除操作）
-     *
      * @author pzh
      * @date  2025/02/13 16:48
-     * @param operationLogEnum 日志枚举
-     * @param param 请求参数
-     * @param businessId 业务主键Id
-     * @param yearMonth 所属年月
+     * @param operationLogEnum  日志枚举
+     * @param param             请求参数
+     * @param businessId        业务主键Id
+     * @param yearMonth         所属年月
+     * @param userId            操作对象-用户Id
      **/
-    void saveLog(OperationLogEnum operationLogEnum,Object param,String businessId,String yearMonth);
+    void saveLog(OperationLogEnum operationLogEnum,Object param,String businessId,String yearMonth,String userId);
 
 
     /**
      * 保存日志（适用于修改操作）
-     *
+     * @author pzh
+     * @date 2025/02/13 16:48
      * @param operationLogEnum 日志枚举
      * @param param            请求参数
      * @param obj1             修改前的对象
      * @param obj2             修改后的对象
      * @param excludeFields    需要忽略的字段（为空表示不忽略）
      * @param yearMonth        所属年月
-     * @author pzh
-     * @date 2025/02/13 16:48
+     * @param userId           操作对象-用户Id
      **/
-    void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2,String[] excludeFields,String yearMonth);
+    void saveLog(OperationLogEnum operationLogEnum,Object param, Object obj1, Object obj2,String[] excludeFields,String yearMonth,String userId);
 }
