@@ -95,8 +95,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         //处理数据，并筛选归还状态（可控）
         List<BizFormCashVo> dataList = getBizFormCashVoList(queryList,bizFormCashPageParam.getBackStatus());
         //页面参数-分页
-        long current = bizFormCashPageParam.getCurrent();
-        long size = bizFormCashPageParam.getSize();
+        long current = ObjectUtil.isNotEmpty(bizFormCashPageParam.getCurrent()) ? bizFormCashPageParam.getCurrent() : 1 ;
+        long size = ObjectUtil.isNotEmpty(bizFormCashPageParam.getSize()) ? bizFormCashPageParam.getSize() : 10 ;
         int fromIndex = Convert.toInt((current - 1) * size);
         int toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(dataList.size()));
         List<BizFormCashVo> records = dataList.subList(fromIndex,toIndex);
