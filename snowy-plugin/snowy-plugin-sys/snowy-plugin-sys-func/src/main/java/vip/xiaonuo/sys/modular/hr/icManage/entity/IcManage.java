@@ -68,58 +68,70 @@ public class IcManage {
     @ApiModelProperty(value = "法定代表人身份信息", position = 11)
     private String legalRepresentativeId;
 
+    /** 成立日期 */
+    @ApiModelProperty(value = "经营期限-开始时间", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date businessTermStart;
+
+    /** 成立日期 */
+    @ApiModelProperty(value = "经营期限-结束时间", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date businessTermEnd;
+
     /** 股东信息JSON */
-    @ApiModelProperty(value = "股东信息JSON", position = 12)
+    @ApiModelProperty(value = "股东信息JSON", position = 14)
     private String shareholderInfoJson;
 
     /** 主要人员JSON */
-    @ApiModelProperty(value = "主要人员JSON", position = 13)
+    @ApiModelProperty(value = "主要人员JSON", position = 15)
     private String mainPersonnelJson;
 
     /** 工商变更记录JSON */
-    @ApiModelProperty(value = "工商变更记录JSON", position = 14)
+    @ApiModelProperty(value = "工商变更记录JSON", position = 16)
     private String icUpdateRecordJson;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 15)
+    @ApiModelProperty(value = "创建时间", position = 17)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 16)
+    @ApiModelProperty(value = "创建用户", position = 18)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 17)
+    @ApiModelProperty(value = "修改时间", position = 19)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 18)
+    @ApiModelProperty(value = "修改用户", position = 20)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 19)
+    @ApiModelProperty(value = "备注", position = 21)
     private String memo;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 20)
+    @ApiModelProperty(value = "附件", position = 22)
     private String attachments;
 
     /** 租户id */
-    @ApiModelProperty(value = "租户id", position = 21)
+    @ApiModelProperty(value = "租户id", position = 23)
     private String tenantId;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 22)
+    @ApiModelProperty(value = "删除标志", position = 24)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 23)
+    @ApiModelProperty(value = "数据权限控制字段", position = 25)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }
