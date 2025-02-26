@@ -63,16 +63,28 @@ public class IcManageAddParam {
     @ApiModelProperty(value = "法定代表人身份信息", position = 11)
     private String legalRepresentativeId;
 
+    /** 成立日期 */
+    @ApiModelProperty(value = "经营期限-开始时间", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date businessTermStart;
+
+    /** 成立日期 */
+    @ApiModelProperty(value = "经营期限-结束时间", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date businessTermEnd;
+
     /** 股东信息JSON */
-    @ApiModelProperty(value = "股东信息JSON", position = 12)
+    @ApiModelProperty(value = "股东信息JSON", position = 14)
     private String shareholderInfoJson;
 
     /** 主要人员JSON */
-    @ApiModelProperty(value = "主要人员JSON", position = 13)
+    @ApiModelProperty(value = "主要人员JSON", position = 15)
     private String mainPersonnelJson;
 
     /** 工商变更记录JSON */
-    @ApiModelProperty(value = "工商变更记录JSON", position = 14)
+    @ApiModelProperty(value = "工商变更记录JSON", position = 16)
     private String icUpdateRecordJson;
 
     /** 备注 */
