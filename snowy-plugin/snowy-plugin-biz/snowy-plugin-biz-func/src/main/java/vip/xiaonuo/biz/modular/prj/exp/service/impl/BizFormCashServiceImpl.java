@@ -5,10 +5,17 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,9 +33,9 @@ import vip.xiaonuo.biz.modular.prj.exp.param.*;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormBackService;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormFeeService;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormTravelService;
-import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashTotal;
-import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashVo;
-import vip.xiaonuo.biz.modular.prj.exp.vo.LjNoBackVo;
+import vip.xiaonuo.biz.modular.prj.exp.vo.*;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
+import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCell;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -39,13 +46,21 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormCash;
 import vip.xiaonuo.biz.modular.prj.exp.mapper.BizFormCashMapper;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormCashService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -232,6 +247,107 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         List<BizFormCashVo> dataList = getBizFormCashVoList(queryList,null);
         List<BizFormCashVo> result = dataList.stream().filter(x->BigDecimal.ZERO.compareTo(x.getCashBalance()) !=0 ).collect(Collectors.toList());
         return result;
+    }
+
+    @Override
+    public void genExcel(ExcelParam excelParam, HttpServletResponse response) {
+        ExcelWriter excelWriter = null;
+        InputStream inputStream = null;
+        try {
+            // 定义没有分隔符的日期时间格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            // 将当前日期时间格式化为字符串
+            String dateStr = LocalDateTime.now().format(formatter);
+            // 定义导出excel文件路径
+            String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR + excelParam.getExcelType() + "_" + dateStr + ".xlsx";
+            // 分类处理
+            if ("CASH".equals(excelParam.getExcelType())) {
+                ClassPathResource classPathResource = new ClassPathResource("Cash_Template.xlsx");
+                inputStream = classPathResource.getStream();
+                CashExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), CashExcelData.class);
+
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+                List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+                excelWriter.finish();
+
+            } else if ("FEE".equals(excelParam.getExcelType())) {
+                ClassPathResource classPathResource = new ClassPathResource("Fee_Template.xlsx");
+                inputStream = classPathResource.getStream();
+                FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(CollUtil.isNotEmpty(excelData.getItemList())){
+                        excelData.getItemList().forEach(item->{
+                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                        });
+                    }
+                    if(CollUtil.isNotEmpty(excelData.getCostList())){
+                        excelData.getCostList().forEach(item->{
+                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                        });
+                    }
+                }
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+                List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+
+                WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+                excelWriter.fill(excelData, sheet2);
+                excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
+                excelWriter.finish();
+
+            } else if ("TRAVEL".equals(excelParam.getExcelType())) {
+                ClassPathResource classPathResource = new ClassPathResource("Travel_Template.xlsx");
+                inputStream = classPathResource.getStream();
+                TravelExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TravelExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData) && CollUtil.isNotEmpty(excelData.getCostList())){
+                    excelData.getCostList().forEach(item->{
+                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                    });
+                }
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+                List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+
+                WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+                excelWriter.fill(excelData, sheet2);
+                excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
+                excelWriter.finish();
+
+            } else {
+                throw new CommonException("不支持的类型");
+            }
+            File tempFile = FileUtil.file(outputFileName);
+            CommonDownloadUtil.download(tempFile, response);
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }finally {
+            // 关闭流
+            if(excelWriter != null){
+                excelWriter.close();
+            }
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
 

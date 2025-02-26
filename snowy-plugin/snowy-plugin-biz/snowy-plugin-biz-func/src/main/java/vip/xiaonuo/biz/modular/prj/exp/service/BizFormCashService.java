@@ -8,6 +8,7 @@ import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashTotal;
 import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashVo;
 import vip.xiaonuo.biz.modular.prj.exp.vo.LjNoBackVo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -101,4 +102,11 @@ public interface BizFormCashService extends IService<BizFormCash> {
      * @return
      */
     List<BizFormCashVo> select(CashSelectParam selectParam);
+
+    /**
+     * 生成excel
+     * @param excelParam
+     * @param response
+     */
+    void genExcel(ExcelParam excelParam, HttpServletResponse response);
 }

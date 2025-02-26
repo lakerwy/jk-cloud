@@ -22,6 +22,7 @@ import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormCash;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormCashService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -182,5 +183,21 @@ public class BizFormCashController {
     @GetMapping("/biz/prj/exp/cash/pageTotal")
     public CommonResult<BizFormCashTotal> pageTotal(BizFormCashPageParam bizFormCashPageParam) {
         return CommonResult.data(bizFormCashService.pageTotal(bizFormCashPageParam));
+    }
+
+
+
+    /**
+     * 费用报销（二期）- 借支单 - 生成打印Excel
+     *
+     * @author yong.ye
+     * @date  2025/09/28 11:30
+     */
+    @ApiOperationSupport(order = 99)
+    @ApiOperation("费用报销（二期）- 借支单- 生成打印Excel")
+    @CommonLog("费用报销（二期）- 借支单 - 生成打印Excel")
+    @PostMapping("/biz/prj/exp/print/genExcel")
+    public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
+        bizFormCashService.genExcel(excelParam,response);
     }
 }
