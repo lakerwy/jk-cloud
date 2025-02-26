@@ -102,7 +102,6 @@ public class BizFormTravelServiceImpl extends ServiceImpl<BizFormTravelMapper, B
             });
             bizFormTravelCostService.saveBatch(costList);
         }
-        this.save(bizFormTravel);
     }
 
     @Transactional(rollbackFor = Exception.class)

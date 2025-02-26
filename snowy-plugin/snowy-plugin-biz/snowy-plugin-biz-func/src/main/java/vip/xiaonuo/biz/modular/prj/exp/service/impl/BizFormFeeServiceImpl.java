@@ -121,7 +121,6 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             });
             bizFormFeeCostService.saveBatch(costList);
         }
-        this.save(bizFormFee);
     }
 
     @Transactional(rollbackFor = Exception.class)
