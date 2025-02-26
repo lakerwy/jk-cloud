@@ -1,0 +1,26 @@
+package vip.xiaonuo.biz.modular.prj.exp.mapper;
+
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormTravel;
+import vip.xiaonuo.biz.modular.prj.exp.vo.ExpMonthTotal;
+
+import java.util.List;
+
+/**
+ * 费用报销（二期）- 差旅费用报销单Mapper接口
+ *
+ * @author yong.ye
+ * @date  2025/02/24 15:17
+ **/
+public interface BizFormTravelMapper extends BaseMapper<BizFormTravel> {
+
+    /**
+     * 差旅费用报销 - 月度统计 - 【成本一览表数据】
+     * @param queryWrapper
+     * @return
+     */
+    List<ExpMonthTotal> getTravelCostMonthTotal(@Param(Constants.WRAPPER) Wrapper<BizFormTravel> queryWrapper);
+}

@@ -80,6 +80,14 @@ public enum BizCommonEnum {
 
     BIZ_BID_FEE_APPLY("BIZ_BID_FEE","BIZ_BID_FEE","BidFeeServiceImpl"),   //投标费用审批
 
+    BIZ_FORM_CASH("BIZ_FORM_CASH","BIZ_FORM_CASH","BizFormCashServiceImpl"),   //费用报销（二期）- 借支单 审批
+
+    BIZ_FORM_FEE("BIZ_FORM_FEE","BIZ_FORM_FEE","BizFormFeeServiceImpl"),   //费用报销（二期）- 费用报销 审批
+
+    BIZ_FORM_TRAVEL("BIZ_FORM_TRAVEL","BIZ_FORM_TRAVEL","BizFormTravelServiceImpl"),   //费用报销（二期）- 差旅费用报销 审批
+
+    BIZ_FORM_BACK("BIZ_FORM_BACK","BIZ_FORM_BACK","BizFormBackServiceImpl"),   //费用报销（二期）- 归还登记 审批
+
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
 
     String bizModel;

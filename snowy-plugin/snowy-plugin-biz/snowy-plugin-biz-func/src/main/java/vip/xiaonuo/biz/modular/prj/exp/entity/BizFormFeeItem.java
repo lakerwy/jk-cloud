@@ -1,0 +1,87 @@
+package vip.xiaonuo.biz.modular.prj.exp.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 费用报销（二期）- 费用报销单 - 报销明细实体
+ *
+ * @author yong.ye
+ * @date  2025/02/24 15:16
+ **/
+@Getter
+@Setter
+@TableName("BIZ_FORM_FEE_ITEM")
+public class BizFormFeeItem {
+
+    /** 主键ID */
+    @TableId
+    @ApiModelProperty(value = "主键ID", position = 1)
+    private String id;
+
+    /** 费用报销科目（一级） */
+    @ApiModelProperty(value = "费用报销科目（一级）", position = 2)
+    private String expItem;
+
+    /** 费用报销科目（二级） */
+    @ApiModelProperty(value = "费用报销科目（二级）", position = 3)
+    private String secondExpItem;
+
+    /** 摘要 */
+    @ApiModelProperty(value = "摘要", position = 4)
+    private String desc;
+
+    /** 申请金额 */
+    @ApiModelProperty(value = "申请金额", position = 5)
+    private BigDecimal applyAmount;
+
+    /** 财务核定金额 */
+    @ApiModelProperty(value = "财务核定金额", position = 6)
+    private BigDecimal verifyAmount;
+
+    /** 费用报销单id(BIZ_FORM_FEE.ID) */
+    @ApiModelProperty(value = "费用报销单id(BIZ_FORM_FEE.ID)", position = 7)
+    private String formFeeId;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 8)
+    private String attach;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 9)
+    private String memo;
+
+    /** 租户id */
+    @ApiModelProperty(value = "租户id", position = 10)
+    private String tenantId;
+
+    /** 删除标志 */
+    @ApiModelProperty(value = "删除标志", position = 11)
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private String deleteFlag;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间", position = 12)
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /** 创建用户 */
+    @ApiModelProperty(value = "创建用户", position = 13)
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    /** 修改时间 */
+    @ApiModelProperty(value = "修改时间", position = 14)
+    @TableField(fill = FieldFill.UPDATE)
+    private Date updateTime;
+
+    /** 修改用户 */
+    @ApiModelProperty(value = "修改用户", position = 15)
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateUser;
+}

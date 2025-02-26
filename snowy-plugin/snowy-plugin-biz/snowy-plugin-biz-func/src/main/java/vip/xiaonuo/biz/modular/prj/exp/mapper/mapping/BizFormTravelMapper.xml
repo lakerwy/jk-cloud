@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.prj.exp.mapper.BizFormTravelMapper">
+
+    <select id="getTravelCostMonthTotal" resultType="vip.xiaonuo.biz.modular.prj.exp.vo.ExpMonthTotal">
+        select b.COMPANY,b.ORG_ID,b.ORG_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM,sum(a.APPLY_AMOUNT) as amount
+        from BIZ_FORM_TRAVEL_COST a
+                 join BIZ_FORM_TRAVEL b on a.FORM_TRAVEL_ID = b.ID
+            ${ew.customSqlSegment}
+        group by b.COMPANY,b.ORG_ID,b.ORG_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.prj.exp.mapper.BizFormBackMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.prj.exp.vo.BizFormBackVo" >
+        select a.*,b.PROCESS_INSTANCE_ID as cashProcessInstanceId,b.STATUS as cashStatus,b.ADVANCE_AMOUNT as cashAdvanceAmount
+        from BIZ_FORM_BACK a
+                 left join BIZ_FORM_CASH b on a.CASH_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getBackList" resultType="vip.xiaonuo.biz.modular.prj.exp.vo.BizFormBackVo">
+        select a.*,b.PROCESS_INSTANCE_ID as cashProcessInstanceId,b.STATUS as cashStatus,b.ADVANCE_AMOUNT as cashAdvanceAmount
+        from BIZ_FORM_BACK a
+            left join BIZ_FORM_CASH b on a.CASH_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="getBackCashList" resultType="vip.xiaonuo.biz.modular.prj.exp.entity.BizFormCash">
+        select distinct b.*
+        from BIZ_FORM_BACK a join BIZ_FORM_CASH b on a.CASH_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+</mapper>
