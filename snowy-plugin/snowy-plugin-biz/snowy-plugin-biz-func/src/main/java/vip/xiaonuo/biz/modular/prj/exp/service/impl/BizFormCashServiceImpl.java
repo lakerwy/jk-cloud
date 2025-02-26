@@ -270,6 +270,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
                 List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);

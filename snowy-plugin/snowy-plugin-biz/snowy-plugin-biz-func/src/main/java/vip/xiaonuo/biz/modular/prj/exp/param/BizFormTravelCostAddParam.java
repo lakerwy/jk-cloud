@@ -41,7 +41,7 @@ public class BizFormTravelCostAddParam {
 
     /** 摘要 */
     @ApiModelProperty(value = "摘要", position = 7)
-    private String desc;
+    private String descMemo;
 
     /** 申请金额 */
     @ApiModelProperty(value = "申请金额", position = 8)
