@@ -31,6 +31,10 @@ public class BizFormTravelItemEditParam {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date optDate;
 
+    /** 日期(字符串格式 2025年1月2日) */
+    @ApiModelProperty(value = "日期(字符串格式 2025年1月2日)", position = 2)
+    private String optDateStr;
+
     /** 起点 */
     @ApiModelProperty(value = "起点", position = 3)
     private String pointFrom;

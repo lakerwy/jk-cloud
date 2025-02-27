@@ -36,6 +36,10 @@ public class CashExcelData {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date advanceDate;
 
+    /** 借支日期(字符串格式 2025年10月2日) */
+    @ApiModelProperty(value = "借支日期(字符串格式 2025年10月2日)", position = 5)
+    private String advanceDateStr;
+
     /** 借支人id */
     @ApiModelProperty(value = "借支人id", position = 6)
     private String advanceId;
@@ -57,6 +61,10 @@ public class CashExcelData {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date backDate;
+
+    /** 归还时限(字符串格式 2025年10月2日) */
+    @ApiModelProperty(value = "归还时限(字符串格式 2025年10月2日)", position = 10)
+    private String backDateStr;
 
     /** 借支金额（元） */
     @ApiModelProperty(value = "借支金额（元）", position = 11)

@@ -41,6 +41,10 @@ public class TravelExcelData {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date expDate;
 
+    /** 日期(字符串格式 2025年1月2日) */
+    @ApiModelProperty(value = "日期(字符串格式 2025年1月2日)", position = 5)
+    private String expDateStr;
+
     /** 报销人id */
     @ApiModelProperty(value = "报销人id", position = 6)
     private String expId;
