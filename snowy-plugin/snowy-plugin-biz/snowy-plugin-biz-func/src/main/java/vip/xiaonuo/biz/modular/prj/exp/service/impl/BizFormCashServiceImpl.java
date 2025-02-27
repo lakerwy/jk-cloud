@@ -281,7 +281,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
                 List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
                 int firstRow_commentList = 15;  //第16行 模版行（行号-1）  excel中行列都是从0开始
-                int lastRow_commentList = firstRow_commentList + (excelData.getCommentList().size() == 0 ? 0 : excelData.getCommentList().size()-1) ;
+                int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
+                int lastRow_commentList = firstRow_commentList + commentList_Size ;
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
@@ -318,14 +319,16 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
                 List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
                 int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
-                int lastRow_Item = firstRow_Item + (excelData.getItemList().size() == 0 ? 0 : excelData.getItemList().size()-1) ;
+                int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
+                int lastRow_Item = firstRow_Item + itemList_Size ;
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 0, 1)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 2, 6));
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 10));
 
                 int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
-                int lastRow_commentList = firstRow_commentList + (excelData.getCommentList().size() == 0 ? 0 : excelData.getCommentList().size()-1) ;
+                int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
+                int lastRow_commentList = firstRow_commentList + commentList_Size ;
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
@@ -338,7 +341,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
-                int lastRow_cost = firstRow_cost + (excelData.getCostList().size() == 0 ? 0 : excelData.getCostList().size()-1) ;
+                int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
+                int lastRow_cost = firstRow_cost + costList_Size ;
                 mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
                 mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
 
@@ -373,14 +377,16 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
                 List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
                 int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
-                int lastRow_Item = firstRow_Item + (excelData.getItemList().size() == 0 ? 0 : excelData.getItemList().size()-1) ;
+                int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
+                int lastRow_Item = firstRow_Item + itemList_Size ;
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 4, 5));
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 6, 7));
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 8, 9));
                 mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 10, 11));
 
                 int firstRow_commentList = lastRow_Item + 7 ;  // 模版行（行号-1）
-                int lastRow_commentList = firstRow_commentList + (excelData.getCommentList().size() == 0 ? 0 : excelData.getCommentList().size()-1) ;
+                int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
+                int lastRow_commentList = firstRow_commentList + commentList_Size ;
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
@@ -393,7 +399,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
-                int lastRow_cost = firstRow_cost + (excelData.getCostList().size() == 0 ? 0 : excelData.getCostList().size()-1) ;
+                int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
+                int lastRow_cost = firstRow_cost + costList_Size ;
                 mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
                 mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
 
