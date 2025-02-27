@@ -405,7 +405,9 @@ public class NodeRuntimeUtil {
                                                                                 // 判断历史任务中是否有相同的审批人
                                                                                 if(ObjectUtil.isNotEmpty(historicTasks)) {
                                                                                     for (HistoricTaskInstance historicTask : historicTasks) {
-                                                                                        if (historicTask.getAssignee() != null && historicTask.getAssignee().equals(assignee)) {
+                                                                                        // 历史任务中需要过滤掉被删除的任务（例如：节点跳转时，当前的待办任务会被会被删除）
+                                                                                        if (historicTask.getAssignee() != null && historicTask.getAssignee().equals(assignee)
+                                                                                                && !"deleted".equals(historicTask.getDeleteReason())) {
                                                                                             hasSameAssignee = true;
                                                                                             break;
                                                                                         }

@@ -197,6 +197,9 @@ public class FlwNode {
         private Integer priorityLevel;
 
         private String processOverLimitTime;
+
+        /** 是否参与去重 */
+        private Boolean userTaskEnableAutoDistinct;
     }
 
     /** 条件属性类 */
