@@ -338,8 +338,11 @@ public class NodeRuntimeUtil {
                                                             if (processCamundaProperty.getCamundaName().equals("configInfo")) {
                                                                 JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
                                                                 Boolean processEnableAutoDistinct = processConfigInfo.getBool("processEnableAutoDistinct");
+                                                                // 该节点是否参与自动去重（默认为参与）
+                                                                Boolean userTaskEnableAutoDistinct = configInfo.getBool("userTaskEnableAutoDistinct");
+                                                                userTaskEnableAutoDistinct = ObjectUtil.isEmpty(userTaskEnableAutoDistinct) ? Boolean.TRUE : userTaskEnableAutoDistinct;
                                                                 // 如果开启了自动去重
-                                                                if (processEnableAutoDistinct) {
+                                                                if (processEnableAutoDistinct && userTaskEnableAutoDistinct) {
                                                                     String processAutoDistinctType = processConfigInfo.getStr("processAutoDistinctType");
                                                                     JSONObject jsonObject = JSONUtil.parseObj(delegateTask.getVariables());
                                                                     String initiator = jsonObject.getStr("initiator");
