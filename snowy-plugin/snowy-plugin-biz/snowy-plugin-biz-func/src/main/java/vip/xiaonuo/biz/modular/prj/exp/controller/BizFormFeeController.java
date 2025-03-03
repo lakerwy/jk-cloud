@@ -146,7 +146,7 @@ public class BizFormFeeController {
     @ApiOperation("报销统计")
     @SaCheckPermission("/biz/prj/exp/monthTotal")
     @GetMapping("/biz/prj/exp/monthTotal")
-    public CommonResult<List<ExpMonthTotal>> monthTotal(ExpMonthParam expMonthParam) {
+    public CommonResult<List<ExpMonthTotal>> monthTotal(@Valid ExpMonthParam expMonthParam) {
         return CommonResult.data(bizFormFeeService.monthTotal(expMonthParam));
     }
 
