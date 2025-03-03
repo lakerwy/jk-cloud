@@ -40,6 +40,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -291,8 +292,6 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             } else {
                 feeQueryWrapper.eq("b.EXP_ID", StpUtil.getLoginIdAsString());
             }
-
-            feeQueryWrapper.orderByAsc("b.COMPANY").orderByAsc("b.ORG_NAME").orderByAsc("a.EXP_ITEM").orderByAsc("a.SECOND_EXP_ITEM");
             result = bizFormFeeMapper.getFeeCostMonthTotal(feeQueryWrapper);
 
         }else if ("TRAVEL".equals(expMonthParam.getExpType())){
@@ -325,13 +324,12 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             } else {
                 travelQueryWrapper.eq("b.EXP_ID", StpUtil.getLoginIdAsString());
             }
-
-            travelQueryWrapper.orderByAsc("b.COMPANY").orderByAsc("b.ORG_NAME").orderByAsc("a.EXP_ITEM").orderByAsc("a.SECOND_EXP_ITEM");
             result = bizFormTravelMapper.getTravelCostMonthTotal(travelQueryWrapper);
 
         }else {
             throw new CommonException("不支持的报销类型");
         }
+        result.sort(Comparator.comparing(ExpMonthTotal::getCompany).thenComparing(ExpMonthTotal::getOrgName).thenComparing(ExpMonthTotal::getExpItem).thenComparing(ExpMonthTotal::getSecondExpItem));
         return result;
     }
 
