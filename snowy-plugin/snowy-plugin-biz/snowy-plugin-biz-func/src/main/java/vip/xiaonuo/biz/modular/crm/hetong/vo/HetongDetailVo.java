@@ -289,4 +289,10 @@ public class HetongDetailVo {
     /** 申请人单位 */
     @ApiModelProperty(value = "申请人单位", position = 70)
     private String htMainType;
+
+
+
+    /** 立项 - 经营部门 */
+    @ApiModelProperty(value = "立项 - 经营部门", position = 200)
+    private String manageDept;
 }

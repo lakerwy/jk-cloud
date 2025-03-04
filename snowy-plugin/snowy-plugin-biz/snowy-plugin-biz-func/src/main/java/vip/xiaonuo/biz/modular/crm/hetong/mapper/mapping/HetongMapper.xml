@@ -23,7 +23,7 @@
         select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
                b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
                b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
-               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,b.MANAGE_DEPT as manageDept
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
         where a.ID = ${id}
     </select>
@@ -36,7 +36,7 @@
                a.ID as id,a.STATUS as status,a.MODEL_ID as modelId,a.PROCESS_INSTANCE_ID as processInstanceId,a.SUM_AMOUNT as sumAmount,
                a.SEAL_PROCESS_INSTANCE_ID as sealProcessInstanceId,a.SECONDPARTY as secondparty,a.DESCRIPTION as description,
                b.IS_EPC as isEpc,b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
-               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,b.MANAGE_DEPT as manageDept
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID  ${ew.customSqlSegment}
     </select>
 </mapper>
