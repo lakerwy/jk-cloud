@@ -15,10 +15,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingAddParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingEditParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingIdParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingPageParam;
+import vip.xiaonuo.sys.modular.hr.emp.param.*;
 import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
 
 import javax.annotation.Resource;
@@ -115,5 +112,20 @@ public class HrEmpAttendDingdingController {
     @GetMapping("/sys/emp/detail")
     public CommonResult<HrEmpAttendDingding> detail(@Valid HrEmpAttendDingdingIdParam hrEmpAttendDingdingIdParam) {
         return CommonResult.data(hrEmpAttendDingdingService.detail(hrEmpAttendDingdingIdParam));
+    }
+
+    /**
+     * 设置应计薪天数
+     *
+     * @author pzh
+     * @date  2025/03/06 11:48
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("设置应计薪天数")
+//    @SaCheckPermission("/sys/emp/setRequiredDay")
+    @PostMapping("/sys/emp/setRequiredDay")
+    public CommonResult<String> setRequiredDay(@RequestBody @Valid HrEmpAttendDingdingRequiredDayParam hrEmpAttendDingdingRequiredDayParam) {
+        hrEmpAttendDingdingService.setRequiredDay(hrEmpAttendDingdingRequiredDayParam);
+        return CommonResult.ok();
     }
 }

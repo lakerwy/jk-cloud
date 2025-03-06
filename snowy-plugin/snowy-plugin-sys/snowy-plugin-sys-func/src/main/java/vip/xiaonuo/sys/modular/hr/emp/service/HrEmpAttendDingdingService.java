@@ -3,10 +3,7 @@ package vip.xiaonuo.sys.modular.hr.emp.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingAddParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingEditParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingIdParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingPageParam;
+import vip.xiaonuo.sys.modular.hr.emp.param.*;
 
 import java.util.List;
 
@@ -65,4 +62,12 @@ public interface HrEmpAttendDingdingService extends IService<HrEmpAttendDingding
      * @date  2025/02/12 15:17
      **/
     HrEmpAttendDingding queryEntity(String id);
+
+    /**
+     * 设置应计薪天数
+     *
+     * @author pzh
+     * @date  2025/03/06 11:48
+     **/
+    void setRequiredDay(HrEmpAttendDingdingRequiredDayParam hrEmpAttendDingdingRequiredDayParam);
 }

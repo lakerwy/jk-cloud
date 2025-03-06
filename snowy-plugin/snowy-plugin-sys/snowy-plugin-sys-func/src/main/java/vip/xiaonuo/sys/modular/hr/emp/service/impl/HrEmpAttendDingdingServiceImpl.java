@@ -7,6 +7,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
 import vip.xiaonuo.sys.modular.hr.emp.mapper.HrEmpAttendDingdingMapper;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingAddParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingEditParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingIdParam;
-import vip.xiaonuo.sys.modular.hr.emp.param.HrEmpAttendDingdingPageParam;
+import vip.xiaonuo.sys.modular.hr.emp.param.*;
 import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
 import vip.xiaonuo.util.modular.log.service.OperationLogService;
 
@@ -151,5 +150,13 @@ public class HrEmpAttendDingdingServiceImpl extends ServiceImpl<HrEmpAttendDingd
             throw new CommonException("员工月度考勤(钉钉)不存在，id值为：{}", id);
         }
         return hrEmpAttendDingding;
+    }
+
+    @Override
+    public void setRequiredDay(HrEmpAttendDingdingRequiredDayParam hrEmpAttendDingdingRequiredDayParam) {
+        UpdateWrapper<HrEmpAttendDingding> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().eq(HrEmpAttendDingding::getYearMonth,hrEmpAttendDingdingRequiredDayParam.getYearMonth());
+        updateWrapper.lambda().set(HrEmpAttendDingding::getRequiredDay,hrEmpAttendDingdingRequiredDayParam.getRequiredDay());
+        this.update(updateWrapper);
     }
 }
