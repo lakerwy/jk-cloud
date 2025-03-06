@@ -329,7 +329,7 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         }else {
             throw new CommonException("不支持的报销类型");
         }
-        result.sort(Comparator.comparing(ExpMonthTotal::getCompany).thenComparing(ExpMonthTotal::getOrgName).thenComparing(ExpMonthTotal::getExpItem).thenComparing(ExpMonthTotal::getSecondExpItem));
+        result.sort(Comparator.comparing(ExpMonthTotal::getCompany,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getExpItem,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getSecondExpItem,Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
 
