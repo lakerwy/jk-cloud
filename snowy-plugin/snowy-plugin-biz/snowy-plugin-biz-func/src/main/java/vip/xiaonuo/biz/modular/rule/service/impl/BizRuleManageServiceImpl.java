@@ -38,7 +38,8 @@ public class BizRuleManageServiceImpl extends ServiceImpl<BizRuleMapper, BizRule
             qw.orderBy(true, bizRuleMangePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizRuleMangePageParam.getSortField()));
         } else {
-            qw.lambda().orderByDesc(BizRuleManage::getCreateTime);
+            qw.lambda().orderByDesc(BizRuleManage::getIndexSort)
+                    .orderByDesc(BizRuleManage::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), qw);
     }

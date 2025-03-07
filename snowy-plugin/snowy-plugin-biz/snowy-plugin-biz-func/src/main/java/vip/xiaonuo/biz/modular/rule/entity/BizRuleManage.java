@@ -73,6 +73,10 @@ public class BizRuleManage {
     @ApiModelProperty(value = "备注", position = 9)
     private String memo;
 
+    /** 排序序号 */
+    @ApiModelProperty(value = "排序序号", position = 9)
+    private Integer indexSort;
+
     /**
      * 删除状态标记
      */

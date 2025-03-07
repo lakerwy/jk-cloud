@@ -32,5 +32,6 @@ public class BizRuleMangeEditParam {
     private String orgId;
     @ApiModelProperty(value = "部门名称", position = 8)
     private String orgName;
-
+    @ApiModelProperty(value = "排序序号", position = 9)
+    private Integer indexSort;
 }
