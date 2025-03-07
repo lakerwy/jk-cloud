@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.common.util.CommonCryptogramUtil;
-import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.sys.modular.hr.emp.entity.AttendWhiteList;
 import vip.xiaonuo.sys.modular.hr.emp.mapper.AttendWhiteListMapper;
 import vip.xiaonuo.sys.modular.hr.emp.param.AttendWhiteListAddParam;
@@ -23,8 +21,6 @@ import vip.xiaonuo.sys.modular.hr.emp.param.AttendWhiteListEditParam;
 import vip.xiaonuo.sys.modular.hr.emp.param.AttendWhiteListIdParam;
 import vip.xiaonuo.sys.modular.hr.emp.param.AttendWhiteListPageParam;
 import vip.xiaonuo.sys.modular.hr.emp.service.AttendWhiteListService;
-import vip.xiaonuo.sys.modular.user.entity.SysUser;
-import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
 
 import java.util.List;
 
@@ -101,5 +97,12 @@ public class AttendWhiteListServiceImpl extends ServiceImpl<AttendWhiteListMappe
             throw new CommonException("钉钉考勤-员工白名单不存在，id值为：{}", id);
         }
         return attendWhiteList;
+    }
+
+    @Override
+    public AttendWhiteList queryEntityByUserId(String userId) {
+        return this.getOne(new QueryWrapper<AttendWhiteList>().lambda()
+                .eq(AttendWhiteList::getUserId, userId)
+                .orderByDesc(AttendWhiteList::getCreateTime).last("limit 1"));
     }
 }

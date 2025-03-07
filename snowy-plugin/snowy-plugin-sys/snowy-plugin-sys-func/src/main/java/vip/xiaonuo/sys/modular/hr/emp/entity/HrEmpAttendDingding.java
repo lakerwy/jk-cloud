@@ -192,4 +192,9 @@ public class HrEmpAttendDingding {
     /** 留痕备注 */
     @ApiModelProperty(value = "留痕备注", position = 39)
     private String note;
+
+    /** 类型（高管|返聘） */
+    @ApiModelProperty(value = "类型（高管|返聘）", position = 50)
+    @TableField(exist = false)
+    private String type;
 }

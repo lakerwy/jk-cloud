@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.dingtalk.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -25,7 +26,10 @@ import vip.xiaonuo.sys.modular.dingtalk.param.SyncDeptParam;
 import vip.xiaonuo.sys.modular.dingtalk.param.SyncUserParam;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
+import vip.xiaonuo.sys.modular.hr.emp.entity.AttendWhiteList;
 import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttendDingding;
+import vip.xiaonuo.sys.modular.hr.emp.enums.AttendWhiteListTypeEnum;
+import vip.xiaonuo.sys.modular.hr.emp.service.AttendWhiteListService;
 import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendDingdingService;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -85,6 +89,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     private HrEmpAttendDingdingService hrEmpAttendDingdingService;
 
     private static final AtomicInteger syncAttendCount = new AtomicInteger(0);
+
+    @Resource
+    private AttendWhiteListService attendWhiteListService;
 
     /**
      * 同步逻辑说明 【暂停】：
@@ -485,7 +492,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     @Override
     public void syncAttendData(SyncAttendDataParam syncAttendDataParam, String type) {
         log.info("----- 钉钉考勤数据同步 --- 开始 -----");
-        long startTime = System.currentTimeMillis();
+        long startDealTime = System.currentTimeMillis();
         // 给定的年月，例如202501
         String yearMonthStr = syncAttendDataParam.getYM();
         // 定义日期格式
@@ -509,6 +516,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 //        }
         // 测试用，只取10个用户
 //        dingSysUserList = dingSysUserList.subList(0,10);
+//        dingSysUserList = dingSysUserList.stream().filter(x->"0320162002649958".equals(x.getDingUserId())).collect(Collectors.toList());
         if(CollUtil.isEmpty(dingSysUserList)){
             log.info("----- 钉钉考勤数据同步 --- 无需同步 -----");
             return;
@@ -536,6 +544,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         // 列ID转为字符串，用逗号分隔
         String column_id_list = columnIdList.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining(","));
         List<HrEmpAttendDingding> hrEmpAttendDingdingList = new ArrayList<>();
+        // 提前获取白名单信息，用于后续比对
+        List<AttendWhiteList> attendWhiteListList = attendWhiteListService.list();
         for (SysUser sysUser : dingSysUserList) {
             HrEmpAttendDingding hrEmpAttendDingding = new HrEmpAttendDingding();
             String dingUserId = sysUser.getDingUserId();
@@ -547,13 +557,20 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                 log.info("----- 钉钉考勤数据同步 --- 获取考勤报表列值为空 -----");
                 continue;
             }
+            // 应出勤天数
+            List<OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal> requiredDayVals = new ArrayList<>();
+            // 出勤天数
+            List<OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal> realDayVals = new ArrayList<>();
+            // 考勤结果
+            List<OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal> attendResVals = new ArrayList<>();
             // key,value反转
             Map<Long,String> reversedMap = columnMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-            columnValVo.getColumnVals().forEach(column_vals -> {
+            for(OapiAttendanceGetcolumnvalResponse.ColumnValForTopVo column_vals: columnValVo.getColumnVals()){
                 Long id = column_vals.getColumnVo().getId();
                 String value = reversedMap.get(id);
                 switch (value){
                     case "应出勤天数":
+                        requiredDayVals = column_vals.getColumnVals();
                         float requiredDay = 0.0f;
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
                             requiredDay = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
@@ -562,12 +579,13 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         hrEmpAttendDingding.setRequiredDay(requiredDay);
                         break;
                     case "出勤天数":
-                        float realDay = 0.0f;
-                        if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            realDay = column_vals.getColumnVals().stream().map(item -> new BigDecimal(item.getValue()))
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
-                        }
-                        hrEmpAttendDingding.setRealDay(realDay);
+                        realDayVals = column_vals.getColumnVals();
+//                        float realDay = 0.0f;
+//                        if(CollUtil.isNotEmpty(realDayVals)){
+//                            realDay = realDayVals.stream().map(item -> new BigDecimal(item.getValue()))
+//                                    .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+//                        }
+//                        hrEmpAttendDingding.setRealDay(realDay);
                         break;
                     case "上班缺卡次数":
                         Integer upMissNum = 0;
@@ -621,18 +639,19 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         // 实扣未打卡(上班、下班)
                         Integer realUpMissNum = 0;
                         Integer realDownMissNum = 0;
+                        attendResVals = column_vals.getColumnVals();
                         if(CollUtil.isNotEmpty(column_vals.getColumnVals())){
-                            for (OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal item : column_vals.getColumnVals()){
-                                realUpMissNum += item.getValue().contains("上班1缺卡") ? 1:0;
-                                realDownMissNum += item.getValue().contains("下班2缺卡") ? 1:0;
+                            for (OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal item : column_vals.getColumnVals()) {
+                                realUpMissNum += item.getValue().contains("上班1缺卡") ? 1 : 0;
+                                realDownMissNum += item.getValue().contains("下班2缺卡") ? 1 : 0;
                                 Integer lateMins = SyncUtils.getLateMins(item.getValue());
-                                if(ObjectUtil.isNotNull(lateMins)){
-                                    if(lateMins <= 15){
-                                        lateNumA ++;
-                                    }else if(lateMins <= 30){
-                                        lateNumB ++;
-                                    }else if(lateMins <= 45){
-                                        lateNumC ++;
+                                if (ObjectUtil.isNotNull(lateMins)) {
+                                    if (lateMins <= 15) {
+                                        lateNumA++;
+                                    } else if (lateMins <= 30) {
+                                        lateNumB++;
+                                    } else if (lateMins <= 45) {
+                                        lateNumC++;
                                     }
                                 }
                             }
@@ -646,7 +665,91 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     default:
                         break;
                 }
-            });
+            }
+            // 考勤结果中包含出差或者外出，需要查询签到情况，有签到记录算当天全勤,如果没有签到记录，有打卡记录，那打卡需要早晚上下班正常打卡两次算全勤
+            for(OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal attendResVal : attendResVals) {
+                if (attendResVal.getValue().contains("出差") || attendResVal.getValue().contains("外出")) {
+//                    // 获取当天的应出勤信息
+//                    OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal requiredDayVal = requiredDayVals.stream()
+//                            .filter(x -> x.getDate().getTime() == attendResVal.getDate().getTime()).findFirst().orElse(null);
+//                    // 当天不需要出勤
+//                    if(new BigDecimal(requiredDayVal.getValue()).compareTo(new BigDecimal(BigInteger.ZERO)) <= 0) {
+//                        continue;
+//                    }
+                    // 查询当天签到信息
+                    Long startTime = attendResVal.getDate().getTime();
+                    Long endTime = DateUtil.offsetSecond(DateUtil.offsetDay(attendResVal.getDate(), 1),-1).getTime();
+                    OapiCheckinRecordGetResponse.PageResult checkinRecord = CommonDingDingUtil.getCheckinRecord(access_Token, dingUserId, startTime, endTime, 0L, 100L);
+                    // 是否签到
+                    if (ObjectUtil.isNotEmpty(checkinRecord) && CollUtil.isNotEmpty(checkinRecord.getPageList())) {
+                            realDayVals.stream().filter(x -> x.getDate().getTime() == attendResVal.getDate().getTime())
+                                    .forEach(x -> x.setValue("1.0"));
+                    } else {
+                        // 查询当天打卡记录
+                        boolean isValidCheck = false; // 是否为有效打卡
+                        String workDateFrom = DateUtil.format(attendResVal.getDate(), DatePattern.NORM_DATETIME_PATTERN);
+                        String workDateTo = DateUtil.format(DateUtil.offsetSecond(DateUtil.offsetDay(attendResVal.getDate(), 1),-1), DatePattern.NORM_DATETIME_PATTERN);
+                        List<OapiAttendanceListResponse.Recordresult> attendanceList = CommonDingDingUtil.getAttendanceList(access_Token, dingUserId, workDateFrom, workDateTo, 0L, 50L);
+                        if(CollUtil.isNotEmpty(attendanceList)){
+                            // 上班打卡
+                            List<OapiAttendanceListResponse.Recordresult> onDutyList = attendanceList.stream()
+                                    .filter(attendance -> "OnDuty".equals(attendance.getCheckType()) && !"NotSigned".equals(attendance.getTimeResult()))
+                                    .collect(Collectors.toList());
+                            // 下班打卡
+                            List<OapiAttendanceListResponse.Recordresult> offDutyList = attendanceList.stream()
+                                    .filter(attendance -> "OffDuty".equals(attendance.getCheckType()) && !"NotSigned".equals(attendance.getTimeResult()))
+                                    .collect(Collectors.toList());
+                            if(CollUtil.isNotEmpty(onDutyList) && CollUtil.isNotEmpty(offDutyList)){
+                                Date onDutyBaseTime = DateUtil.offsetHour(attendResVal.getDate(),12);// 获取当天12点
+                                Date offDutyBaseTime = DateUtil.offsetHour(attendResVal.getDate(),14);// 获取当天14点
+                                // 当天12点前有打卡 且 当天14点后有打卡 记为有效打卡
+                                List<OapiAttendanceListResponse.Recordresult> onDutyCheckList = onDutyList.stream().filter(x -> x.getUserCheckTime().before(onDutyBaseTime))
+                                        .collect(Collectors.toList());
+                                List<OapiAttendanceListResponse.Recordresult> offDutyCheckList = offDutyList.stream().filter(x -> x.getUserCheckTime().after(offDutyBaseTime))
+                                        .collect(Collectors.toList());
+                                if(CollUtil.isNotEmpty(onDutyCheckList) && CollUtil.isNotEmpty(offDutyCheckList)){
+                                    isValidCheck = true;
+                                }
+                            }
+                        }
+                        String value = isValidCheck ? "1.0":"0.0";
+                        realDayVals.stream().filter(x -> x.getDate().getTime() == attendResVal.getDate().getTime())
+                                .forEach(x -> x.setValue(value));
+                    }
+                }
+            }
+            // 异地打卡人员：当日有签到记录即可记为当天全勤
+            if(SyncUtils.isOutCheckPersonnel(sysUser.getOrgId())){
+                for(OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal realDayVal : realDayVals) {
+                    // 查询当天签到信息
+                    Long startTime = realDayVal.getDate().getTime();
+                    Long endTime = DateUtil.offsetSecond(DateUtil.offsetDay(realDayVal.getDate(), 1),-1).getTime();
+                    OapiCheckinRecordGetResponse.PageResult checkinRecord = CommonDingDingUtil.getCheckinRecord(access_Token, dingUserId, startTime, endTime, 0L, 100L);
+                    // 有签到记录
+                    if (ObjectUtil.isNotEmpty(checkinRecord) && CollUtil.isNotEmpty(checkinRecord.getPageList())) {
+                        realDayVal.setValue("1.0");
+                    }
+                }
+            }
+            // 重新设置实际出勤（休息日打卡不算出勤）
+            for(OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal realDayVal : realDayVals){
+                // 获取当天的应出勤信息
+                OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal requiredDayVal = requiredDayVals.stream()
+                        .filter(x -> x.getDate().getTime() == realDayVal.getDate().getTime()).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(requiredDayVal)) {
+                    // 如果应出勤 < 实际出勤，则取应出勤，否则取实际出勤
+                    boolean flag = new BigDecimal(requiredDayVal.getValue()).compareTo(new BigDecimal(realDayVal.getValue())) < 0;
+                    realDayVals.stream().filter(x -> x.getDate().getTime() == realDayVal.getDate().getTime()).
+                            forEach(x -> x.setValue(flag ? requiredDayVal.getValue():realDayVal.getValue()));
+                }
+            }
+            // 累加出勤天数
+            float realDay = 0.0f;
+            if(CollUtil.isNotEmpty(realDayVals)){
+                realDay = realDayVals.stream().map(item -> new BigDecimal(item.getValue()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+            }
+            hrEmpAttendDingding.setRealDay(realDay);
             // 需要的列（假期）
             String leave_names = "事假,病假,婚假,产假,丧假,年假,调休";
             OapiAttendanceGetleavetimebynamesResponse.ColumnValListForTopVo leaveTimeVo = CommonDingDingUtil.getLeavetimebynames(access_Token, dingUserId, leave_names,
@@ -696,17 +799,61 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             hrEmpAttendDingding.setOrgName(sysUser.getOrgName());
             hrEmpAttendDingding.setUserId(sysUser.getId());
             hrEmpAttendDingding.setPersonnelId(sysUser.getPersonnelId());
+            if(CollUtil.isNotEmpty(attendWhiteListList)){
+                AttendWhiteList attendWhiteList = attendWhiteListList.stream()
+                        .filter(x -> sysUser.getId().equals(x.getUserId())).findFirst().orElse(null);
+                hrEmpAttendDingding.setType(ObjectUtil.isNotEmpty(attendWhiteList) ? attendWhiteList.getType():null);
+            }
             isFull(hrEmpAttendDingding);// 是否全勤
             hrEmpAttendDingdingList.add(hrEmpAttendDingding);
         }
-        hrEmpAttendDingdingList.forEach(x -> x.setNote(String.format(DateUtil.now()+"：钉钉同步考勤数据【%s】",type)));
+        Float maxRequiredDay = hrEmpAttendDingdingList.stream()
+                .map(HrEmpAttendDingding::getRequiredDay)
+                .filter(Objects::nonNull)   // 过滤空值
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+        hrEmpAttendDingdingList.forEach(x -> {
+            x.setNote(String.format(DateUtil.now()+"：钉钉同步考勤数据【%s】",type));
+            // 设置应计薪天数为所有数据中的最大值
+            x.setRequiredDay(maxRequiredDay);
+            // 员工类型是否为高管或返聘人员
+            // 高管仅统计事假、病假考勤，其他情形皆算全勤
+            if(AttendWhiteListTypeEnum.LEADER.getValue().equals(x.getType())){
+                BigDecimal realDayValue = BigDecimal.valueOf(maxRequiredDay)
+                        .subtract(BigDecimal.valueOf(x.getSickDay()))
+                        .subtract(BigDecimal.valueOf(x.getWorkDay()));
+                x.setRealDay(realDayValue.floatValue());
+            }
+            // 返聘员工当月有打卡记录即为当月全勤 TODO
+            if(AttendWhiteListTypeEnum.REHIRE.getValue().equals(x.getType())){
+                if (x.getRealDay() > 0) {
+                    x.setRealDay(maxRequiredDay);
+                }
+            }
+        });
         hrEmpAttendDingdingService.saveBatch(hrEmpAttendDingdingList);
-        long endTime = System.currentTimeMillis();
-        log.info("----- 钉钉考勤数据同步 --- 完成耗时：{}ms，同步用户数量：{} -----", endTime-startTime , hrEmpAttendDingdingList.size());
+        long endDealTime = System.currentTimeMillis();
+        log.info("----- 钉钉考勤数据同步 --- 完成耗时：{}ms，同步用户数量：{} -----", endDealTime-startDealTime , hrEmpAttendDingdingList.size());
     }
 
     // 是否全勤
     private void isFull(HrEmpAttendDingding entity){
+        if(AttendWhiteListTypeEnum.LEADER.getValue().equals(entity.getType())){
+            if(entity.getWorkDay() > 0 || entity.getSickDay() > 0){
+                entity.setIsFull("否");
+            }else{
+                entity.setIsFull("是");
+            }
+            return;
+        }
+        if(AttendWhiteListTypeEnum.REHIRE.getValue().equals(entity.getType())){
+            if(entity.getRealDay() > 0){
+                entity.setIsFull("是");
+            }else{
+                entity.setIsFull("否");
+            }
+            return;
+        }
         if(entity.getWorkDay() > 0 || entity.getSickDay() > 0 || entity.getMarryDay() > 0
                 || entity.getMaterDay() > 0 || entity.getFunDay() > 0 || entity.getYearDay() > 0
                 || entity.getAdjustHour() > 0 || entity.getLateNum() > 0

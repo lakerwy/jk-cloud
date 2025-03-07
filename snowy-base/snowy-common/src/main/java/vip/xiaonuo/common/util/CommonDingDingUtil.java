@@ -10,6 +10,7 @@ import com.taobao.api.ApiException;
 import com.taobao.api.internal.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -364,6 +365,50 @@ public class CommonDingDingUtil {
             req.setToDate(StringUtils.parseDateTime(to_date));
             OapiAttendanceGetleavetimebynamesResponse rsp = client.execute(req, access_token);
             return rsp.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 获取用户签到记录
+     * @param access_token 钉钉内部应用 token
+     * @return
+     */
+    public static OapiCheckinRecordGetResponse.PageResult getCheckinRecord(String access_token, String userids, Long startTime, Long endTime,
+                                                                           Long cursor, Long size){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/checkin/record/get");
+            OapiCheckinRecordGetRequest req = new OapiCheckinRecordGetRequest();
+            req.setUseridList(userids);
+            req.setStartTime(startTime);
+            req.setEndTime(endTime);
+            req.setCursor(cursor);
+            req.setSize(size);
+            OapiCheckinRecordGetResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 获取打卡结果
+     * @param access_token 钉钉内部应用 token
+     * @return
+     */
+    public static List<OapiAttendanceListResponse.Recordresult> getAttendanceList(String access_token, String userid, String workDateFrom, String workDateTo,
+                                                                           Long offset, Long limit){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/attendance/list");
+            OapiAttendanceListRequest req = new OapiAttendanceListRequest();
+            req.setWorkDateFrom(workDateFrom);// "2020-11-11 08:00:00"
+            req.setWorkDateTo(workDateTo);
+            req.setUserIdList(Arrays.asList(userid));
+            req.setOffset(offset);// 起始0
+            req.setLimit(limit);// 最大值50
+            OapiAttendanceListResponse rsp = client.execute(req, access_token);
+            return rsp.getRecordresult();
         } catch (Exception e) {
             return null;
         }

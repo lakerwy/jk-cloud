@@ -65,4 +65,12 @@ public interface AttendWhiteListService extends IService<AttendWhiteList> {
      * @date  2025/03/06 11:34
      **/
     AttendWhiteList queryEntity(String id);
+
+    /**
+     * 获取钉钉考勤-员工白名单详情 by userId
+     *
+     * @author pzh
+     * @date  2025/03/06 11:34
+     **/
+    AttendWhiteList queryEntityByUserId(String userId);
 }

@@ -10,10 +10,7 @@ import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,6 +150,20 @@ public class SyncUtils {
             }
         }
         return lateMins;
+    }
+
+    //是否为异地打卡人员
+    public static boolean isOutCheckPersonnel(String orgId){
+        Map<String,String> map = new HashMap<>();
+        // 测试环境
+        map.put("1666651354648064001","工程监理事业部");
+        map.put("1843565441465839617","国际事业部");
+//        map.put("1882230249064280065","中原分公司");
+        // 正式环境
+        map.put("1666651354648064001","工程监理事业部");
+        map.put("1777589427274067969","国际事业部");
+        map.put("1882230249064280065","中原分公司");
+        return map.containsKey(orgId);
     }
 
 }
