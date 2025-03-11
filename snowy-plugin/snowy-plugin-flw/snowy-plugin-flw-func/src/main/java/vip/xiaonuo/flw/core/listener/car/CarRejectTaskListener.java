@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 public class CarRejectTaskListener implements TaskListener {
     @Override
     public void notify(DelegateTask delegateTask) {
-        String processInstanceId = delegateTask.getProcessInstanceId();
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        String businessKey = processInstance.getBusinessKey();
-
+//        String processInstanceId = delegateTask.getProcessInstanceId();
+//        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+//        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+//        String businessKey = processInstance.getBusinessKey();
+        String businessKey  = String.valueOf(delegateTask.getVariable("id"));
         CarUtil.updateApplyStatus("5",businessKey);
         log.info("更新用车申请单状态为已取消|已拒绝 -----");
     }

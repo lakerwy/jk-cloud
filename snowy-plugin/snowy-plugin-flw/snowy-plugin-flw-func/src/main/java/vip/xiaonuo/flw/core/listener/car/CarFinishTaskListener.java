@@ -19,10 +19,11 @@ import java.math.BigDecimal;
 public class CarFinishTaskListener implements TaskListener {
     @Override
     public void notify(DelegateTask delegateTask) {
-        String processInstanceId = delegateTask.getProcessInstanceId();
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        String businessKey = processInstance.getBusinessKey();
+//        String processInstanceId = delegateTask.getProcessInstanceId();
+//        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+//        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+//        String businessKey = processInstance.getBusinessKey();
+        String businessKey  = String.valueOf(delegateTask.getVariable("id"));
         String driverId = String.valueOf(delegateTask.getVariable("driverUserId"));
         String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
         String endMileage = String.valueOf(delegateTask.getVariable("endMileage"));
