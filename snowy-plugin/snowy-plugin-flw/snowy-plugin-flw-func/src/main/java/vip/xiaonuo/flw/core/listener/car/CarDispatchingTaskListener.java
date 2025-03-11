@@ -17,9 +17,13 @@ public class CarDispatchingTaskListener implements TaskListener {
     @Override
     public void notify(DelegateTask delegateTask) {
         String processInstanceId = delegateTask.getProcessInstanceId();
+        log.info("CarDispatchingTaskListener监听器：processInstanceId:{}",processInstanceId);
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        log.info("CarDispatchingTaskListener监听器：runtimeService:{}",runtimeService == null);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        log.info("CarDispatchingTaskListener监听器：processInstance:{}",processInstance == null);
         String businessKey = processInstance.getBusinessKey();
+        log.info("CarDispatchingTaskListener监听器：businessKey:{}",businessKey);
 //        String driverId = String.valueOf(delegateTask.getVariable("driverId"));
 //        String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
 
