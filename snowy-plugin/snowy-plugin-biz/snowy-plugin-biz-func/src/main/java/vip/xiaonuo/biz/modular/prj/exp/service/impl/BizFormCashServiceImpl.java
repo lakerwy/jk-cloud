@@ -546,11 +546,15 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 }else {
                     LocalDate currentDate = LocalDate.now();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    String dateString = sdf.format(item.getBackDate());
-                    LocalDate backDate = LocalDate.parse(dateString);
-                    if(currentDate.isAfter(backDate)){
-                        item.setBackStatus(BizFormCashBackStatusEnum.OVERDUE.getValue());
-                    }else{
+                    if(ObjectUtil.isNotEmpty(item.getBackDate())){
+                        String dateString = sdf.format(item.getBackDate());
+                        LocalDate backDate = LocalDate.parse(dateString);
+                        if(currentDate.isAfter(backDate)){
+                            item.setBackStatus(BizFormCashBackStatusEnum.OVERDUE.getValue());
+                        }else{
+                            item.setBackStatus(BizFormCashBackStatusEnum.NO_BACK.getValue());
+                        }
+                    }else {
                         item.setBackStatus(BizFormCashBackStatusEnum.NO_BACK.getValue());
                     }
                 }
