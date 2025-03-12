@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.sub.mapper.SubFilingMapper">
+
+    <select id="getSubFilingPage" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo">
+        select
+            a.*,
+            b.*,
+            a.ID subFilingId,
+            b.ID subFilingItemId
+        from SUB_FILING a
+        join SUB_FILING_ITEM b on a.ID = b.SUB_FILING_ID
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getSubFilingList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo">
+        select
+            a.*,
+            b.*,
+            a.ID subFilingId,
+            b.ID subFilingItemId
+        from SUB_FILING a
+        join SUB_FILING_ITEM b on a.ID = b.SUB_FILING_ID
+        ${ew.customSqlSegment}
+    </select>
+
+</mapper>

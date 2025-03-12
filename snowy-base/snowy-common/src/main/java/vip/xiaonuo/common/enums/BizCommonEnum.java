@@ -88,6 +88,8 @@ public enum BizCommonEnum {
 
     BIZ_FORM_BACK("BIZ_FORM_BACK","BIZ_FORM_BACK","BizFormBackServiceImpl"),   //费用报销（二期）- 归还登记 审批
 
+    SUB_FILING_APPLY("SUB_FILING","SUB_FILING","SubFilingServiceImpl"),   //分包单位备案审批
+
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
 
     String bizModel;
