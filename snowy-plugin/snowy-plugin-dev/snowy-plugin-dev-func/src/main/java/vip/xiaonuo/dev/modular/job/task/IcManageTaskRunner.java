@@ -65,7 +65,7 @@ public class IcManageTaskRunner implements CommonTimerTaskRunner {
         for(String orgId :deptIdList){
             String supervisorIdByOrgId = sysOrgApi.getSupervisorIdByOrgId(orgId);
             if(ObjectUtil.isNotEmpty(supervisorIdByOrgId)){
-                userIdList.add(orgId);
+                userIdList.add(supervisorIdByOrgId);
             }
         }
         return userIdList.stream().distinct().collect(Collectors.toList());
