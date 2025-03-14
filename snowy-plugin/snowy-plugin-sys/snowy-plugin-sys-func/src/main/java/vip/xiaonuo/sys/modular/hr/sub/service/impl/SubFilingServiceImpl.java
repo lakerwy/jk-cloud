@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFilingItemService;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFilingService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -54,6 +58,9 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
     private SubFilingItemService subFilingItemService;
 
     @Resource
+    private SysOrgService sysOrgService;
+
+    @Resource
     private SubFilingMapper subFilingMapper;
 
     @Override
@@ -69,10 +76,9 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
                     .or().like("b.UNIT_NAME",subFilingPageParam.getSearchKey())
             );
         }
-//        if(ObjectUtil.isNotEmpty(subFilingPageParam.getSealDept())){
-//            queryWrapper.eq("a.SEAL_DEPT", subFilingPageParam.getSealDept());
-//        }
-        // 分公司搜索
+        if(ObjectUtil.isNotEmpty(subFilingPageParam.getSealDept())){
+            queryWrapper.like("a.SEAL_DEPT", subFilingPageParam.getSealDept());
+        }
         if(ObjectUtil.isNotEmpty(subFilingPageParam.getSealDeptId())){
             queryWrapper.eq("a.SEAL_DEPT_ID", subFilingPageParam.getSealDeptId());
         }
@@ -106,12 +112,11 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
                     .or().like("b.UNIT_NAME",subFilingListParam.getSearchKey())
             );
         }
-//        if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDept())){
-//            queryWrapper.eq("a.SEAL_DEPT", subFilingListParam.getSealDept());
-//        }
-        // 分公司搜索
         if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDeptId())){
             queryWrapper.eq("a.SEAL_DEPT_ID", subFilingListParam.getSealDeptId());
+        }
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDept())){
+            queryWrapper.like("a.SEAL_DEPT", subFilingListParam.getSealDept());
         }
         queryWrapper.orderByDesc("a.UPDATE_TIME").orderByDesc("a.SEAL_DEPT_ID");
         // 校验数据范围
@@ -240,7 +245,6 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
         }
     }
 
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<SubFilingIdParam> subFilingIdParamList) {
@@ -265,5 +269,50 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
             throw new CommonException("分包单位备案不存在，id值为：{}", id);
         }
         return subFiling;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importData(ImportSubFiling input) {
+        List<ImportSubFiling.SubFilingItemImportParam> importData = input.getImportData();
+        if(CollUtil.isEmpty(importData)){
+            throw new CommonException("无有效导入数据");
+        }
+        Map<String, List<ImportSubFiling.SubFilingItemImportParam>> groupedMap = importData.stream()
+                .collect(Collectors.groupingBy(ImportSubFiling.SubFilingItemImportParam::getSealDept));
+        List<SysOrg> allDeptList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>()
+                .eq(SysOrg::getCategory,SysOrgCategoryEnum.PARTNER.getValue()));
+        List<String> existList = this.list().stream().map(SubFiling::getSealDeptId).collect(Collectors.toList());
+        Date now = new Date();
+        List<SubFiling> subFilingList = new ArrayList<>();
+        List<SubFilingItem> subFilingItemList = new ArrayList<>();
+        for (String sealDept: groupedMap.keySet()){
+            for(SysOrg sysOrg : allDeptList){
+                if(sealDept.equals(sysOrg.getName())){
+                    if(existList.contains(sysOrg.getId())){
+                        continue;
+                    }
+                    SubFiling subFiling = new SubFiling();
+                    String id = IdWorker.getIdStr();
+                    subFiling.setId(id);
+                    subFiling.setSealDept(sysOrg.getName());
+                    subFiling.setSealDeptId(sysOrg.getId());
+                    subFiling.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+                    subFiling.setCreateTime(now);
+                    subFiling.setUpdateTime(now);
+                    subFilingList.add(subFiling);
+                    List<ImportSubFiling.SubFilingItemImportParam> subFilingItemImportParams = groupedMap.get(sealDept);
+                    List<SubFilingItem> itemList = BeanUtil.copyToList(subFilingItemImportParams, SubFilingItem.class);
+                    itemList.forEach(item->{
+                        item.setSubFilingId(id);
+                    });
+                    subFilingItemList.addAll(itemList);
+                    break;
+                }
+            }
+        }
+        this.saveBatch(subFilingList);
+        subFilingItemService.saveBatch(subFilingItemList);
     }
 }

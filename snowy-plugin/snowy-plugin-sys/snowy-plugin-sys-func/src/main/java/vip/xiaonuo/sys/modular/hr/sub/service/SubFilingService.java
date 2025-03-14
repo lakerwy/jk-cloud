@@ -90,4 +90,12 @@ public interface SubFilingService extends IService<SubFiling> {
      * @date  2025/03/11 14:32
      **/
     void check(SubFilingCheckParam checkParam);
+
+    /**
+     * 分包单位备案 - 导入
+     *
+     * @author pzh
+     * @date  2025/03/14 10:30
+     */
+    void importData(ImportSubFiling input);
 }

@@ -36,9 +36,9 @@ public class SubFilingPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-//    /** 用印部门 */
-//    @ApiModelProperty(value = "用印部门")
-//    private String sealDept;
+    /** 用印部门 */
+    @ApiModelProperty(value = "用印部门")
+    private String sealDept;
 
     /** 用印部门ID */
     @ApiModelProperty(value = "用印部门ID")

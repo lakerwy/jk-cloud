@@ -145,4 +145,20 @@ public class SubFilingController {
         subFilingService.check(subFilingCheckParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 分包单位备案 - 导入
+     *
+     * @author pzh
+     * @date  2025/03/14 10:30
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("分包单位备案 - 导入")
+    @CommonLog("分包单位备案 - 导入")
+    // @SaCheckPermission("/sys/hr/sub/filing/importData")
+    @PostMapping("/sys/hr/sub/filing/importData")
+    public CommonResult<String> importData(@RequestBody @Valid ImportSubFiling input) {
+        subFilingService.importData(input);
+        return CommonResult.ok();
+    }
 }
