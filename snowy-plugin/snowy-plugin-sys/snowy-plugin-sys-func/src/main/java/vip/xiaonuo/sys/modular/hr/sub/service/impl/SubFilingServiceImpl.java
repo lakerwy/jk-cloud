@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,8 +35,9 @@ import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFilingItemService;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubFilingService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo;
-import vip.xiaonuo.sys.modular.org.entity.SysOrg;
-import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
+import vip.xiaonuo.sys.modular.info.param.PartnerInfoPageParam;
+import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
+import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
 import javax.annotation.Resource;
@@ -62,6 +64,9 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
 
     @Resource
     private SubFilingMapper subFilingMapper;
+
+    @Resource
+    PartnerInfoService partnerInfoService;
 
     @Override
     public Page<SubFilingVo> page(SubFilingPageParam subFilingPageParam) {
@@ -115,6 +120,9 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
         if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDeptId())){
             queryWrapper.eq("a.SEAL_DEPT_ID", subFilingListParam.getSealDeptId());
         }
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getOrgId())){
+            queryWrapper.eq("a.ORG_ID", subFilingListParam.getOrgId());
+        }
         if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDept())){
             queryWrapper.like("a.SEAL_DEPT", subFilingListParam.getSealDept());
         }
@@ -154,8 +162,10 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
         Date date = new Date();
         subFiling.setCreateTime(date);
         subFiling.setUpdateTime(date);
+        if(ObjectUtil.isNotEmpty(subFilingAddParam.getOrgId())){
+            subFiling.setDataScopeId(subFilingAddParam.getOrgId());
+        }
         this.save(subFiling);
-//        updateSubFilingItem(subFiling.getId(), subFilingAddParam.getSubFilingItemList());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -281,23 +291,31 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
         }
         Map<String, List<ImportSubFiling.SubFilingItemImportParam>> groupedMap = importData.stream()
                 .collect(Collectors.groupingBy(ImportSubFiling.SubFilingItemImportParam::getSealDept));
-        List<SysOrg> allDeptList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>()
-                .eq(SysOrg::getCategory,SysOrgCategoryEnum.PARTNER.getValue()));
+        PartnerInfoPageParam partnerInfoPageParam = new PartnerInfoPageParam();
+        IPage<PartnerInfoVo> partnerInfoVoPage = partnerInfoService.pageList(partnerInfoPageParam);
+        List<PartnerInfoVo> partnerList = partnerInfoVoPage.getRecords();
+        if(CollUtil.isEmpty(partnerList)){
+            return;
+        }
         List<String> existList = this.list().stream().map(SubFiling::getSealDeptId).collect(Collectors.toList());
         Date now = new Date();
         List<SubFiling> subFilingList = new ArrayList<>();
         List<SubFilingItem> subFilingItemList = new ArrayList<>();
         for (String sealDept: groupedMap.keySet()){
-            for(SysOrg sysOrg : allDeptList){
-                if(sealDept.equals(sysOrg.getName())){
-                    if(existList.contains(sysOrg.getId())){
+            for(PartnerInfoVo partnerInfoVo : partnerList){
+                if(sealDept.equals(partnerInfoVo.getName())){
+                    if(!("分公司".equals(partnerInfoVo.getPartnerType()) || "分公司（注册）".equals(partnerInfoVo.getPartnerType()))){
+                        continue;
+                    }
+                    if(existList.contains(partnerInfoVo.getId())){
                         continue;
                     }
                     SubFiling subFiling = new SubFiling();
                     String id = IdWorker.getIdStr();
                     subFiling.setId(id);
-                    subFiling.setSealDept(sysOrg.getName());
-                    subFiling.setSealDeptId(sysOrg.getId());
+                    subFiling.setSealDept(partnerInfoVo.getName());
+                    subFiling.setSealDeptId(partnerInfoVo.getId());
+                    subFiling.setOrgId(partnerInfoVo.getOrgId());
                     subFiling.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
                     subFiling.setCreateTime(now);
                     subFiling.setUpdateTime(now);

@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
+import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
@@ -97,6 +99,9 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private CertManageService certManageService;
 
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
@@ -651,8 +656,30 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         Map<String, Object> columnMap = new HashMap<>();
         columnMap.put("FILE_ID", personnel.getId());
         columnMap.put("DELETE_FLAG", "NOT_DELETE");
-        personnelDetailVo.setPersonnelCertList(personnelFileCertService.listByMap(columnMap));
+//        personnelDetailVo.setPersonnelCertList(personnelFileCertService.listByMap(columnMap));
         personnelDetailVo.setPersonnelTitleList(personnelFileTitleService.listByMap(columnMap));
+        // 证书信息取人员资质列表的
+        List<PersonnelFileCert> certList = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(personnel.getIdNumber())){
+            QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(CertManage::getIdNumber,personnel.getIdNumber());
+            queryWrapper.lambda().orderByAsc(CertManage::getCertTypeId).orderByAsc(CertManage::getLevelId).orderByAsc(CertManage::getMajor);
+            List<CertManage> certManages = certManageService.list(queryWrapper);
+            if(CollUtil.isNotEmpty(certManages)){
+                certManages.forEach(x->{
+                    PersonnelFileCert cert = new PersonnelFileCert();
+                    cert.setName(x.getName());
+                    cert.setCertType(x.getCertType());
+                    cert.setMajor(x.getMajor());
+                    cert.setCertNo(x.getCertNo());
+                    cert.setStampNo(x.getCertSealNo());
+                    cert.setInvalidDate(x.getValidity());
+                    cert.setAttachments(x.getAttach());
+                    certList.add(cert);
+                });
+            }
+        }
+        personnelDetailVo.setPersonnelCertList(certList);
         return personnelDetailVo;
     }
 

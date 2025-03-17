@@ -28,9 +28,13 @@ public class SubFilingEditParam {
     @ApiModelProperty(value = "用印部门", position = 2)
     private String sealDept;
 
-    /** 用印部门ID */
-    @ApiModelProperty(value = "用印部门ID", position = 3)
+    /** 用印部门ID(合作伙伴ID) */
+    @ApiModelProperty(value = "用印部门ID(合作伙伴ID)", position = 3)
     private String sealDeptId;
+
+    /** 组织ID */
+    @ApiModelProperty(value = "组织ID", position = 3)
+    private String orgId;
 
     /** 用印人 */
     @ApiModelProperty(value = "用印人", position = 4)

@@ -26,4 +26,8 @@ public class SubFilingListParam {
     @ApiModelProperty(value = "用印部门ID")
     private String sealDeptId;
 
+    /** 组织ID */
+    @ApiModelProperty(value = "组织ID")
+    private String orgId;
+
 }
