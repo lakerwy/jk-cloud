@@ -511,7 +511,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         hrEmpAttendDingdingService.remove(new LambdaQueryWrapper<HrEmpAttendDingding>().eq(HrEmpAttendDingding::getYearMonth, yearMonthStr));
         // 测试用，只取10个用户
 //        dingSysUserList = dingSysUserList.subList(0,10);
-//        dingSysUserList = dingSysUserList.stream().filter(x->"141840214435147859".equals(x.getDingUserId())).collect(Collectors.toList());
+//        dingSysUserList = dingSysUserList.stream().filter(x->"01234221013126077624".equals(x.getDingUserId())).collect(Collectors.toList());
         if(CollUtil.isEmpty(dingSysUserList)){
             log.info("----- 钉钉考勤数据同步 --- 无需同步 -----");
             return;
@@ -770,16 +770,6 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     value = column_vals.getColumnvals().stream().map(item -> new BigDecimal(item.getValue()))
                             .reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                 }
-                BigDecimal restDayExclude = BigDecimal.ZERO;
-                for(OapiAttendanceGetleavetimebynamesResponse.ColumnDayAndVal val : column_vals.getColumnvals()){
-                    // 获取当天的应出勤信息
-                    OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal requiredDayVal = requiredDayVals.stream()
-                            .filter(x -> x.getDate().getTime() == val.getDate().getTime()).findFirst().orElse(null);
-                    // 当天不需要出勤
-                    if(new BigDecimal(requiredDayVal.getValue()).compareTo(BigDecimal.ZERO) <= 0) {
-                        restDayExclude = restDayExclude.add(new BigDecimal(val.getValue()));
-                    }
-                }
                 switch (columnName) {
                     case "事假":
                         hrEmpAttendDingding.setWorkDay(value);
@@ -792,7 +782,6 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         break;
                     case "产假":
                         hrEmpAttendDingding.setMaterDay(value);
-                        hrEmpAttendDingding.setRestDayExclude(restDayExclude.floatValue());
                         break;
                     case "丧假":
                         hrEmpAttendDingding.setFunDay(value);
@@ -853,9 +842,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         .subtract(BigDecimal.valueOf(x.getSickDay()))
                         .subtract(BigDecimal.valueOf(x.getMaterDay()))
                         .subtract(missNumExclude)
-                        .subtract(BigDecimal.valueOf(x.getInvalidDays()))
-                        .add((BigDecimal.valueOf(x.getRestDayExclude())));
-                x.setRealDay(realDayValue.floatValue());
+                        .subtract(BigDecimal.valueOf(x.getInvalidDays()));
+                x.setRealDay(realDayValue.floatValue() < 0 ? 0:realDayValue.floatValue());
             }
             // 返聘员工当月有打卡记录即为当月全勤 TODO
             if(AttendWhiteListTypeEnum.REHIRE.getValue().equals(x.getType())){
