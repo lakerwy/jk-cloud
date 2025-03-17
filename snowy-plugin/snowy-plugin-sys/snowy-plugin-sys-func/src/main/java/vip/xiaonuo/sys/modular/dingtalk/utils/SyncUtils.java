@@ -142,7 +142,7 @@ public class SyncUtils {
         // 查找匹配的数字
         if (matcher.find()) {
             String number = matcher.group(1); // 提取捕获组中的数字
-            System.out.println("迟到的时间: " + number + " 分钟");
+//            System.out.println("迟到的时间: " + number + " 分钟");
             try {
                 lateMins = Integer.parseInt(number);
             }catch (Exception ignored){

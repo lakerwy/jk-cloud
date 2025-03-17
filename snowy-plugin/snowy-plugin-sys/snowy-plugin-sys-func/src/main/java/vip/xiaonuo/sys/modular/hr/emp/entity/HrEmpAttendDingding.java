@@ -102,6 +102,16 @@ public class HrEmpAttendDingding {
     @ApiModelProperty(value = "迟到次数-C类", position = 18)
     private Integer lateNumC;
 
+    /** 迟到超过45分钟的次数 */
+    @ApiModelProperty(value = "迟到超过45分钟的次数", position = 18)
+    @TableField(exist = false)
+    private Integer lateNumD;
+
+    /** 出勤需要扣除的天数 */
+    @ApiModelProperty(value = "出勤需要扣除的天数", position = 18)
+    @TableField(exist = false)
+    private Integer invalidDays;
+
     /** 病假天数 */
     @ApiModelProperty(value = "病假天数", position = 19)
     private Float sickDay;
@@ -197,4 +207,18 @@ public class HrEmpAttendDingding {
     @ApiModelProperty(value = "类型（高管|返聘）", position = 50)
     @TableField(exist = false)
     private String type;
+
+    /** 排除休息日请假的天数 */
+    @ApiModelProperty(value = "排除休息日请假的天数", position = 60)
+    @TableField(exist = false)
+    private Float restDayExclude;
+
+    @ApiModelProperty(value = "实扣未打卡（上班）计算次数", position = 61)
+    @TableField(exist = false)
+    private Integer realUpMissNumExclude;
+
+    @ApiModelProperty(value = "实扣未打卡（下班）计算次数", position = 62)
+    @TableField(exist = false)
+    private Integer realDownMissNumExclude;
+
 }
