@@ -790,6 +790,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         hrEmpAttendDingding.setYearDay(value);
                         break;
                     case "调休":
+                        value = BigDecimal.valueOf(value)
+                                .multiply(new BigDecimal("7.0")).floatValue();
                         hrEmpAttendDingding.setAdjustHour(value);
                         break;
                     default:
