@@ -237,6 +237,7 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
             tmpObj.setBranchName(item.getName());
             tmpObj.setArea(item.getRegion());
             tmpObj.setLevel("-");
+            tmpObj.setIsShow(0);
             tmpObj.setAreaManagerId(item.getRegionalManager());
             SysUser tmpSysUser = sysUserList.stream().filter(x -> x.getId().equals(tmpObj.getAreaManagerId())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(tmpSysUser)){
