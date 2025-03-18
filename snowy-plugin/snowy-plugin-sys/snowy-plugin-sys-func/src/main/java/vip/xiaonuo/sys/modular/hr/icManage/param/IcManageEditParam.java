@@ -68,6 +68,10 @@ public class IcManageEditParam {
     @ApiModelProperty(value = "法定代表人身份信息", position = 11)
     private String legalRepresentativeId;
 
+    /** 经营期限类型 */
+    @ApiModelProperty(value = "经营期限类型（长期|有期限时间）", position = 11)
+    private String businessTermType;
+
     /** 成立日期 */
     @ApiModelProperty(value = "经营期限-开始时间", position = 12)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
