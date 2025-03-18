@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,6 +32,7 @@ import java.util.Objects;
  * @author pzh
  * @date  2025/03/18 10:43
  **/
+@DS("slave_1")
 @Service
 public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocationMapper, BizLedgerAllocation> implements BizLedgerAllocationService {
 
@@ -66,7 +68,7 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
             queryWrapper.lambda().like(BizLedgerAllocation::getUnitName, pageParam.getUnitName());
         }
         // 所属区域
-        if(ObjectUtil.isNotEmpty(pageParam)){
+        if(ObjectUtil.isNotEmpty(pageParam.getRegion())){
             queryWrapper.lambda().eq(BizLedgerAllocation::getRegion, pageParam.getRegion());
         }
         // 登记时间范围查询
