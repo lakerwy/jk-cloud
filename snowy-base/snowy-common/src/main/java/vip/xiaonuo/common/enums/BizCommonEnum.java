@@ -90,6 +90,9 @@ public enum BizCommonEnum {
 
     SUB_FILING_APPLY("SUB_FILING","SUB_FILING","SubFilingServiceImpl"),   //分包单位备案审批
 
+
+    BRANCH_FILL("BRANCH_FILL","BRANCH_FILL","BranchFillServiceImpl"), //分公司评级二期填报审批
+
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
 
     String bizModel;
