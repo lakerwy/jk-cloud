@@ -111,6 +111,7 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
         List<String> userIdList = new ArrayList<>();
         if(ObjectUtil.isEmpty(updateInformDeptIds)){
             log.error("工商信息变更发送提醒,未读取到部门Id配置!");
+            return userIdList;
         }
         List<String> deptIdList = Arrays.asList(updateInformDeptIds.split(","));
         List<SysOrg> sysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().in(SysOrg::getId, deptIdList));
