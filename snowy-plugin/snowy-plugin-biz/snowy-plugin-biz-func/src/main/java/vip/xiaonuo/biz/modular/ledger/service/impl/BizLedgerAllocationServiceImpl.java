@@ -36,6 +36,11 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
 
     @Override
     public Page<BizLedgerAllocation> page(BizLedgerAllocationPageParam pageParam) {
+        QueryWrapper<BizLedgerAllocation> queryWrapper = getBizLedgerAllocationQueryWrapper(pageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<BizLedgerAllocation> getBizLedgerAllocationQueryWrapper(BizLedgerAllocationPageParam pageParam) {
         QueryWrapper<BizLedgerAllocation> queryWrapper = new QueryWrapper<>();
         // 关键词
         if (ObjectUtil.isNotEmpty(pageParam.getSearchKey())) {
@@ -66,20 +71,20 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
         }
         // 登记时间范围查询
         if(ObjectUtil.isNotEmpty(pageParam.getStartCreateTime()) && ObjectUtil.isNotEmpty(pageParam.getEndCreateTime())) {
-            queryWrapper.lambda().between(BizLedgerAllocation::getCreateTime,pageParam.getStartCreateTime(), pageParam.getEndCreateTime());
+            queryWrapper.lambda().between(BizLedgerAllocation::getCreateTime, pageParam.getStartCreateTime(), pageParam.getEndCreateTime());
         }
         // 回款时间范围查询
         if(ObjectUtil.isNotEmpty(pageParam.getStartReceiveAmountTime()) && ObjectUtil.isNotEmpty(pageParam.getEndReceiveAmountTime())) {
-            queryWrapper.lambda().between(BizLedgerAllocation::getReceiveAmountTime,pageParam.getStartReceiveAmountTime(), pageParam.getEndReceiveAmountTime());
+            queryWrapper.lambda().between(BizLedgerAllocation::getReceiveAmountTime, pageParam.getStartReceiveAmountTime(), pageParam.getEndReceiveAmountTime());
         }
         if(ObjectUtil.isAllNotEmpty(pageParam.getSortField(), pageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(pageParam.getSortOrder());
             queryWrapper.orderBy(true, pageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(pageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizLedgerAllocation::getId);
+            queryWrapper.lambda().orderByDesc(BizLedgerAllocation::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -157,43 +162,7 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
     @Override
     public BizLedgerAllocationCountAmountVo countAmount(BizLedgerAllocationPageParam countAmountParam) {
         BizLedgerAllocationCountAmountVo vo = new BizLedgerAllocationCountAmountVo();
-        QueryWrapper<BizLedgerAllocation> queryWrapper = new QueryWrapper<>();
-        // 关键词
-        if (ObjectUtil.isNotEmpty(countAmountParam.getSearchKey())) {
-            List<String> keys = StrUtil.splitTrim(countAmountParam.getSearchKey().replace(" ",",").replace("，",","),",");
-            if(keys.size() > 1){
-                for (String key:keys) {
-                    queryWrapper.lambda().and(q->q.like(BizLedgerAllocation::getProjectName,key)
-                            .or().like(BizLedgerAllocation::getContractNo,key));
-                }
-            }else {
-                queryWrapper.lambda().and(q -> q.like(BizLedgerAllocation::getProjectName, countAmountParam.getSearchKey()));
-            }
-        }
-        // 合作类型
-        if(ObjectUtil.isNotEmpty(countAmountParam.getContractType())){
-            queryWrapper.lambda().eq(BizLedgerAllocation::getContractType, countAmountParam.getContractType());
-        }
-        // 合作单位
-        if(ObjectUtil.isNotEmpty(countAmountParam.getUnitId())){
-            queryWrapper.lambda().eq(BizLedgerAllocation::getUnitId, countAmountParam.getUnitId());
-        }
-        if(ObjectUtil.isNotEmpty(countAmountParam.getUnitName())){
-            queryWrapper.lambda().like(BizLedgerAllocation::getUnitName, countAmountParam.getUnitName());
-        }
-        // 所属区域
-        if(ObjectUtil.isNotEmpty(countAmountParam)){
-            queryWrapper.lambda().eq(BizLedgerAllocation::getRegion, countAmountParam.getRegion());
-        }
-        // 登记时间范围查询
-        if(ObjectUtil.isNotEmpty(countAmountParam.getStartCreateTime()) && ObjectUtil.isNotEmpty(countAmountParam.getEndCreateTime())) {
-            queryWrapper.lambda().between(BizLedgerAllocation::getCreateTime,countAmountParam.getStartCreateTime(), countAmountParam.getEndCreateTime());
-        }
-        // 回款时间范围查询
-        if(ObjectUtil.isNotEmpty(countAmountParam.getStartReceiveAmountTime()) && ObjectUtil.isNotEmpty(countAmountParam.getEndReceiveAmountTime())) {
-            queryWrapper.lambda().between(BizLedgerAllocation::getReceiveAmountTime,countAmountParam.getStartReceiveAmountTime(), countAmountParam.getEndReceiveAmountTime());
-        }
-        queryWrapper.lambda().select(BizLedgerAllocation::getReceiveAmount,BizLedgerAllocation::getManageAmount);
+        QueryWrapper<BizLedgerAllocation> queryWrapper = getBizLedgerAllocationQueryWrapper(countAmountParam);
         List<BizLedgerAllocation> list = this.list(queryWrapper);
         BigDecimal receiveAmountTotal = BigDecimal.ZERO;
         BigDecimal manageAmountTotal = BigDecimal.ZERO;
