@@ -33,6 +33,10 @@ public class SubFilingVo {
     @ApiModelProperty(value = "用印部门ID", position = 4)
     private String sealDeptId;
 
+    /** 组织ID */
+    @ApiModelProperty(value = "组织ID", position = 4)
+    private String orgId;
+
     /** 用印人 */
     @ApiModelProperty(value = "用印人", position = 5)
     private String sealUser;
