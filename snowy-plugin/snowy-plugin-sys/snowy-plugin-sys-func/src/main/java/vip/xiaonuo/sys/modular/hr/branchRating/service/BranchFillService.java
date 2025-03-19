@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchFill;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
 import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchFillVo;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 
 import java.util.List;
@@ -89,4 +90,19 @@ public interface BranchFillService extends IService<BranchFill> {
      * @return
      */
     List<BranchFillVo> getBranchFillList(BranchFillParam fillParam);
+
+    /**
+     *
+     * @param param
+     * @return
+     */
+    String getBranchScope(BranchAreaParam param);
+
+
+    /**
+     *
+     * @param param
+     * @return
+     */
+    List<SubPersonnel> getBranchEmpList(BranchAreaParam param);
 }

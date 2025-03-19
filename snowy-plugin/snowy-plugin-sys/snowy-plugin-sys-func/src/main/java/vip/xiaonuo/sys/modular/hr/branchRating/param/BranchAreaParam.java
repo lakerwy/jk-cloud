@@ -21,4 +21,8 @@ public class BranchAreaParam {
     @NotBlank(message = "分公司名称不可为空")
     private String branchName;
 
+
+    /** 分公司对应的组织orgId */
+    @ApiModelProperty(value = "分公司对应的组织orgId", position = 4)
+    private String orgId;
 }
