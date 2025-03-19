@@ -4,21 +4,45 @@
 
     <select id="getSubFilingPage" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo">
         select
-            a.*,
-            b.*,
             a.ID subFilingId,
-            b.ID subFilingItemId
+            a.SEAL_DEPT sealDept,
+            a.SEAL_DEPT_ID sealDeptId,
+            a.ORG_ID orgId,
+            a.SEAL_USER sealUser,
+            a.MANAGER manager,
+            a.MANAGER_ID managerId,
+            a.SEAL_ITEM sealItem,
+            a.CONTENT content,
+            a.ATTACHMENTS attachments,
+            a.UPDATE_TIME updateTime,
+            a.PROCESS_INSTANCE_ID processInstanceId,
+
+            b.ID subFilingItemId,
+            b.UNIT_NAME unitName,
+            b.MEMO memo
         from SUB_FILING a
-        join SUB_FILING_ITEM b on a.ID = b.SUB_FILING_ID
-        ${ew.customSqlSegment}
+                 join SUB_FILING_ITEM b on a.ID = b.SUB_FILING_ID
+            ${ew.customSqlSegment}
     </select>
 
     <select id="getSubFilingList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubFilingVo">
         select
-            a.*,
-            b.*,
             a.ID subFilingId,
-            b.ID subFilingItemId
+            a.SEAL_DEPT sealDept,
+            a.SEAL_DEPT_ID sealDeptId,
+            a.ORG_ID orgId,
+            a.SEAL_USER sealUser,
+            a.MANAGER manager,
+            a.MANAGER_ID managerId,
+            a.SEAL_ITEM sealItem,
+            a.CONTENT content,
+            a.ATTACHMENTS attachments,
+            a.UPDATE_TIME updateTime,
+            a.PROCESS_INSTANCE_ID processInstanceId,
+
+            b.ID subFilingItemId,
+            b.UNIT_NAME unitName,
+            b.MEMO memo
         from SUB_FILING a
         join SUB_FILING_ITEM b on a.ID = b.SUB_FILING_ID
         ${ew.customSqlSegment}
