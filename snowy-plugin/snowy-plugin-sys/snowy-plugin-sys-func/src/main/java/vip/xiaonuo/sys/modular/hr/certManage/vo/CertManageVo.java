@@ -128,4 +128,8 @@ public class CertManageVo {
     /** 是否长期有效 1 ：长期有效 */
     @ApiModelProperty(value = "是否长期有效 1 ：长期有效", position = 31)
     private String isValid;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 40)
+    private String attach;
 }

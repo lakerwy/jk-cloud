@@ -29,7 +29,9 @@ import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
+import vip.xiaonuo.sys.modular.hr.certManage.param.CertManagePageParam;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
@@ -661,16 +663,15 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         // 证书信息取人员资质列表的
         List<PersonnelFileCert> certList = new ArrayList<>();
         if(ObjectUtil.isNotEmpty(personnel.getIdNumber())){
-            QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(CertManage::getIdNumber,personnel.getIdNumber());
-            queryWrapper.lambda().orderByAsc(CertManage::getCertTypeId).orderByAsc(CertManage::getLevelId).orderByAsc(CertManage::getMajor);
-            List<CertManage> certManages = certManageService.list(queryWrapper);
-            if(CollUtil.isNotEmpty(certManages)){
-                certManages.forEach(x->{
+            CertManagePageParam certManagePageParam = new CertManagePageParam();
+            certManagePageParam.setIdNumber(personnel.getIdNumber());
+            Page<CertManageVo> page = certManageService.page(certManagePageParam);
+            if(CollUtil.isNotEmpty(page.getRecords())){
+                page.getRecords().forEach(x->{
                     PersonnelFileCert cert = new PersonnelFileCert();
                     cert.setName(x.getName());
-                    cert.setCertType(x.getCertType());
-                    cert.setMajor(x.getMajor());
+                    cert.setCertType(x.getCertTypeDict());
+                    cert.setMajor(ObjectUtil.isNotEmpty(x.getMajor()) ? x.getMajor() : x.getLevelDict());
                     cert.setCertNo(x.getCertNo());
                     cert.setStampNo(x.getCertSealNo());
                     cert.setInvalidDate(x.getValidity());
