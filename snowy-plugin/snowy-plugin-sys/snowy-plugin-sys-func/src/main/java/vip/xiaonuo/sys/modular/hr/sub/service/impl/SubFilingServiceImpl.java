@@ -246,7 +246,7 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
                 for(SubFilingItem subFilingItem:subFilingList){
                     if(unitNameList.contains(subFilingItem.getUnitName())){
                         SubFiling subFiling = this.getById(subFilingItem.getSubFilingId());
-                        if(ObjectUtil.isNotEmpty(subFiling)){
+                        if(ObjectUtil.isNotEmpty(subFiling) && !subFiling.getSealDeptId().equals(checkParam.getSealDeptId())){
                             throw new CommonException("分包单位名称已与{}已被案分包单位名称重复！请确认后再发起",subFiling.getSealDept());
                         }
                     }
