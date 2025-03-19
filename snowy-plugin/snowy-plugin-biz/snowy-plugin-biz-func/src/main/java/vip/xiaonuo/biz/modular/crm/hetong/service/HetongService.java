@@ -20,7 +20,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 
-import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -102,4 +102,10 @@ public interface HetongService extends IService<Hetong> {
      */
     IPage<HetongVo> limitPage(HetongPageParam hetongPageParam);
 
+    /**
+     *
+     * @param htParam
+     * @return
+     */
+    BigDecimal getHtAmount(HtParam htParam);
 }

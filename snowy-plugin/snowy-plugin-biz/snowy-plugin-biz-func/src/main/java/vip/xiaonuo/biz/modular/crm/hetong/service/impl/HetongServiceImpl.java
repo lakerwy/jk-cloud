@@ -47,6 +47,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -463,5 +464,26 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
         return hetongMapper.getPageList2(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public BigDecimal getHtAmount(HtParam htParam) {
+        QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(Hetong::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.lambda().eq(Hetong::getCompanyOrDepartment,htParam.getBranchName());
+        if(ObjectUtil.isNotEmpty(htParam.getDKhFrom())){
+            queryWrapper.lambda().ge(Hetong::getSealDate,htParam.getDKhFrom());
+        }
+        if(ObjectUtil.isNotEmpty(htParam.getDKhTo())){
+            queryWrapper.lambda().le(Hetong::getSealDate,htParam.getDKhTo());
+        }
+        List<Hetong> hetongList = this.list(queryWrapper);
+        BigDecimal sumAmount = BigDecimal.ZERO;
+        for (Hetong item : hetongList) {
+            if(ObjectUtil.isNotEmpty(item.getSumAmount())){
+                sumAmount = sumAmount.add(item.getSumAmount());
+            }
+        }
+        return sumAmount;
     }
 }

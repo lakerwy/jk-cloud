@@ -29,6 +29,8 @@ import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchAreaService;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchFillService;
 import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchFillVo;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
+import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
@@ -57,6 +59,9 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
 
     @Resource
     private SysUserService sysUserService;
+
+    @Resource
+    private SubPersonnelService subPersonnelService;
 
     @Override
     public Page<BranchFill> page(BranchFillPageParam branchFillPageParam) {
@@ -299,4 +304,38 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
         result.sort(Comparator.comparing(BranchFillVo::getArea,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(BranchFillVo::getBranchName,Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
+
+    @Override
+    public String getBranchScope(BranchAreaParam param) {
+        QueryWrapper<BranchFill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BranchFill::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.lambda().eq(BranchFill::getBranchId,param.getBranchId());
+        queryWrapper.lambda().eq(BranchFill::getBranchName,param.getBranchName());
+        queryWrapper.lambda().orderByDesc(BranchFill::getCreateTime);
+        queryWrapper.lambda().last("limit 1");
+        BranchFill branchFill = this.getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(branchFill)){
+            return branchFill.getBranchScope();
+        }
+        return null;
+    }
+
+    @Override
+    public List<SubPersonnel> getBranchEmpList(BranchAreaParam param) {
+        QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubPersonnel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.lambda().eq(SubPersonnel::getDept,param.getBranchName());
+        queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
+        if(ObjectUtil.isNotEmpty(param.getOrgId())){
+            queryWrapper.lambda().eq(SubPersonnel::getDeptId,param.getOrgId());
+        }
+        queryWrapper.lambda().isNotNull(SubPersonnel::getHighTitleLever);
+        queryWrapper.lambda().ne(SubPersonnel::getHighTitleLever,"");
+        List<SubPersonnel> result = subPersonnelService.list(queryWrapper);
+        if(CollUtil.isNotEmpty(result)){
+            result.forEach(item->item.setExtJson(null));
+        }
+        return result;
+    }
+
 }

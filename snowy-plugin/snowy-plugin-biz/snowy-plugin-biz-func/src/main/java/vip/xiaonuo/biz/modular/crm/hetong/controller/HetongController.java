@@ -35,6 +35,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -171,6 +172,22 @@ public class HetongController {
     @GetMapping("/biz/crm/hetong/limitPage")
     public CommonResult<IPage<HetongVo>> limitPage(HetongPageParam hetongPageParam) {
         return CommonResult.data(hetongService.limitPage(hetongPageParam));
+    }
+
+
+
+
+    /**
+     * 根据考核日期范围，统计某分公司已签合同总额
+     *
+     * @author yong.ye
+     * @date  2025/03/18 08:48
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("根据考核日期范围，统计某分公司已签合同总额")
+    @GetMapping("/biz/crm/hetong/getHtAmount")
+    public CommonResult<BigDecimal> getHtAmount(@Valid HtParam htParam) {
+        return CommonResult.data(hetongService.getHtAmount(htParam));
     }
 
 }

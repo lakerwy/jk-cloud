@@ -18,6 +18,7 @@ import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchFill;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchFillService;
 import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchFillVo;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 
 import javax.annotation.Resource;
@@ -175,5 +176,35 @@ public class BranchFillController {
     public CommonResult<List<BranchFillVo>> getBranchFillList(@Valid BranchFillParam fillParam) {
         return CommonResult.data(branchFillService.getBranchFillList(fillParam));
     }
+
+
+
+    /**
+     * 获取分公司评级（二期）- 分公司评级填报 - 获取历史最后一次填报的经营范围
+     *
+     * @author yong.ye
+     * @date  2025/03/18 08:48
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取分公司评级（二期）- 分公司评级填报 - 获取历史最后一次填报的经营范围")
+    @GetMapping("/sys/hr/branchRating/fill/getBranchScope")
+    public CommonResult<String> getBranchScope(@Valid BranchAreaParam param) {
+        return CommonResult.data(branchFillService.getBranchScope(param));
+    }
+
+
+    /**
+     * 获取分公司评级（二期）- 分公司评级填报 - 获取该分公司下的人员(在职|审批通过|有职称)
+     *
+     * @author yong.ye
+     * @date  2025/03/18 08:48
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("获取分公司评级（二期）- 分公司评级填报 - 获取该分公司下的人员(在职|审批通过|有职称)")
+    @GetMapping("/sys/hr/branchRating/fill/getBranchEmpList")
+    public CommonResult<List<SubPersonnel>> getBranchEmpList(@Valid BranchAreaParam param) {
+        return CommonResult.data(branchFillService.getBranchEmpList(param));
+    }
+
 
 }
