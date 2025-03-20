@@ -181,7 +181,14 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
         result.add(StrUtil.toString(lastYear) + "年下半年");
         result.add(StrUtil.toString(yearBeforeLast) + "年上半年");
         result.add(StrUtil.toString(yearBeforeLast) + "年下半年");
-        return result;
+        List<String> yearList = new ArrayList<>();
+        for (String year : result) {
+            List<PartnerInfo> tmpList = getBranchList(year);
+            if(CollUtil.isNotEmpty(tmpList)){
+                yearList.add(year);
+            }
+        }
+        return yearList;
     }
 
     @Override
