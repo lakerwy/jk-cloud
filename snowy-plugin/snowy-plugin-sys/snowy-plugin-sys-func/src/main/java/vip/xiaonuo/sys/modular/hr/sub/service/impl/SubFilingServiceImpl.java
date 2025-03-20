@@ -189,7 +189,7 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
     }
 
     @Override
-    public void updateSubFilingItem(String id, List<SubFilingItemEditParam> subFilingItemList) {
+    public void updateSubFilingItem(String id, String sealDeptId, List<SubFilingItemEditParam> subFilingItemList) {
 //        if(CollUtil.isEmpty(subFilingItemList)){
 //            return;
 //        }
@@ -199,15 +199,17 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
             x.setSubFilingId(id);
         });
         //获取历史数据
-        List<SubFilingItem> oldFundItemList = subFilingItemService.list(new QueryWrapper<SubFilingItem>().lambda().eq(SubFilingItem::getSubFilingId, id));
-        List<String> oldIds = oldFundItemList.stream().map(SubFilingItem::getId).collect(Collectors.toList());
+        List<SubFiling> subFilingList = this.list(new LambdaQueryWrapper<SubFiling>().eq(SubFiling::getSealDeptId, sealDeptId));
+        List<String> oldSubFilingIdList = subFilingList.stream().map(SubFiling::getId).collect(Collectors.toList());
+        List<SubFilingItem> oldSubFilingItemList = subFilingItemService.list(new QueryWrapper<SubFilingItem>().lambda().in(SubFilingItem::getSubFilingId, oldSubFilingIdList));
+        List<String> oldIds = oldSubFilingItemList.stream().map(SubFilingItem::getId).collect(Collectors.toList());
         //待新增的
         List<SubFilingItem> addList = itemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
         //待更新的
         List<SubFilingItem> updateList = itemList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
         //待删除的
         List<String> updateIds = updateList.stream().map(SubFilingItem::getId).collect(Collectors.toList());
-        List<SubFilingItem> removeList = oldFundItemList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+        List<SubFilingItem> removeList = oldSubFilingItemList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(addList)){
             subFilingItemService.saveBatch(addList);
         }

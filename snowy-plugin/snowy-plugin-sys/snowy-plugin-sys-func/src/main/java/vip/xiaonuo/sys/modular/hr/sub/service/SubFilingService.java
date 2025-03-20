@@ -78,10 +78,8 @@ public interface SubFilingService extends IService<SubFiling> {
      *
      * @author pzh
      * @date  2025/03/11 14:32
-     * @param  id 主表主键id
-     * @param  subFilingItemList 副表明细数据
      **/
-    void updateSubFilingItem(String id, List<SubFilingItemEditParam> subFilingItemList);
+    void updateSubFilingItem(String id, String sealDeptId, List<SubFilingItemEditParam> subFilingItemList);
 
     /**
      * 分包单位备案-校验

@@ -33,6 +33,6 @@ public interface SubFilingFeign {
      * @date  2025/03/12 08:50
      **/
     @RequestMapping("/feign/sys/subFiling/updateSubFilingItem")
-    void updateSubFilingItem(@RequestParam(value = "id") String id, @RequestParam(value = "subFilingItemList") String subFilingItemList);
+    void updateSubFilingItem(@RequestParam(value = "id") String id, @RequestParam(value = "sealDeptId",required = false) String sealDeptId,@RequestParam(value = "subFilingItemList") String subFilingItemList);
 
 }

@@ -38,7 +38,7 @@ public class SubFilingContextBean implements SubFilingApi {
      * @date  2025/03/12 08:50
      **/
     @Override
-    public void updateSubFilingItem(String id, String subFilingItemList) {
-        subFilingFeign.updateSubFilingItem(id, subFilingItemList);
+    public void updateSubFilingItem(String id, String sealDeptId, String subFilingItemList) {
+        subFilingFeign.updateSubFilingItem(id, sealDeptId, subFilingItemList);
     }
 }

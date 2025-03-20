@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.sub.provider;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,7 @@ public class SubFilingApiProvider implements SubFilingApi {
     private SubFilingService subFilingService;
 
     @Override
-    public void updateSubFilingItem(String id, String subFilingItemList) {
+    public void updateSubFilingItem(String id, String sealDeptId, String subFilingItemList) {
         log.info("更新-分包单位备案明细时,参数值 id:{},subFilingItemList:{}", id, subFilingItemList);
         JSONArray jsonArray = new JSONArray();
         try {
@@ -48,6 +47,6 @@ public class SubFilingApiProvider implements SubFilingApi {
         }
         List<SubFilingItemEditParam> subFilingItemEditParamList = JSONUtil.toList(jsonArray, SubFilingItemEditParam.class);
         //更新-分包单位备案明细
-        subFilingService.updateSubFilingItem(id, subFilingItemEditParamList);
+        subFilingService.updateSubFilingItem(id, sealDeptId, subFilingItemEditParamList);
     }
 }

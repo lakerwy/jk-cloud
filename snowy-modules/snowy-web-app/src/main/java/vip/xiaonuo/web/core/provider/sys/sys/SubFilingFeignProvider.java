@@ -42,7 +42,8 @@ public class SubFilingFeignProvider implements SubFilingFeign {
     @Override
     @RequestMapping("/feign/sys/subFiling/updateSubFilingItem")
     public void updateSubFilingItem(@RequestParam(value = "id",required = false) String id,
+                                    @RequestParam(value = "sealDeptId",required = false) String sealDeptId,
                                     @RequestParam(value = "subFilingItemList",required = false) String subFilingItemList) {
-        subFilingApiProvider.updateSubFilingItem(id, subFilingItemList);
+        subFilingApiProvider.updateSubFilingItem(id, sealDeptId, subFilingItemList);
     }
 }

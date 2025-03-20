@@ -26,5 +26,5 @@ public interface SubFilingApi {
      * @author pzh
      * @date  2025/03/11 17:32
      **/
-    void updateSubFilingItem(String id, String subFilingItemList);
+    void updateSubFilingItem(String id, String sealDeptId, String subFilingItemList);
 }

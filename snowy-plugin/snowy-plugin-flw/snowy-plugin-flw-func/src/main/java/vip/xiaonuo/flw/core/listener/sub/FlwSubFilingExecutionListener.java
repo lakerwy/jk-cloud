@@ -43,10 +43,11 @@ public class FlwSubFilingExecutionListener implements ExecutionListener {
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
 //            String processInstanceId = execution.getProcessInstanceId();
             String id = String.valueOf(execution.getVariable("id"));
+            String sealDeptId = String.valueOf(execution.getVariable("sealDeptId"));
             String subFilingItemList = String.valueOf(execution.getVariable("subFilingItemList"));
             // 远程调用-更新分包单位备份明细
-            if(ObjectUtil.isNotEmpty(id)){
-                subFilingApi.updateSubFilingItem(id, subFilingItemList);
+            if(ObjectUtil.isAllNotEmpty(id, sealDeptId, subFilingItemList)){
+                subFilingApi.updateSubFilingItem(id, sealDeptId,subFilingItemList);
             }
         }catch (Exception e){
             throw new CommonException("执行监听器{}出现异常：{}", FlwSubFilingExecutionListener.class.getName(), e.getMessage());
