@@ -538,7 +538,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 BigDecimal totalPassBack = tmpBackList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
 
                 item.setBackAmount(totalPassFee.add(totalPassTravel).add(totalPassBack));
-                item.setCashBalance(item.getAdvanceAmount().subtract(totalFee).subtract(totalTravel).subtract(totalBack));
+                item.setCashBalance(item.getAdvanceAmount().subtract(totalPassFee).subtract(totalPassTravel).subtract(totalPassBack));
                 item.setNoBackAmount(item.getAdvanceAmount().subtract(item.getBackAmount()));
 
                 if(item.getNoBackAmount().compareTo(BigDecimal.ZERO) == 0 ){

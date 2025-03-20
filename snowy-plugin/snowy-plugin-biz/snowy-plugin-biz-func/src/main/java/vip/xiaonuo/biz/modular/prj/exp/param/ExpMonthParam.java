@@ -41,5 +41,8 @@ public class ExpMonthParam {
     @ApiModelProperty(value = "费用类型（二级）", position = 7)
     private String secondExpItem;
 
+    /** 费用承担部门 */
+    @ApiModelProperty(value = "费用承担部门", position = 11)
+    private String deptName;
 
 }

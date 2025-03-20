@@ -284,6 +284,9 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             if(ObjectUtil.isNotEmpty(expMonthParam.getSecondExpItem())){
                 feeQueryWrapper.eq("a.SECOND_EXP_ITEM",expMonthParam.getSecondExpItem());
             }
+            if(ObjectUtil.isNotEmpty(expMonthParam.getDeptName())){
+                feeQueryWrapper.eq("a.DEPT_NAME",expMonthParam.getDeptName());
+            }
 
             // 校验数据范围
             List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -316,6 +319,9 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             if(ObjectUtil.isNotEmpty(expMonthParam.getSecondExpItem())){
                 travelQueryWrapper.eq("a.SECOND_EXP_ITEM",expMonthParam.getSecondExpItem());
             }
+            if(ObjectUtil.isNotEmpty(expMonthParam.getDeptName())){
+                travelQueryWrapper.eq("a.DEPT_NAME",expMonthParam.getDeptName());
+            }
 
             // 校验数据范围
             List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -329,7 +335,10 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         }else {
             throw new CommonException("不支持的报销类型");
         }
-        result.sort(Comparator.comparing(ExpMonthTotal::getCompany,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getExpItem,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(ExpMonthTotal::getSecondExpItem,Comparator.nullsLast(Comparator.naturalOrder())));
+        result.sort(Comparator.comparing(ExpMonthTotal::getCompany,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getDeptName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getExpItem,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getSecondExpItem,Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
 

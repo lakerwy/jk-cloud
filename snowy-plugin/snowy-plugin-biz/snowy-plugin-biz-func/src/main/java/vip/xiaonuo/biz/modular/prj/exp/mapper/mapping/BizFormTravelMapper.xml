@@ -3,11 +3,11 @@
 <mapper namespace="vip.xiaonuo.biz.modular.prj.exp.mapper.BizFormTravelMapper">
 
     <select id="getTravelCostMonthTotal" resultType="vip.xiaonuo.biz.modular.prj.exp.vo.ExpMonthTotal">
-        select b.COMPANY,b.ORG_ID,b.ORG_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM,sum(a.APPLY_AMOUNT) as amount
+        select b.COMPANY,a.DEPT_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM,sum(a.VERIFY_AMOUNT - a.TAX_AMOUNT) as amount
         from BIZ_FORM_TRAVEL_COST a
                  join BIZ_FORM_TRAVEL b on a.FORM_TRAVEL_ID = b.ID
             ${ew.customSqlSegment}
-        group by b.COMPANY,b.ORG_ID,b.ORG_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM
+        group by b.COMPANY,a.DEPT_NAME,a.EXP_ITEM,a.SECOND_EXP_ITEM
     </select>
 
 </mapper>

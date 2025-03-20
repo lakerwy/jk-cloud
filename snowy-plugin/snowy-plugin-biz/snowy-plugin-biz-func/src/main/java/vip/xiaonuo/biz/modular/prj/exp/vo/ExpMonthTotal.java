@@ -30,8 +30,12 @@ public class ExpMonthTotal {
     @ApiModelProperty(value = "费用类型（二级）", position = 6)
     private String secondExpItem;
 
-    /** 申请金额 */
-    @ApiModelProperty(value = "申请金额", position = 8)
+    /** 金额（财务核定金额 - 进项税） */
+    @ApiModelProperty(value = "金额（财务核定金额 - 进项税）", position = 8)
     private BigDecimal amount;
+
+    /** 费用承担部门 */
+    @ApiModelProperty(value = "费用承担部门", position = 11)
+    private String deptName;
 
 }
