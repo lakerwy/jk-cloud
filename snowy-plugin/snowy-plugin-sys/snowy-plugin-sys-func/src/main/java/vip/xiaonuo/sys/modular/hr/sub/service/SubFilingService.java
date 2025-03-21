@@ -34,6 +34,14 @@ public interface SubFilingService extends IService<SubFiling> {
     List<SubFilingVo> getList(SubFilingListParam subFilingListParam);
 
     /**
+     * 获取分包单位备案列表
+     *
+     * @author pzh
+     * @date  2025/03/21 09:20
+     */
+    List<SubFilingVo> getListAll(SubFilingListParam subFilingListParam);
+
+    /**
      * 添加分包单位备案
      *
      * @author pzh
