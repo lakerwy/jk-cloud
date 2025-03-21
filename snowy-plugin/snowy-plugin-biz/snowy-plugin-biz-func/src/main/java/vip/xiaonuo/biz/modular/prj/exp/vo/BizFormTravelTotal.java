@@ -27,8 +27,8 @@ public class BizFormTravelTotal {
     @ApiModelProperty(value = "核定冲借支金额合计", position = 4)
     private BigDecimal verifyOffsetAmountTotal;
 
-    /** 拨付金额合计 */
-    @ApiModelProperty(value = "拨付金额合计", position = 5)
+    /** 财务核定拨付金额合计 */
+    @ApiModelProperty(value = "财务核定拨付金额合计", position = 5)
     private BigDecimal verifyPayAmountTotal;
 
 }

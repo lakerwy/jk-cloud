@@ -236,7 +236,7 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         QueryWrapper<BizFormFee> queryWrapper = getBizFormFeeQueryWrapper(bizFormFeePageParam);
         List<BizFormFee> dataList = this.list(queryWrapper);
         BigDecimal totalApplyAmountTotal = dataList.stream().map(BizFormFee::getApplyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-        BigDecimal totalVerifyAmountTotal = dataList.stream().map(BizFormFee::getVerifyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal totalVerifyAmountTotal = dataList.stream().map(BizFormFee::getCostVerifyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal totalVerifyOffsetAmount = dataList.stream().map(BizFormFee::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal totalVerifyPayAmount = dataList.stream().map(BizFormFee::getVerifyPayAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal totalCnPayAmount = dataList.stream().map(BizFormFee::getCnPayAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
@@ -356,11 +356,11 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             if(CollUtil.isNotEmpty(travelList)){
                 throw new CommonException("借支单{}还存在审核中的差旅报销单，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
             }
-            List<BizFormBack> backList = bizFormBackService.list(new LambdaQueryWrapper<BizFormBack>()
-                    .eq(BizFormBack::getCashId,checkParam.getCashId()).in(BizFormBack::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue()));
-            if(CollUtil.isNotEmpty(backList)){
-                throw new CommonException("借支单{}还存在审核中的归还申请，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
-            }
+//            List<BizFormBack> backList = bizFormBackService.list(new LambdaQueryWrapper<BizFormBack>()
+//                    .eq(BizFormBack::getCashId,checkParam.getCashId()).in(BizFormBack::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue()));
+//            if(CollUtil.isNotEmpty(backList)){
+//                throw new CommonException("借支单{}还存在审核中的归还申请，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
+//            }
         }
     }
 

@@ -153,13 +153,13 @@ public class BizFormFeeController {
 
 
     /**
-     *  费用报销|差旅费用报销|归还申请 - 发起校验 - 通用
+     *  费用报销|差旅费用报销 - 发起校验 - 通用
      *
      * @author yong.ye
      * @date  2025/02/24 15:12
      */
     @ApiOperationSupport(order = 100)
-    @ApiOperation("费用报销|差旅费用报销|归还申请 - 发起校验 - 通用")
+    @ApiOperation("费用报销|差旅费用报销 - 发起校验 - 通用")
 //    @SaCheckPermission("/biz/prj/exp/check")
     @GetMapping("/biz/prj/exp/check")
     public CommonResult<String> check(ExpCheckParam checkParam) {
