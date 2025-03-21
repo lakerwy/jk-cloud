@@ -268,25 +268,25 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
                 throw new CommonException("分包单位名称不可重复！");
             }
             // 与数据库比较是否存在分包单位名称重复
-            List<String> unitNameList = subFilingItemList.stream().map(SubFilingItemEditParam::getUnitName).collect(Collectors.toList());
-            List<SubFiling> subFilingList = this.list(new LambdaQueryWrapper<SubFiling>()
-                    .select(SubFiling::getId)
-                    .eq(SubFiling::getSealDeptId, checkParam.getSealDeptId())
-                    .eq(SubFiling::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue()));
-            List<String> subFilingIdList = subFilingList.stream().map(SubFiling::getId).collect(Collectors.toList());
-            LambdaQueryWrapper<SubFilingItem> itemQueryWrapper = new LambdaQueryWrapper<>();
-            if(CollUtil.isNotEmpty(subFilingIdList)){
-                itemQueryWrapper.notIn(SubFilingItem::getSubFilingId, subFilingIdList);
-            }
-            List<SubFilingItem> existSubFilingItemList = subFilingItemService.list(itemQueryWrapper);
-            for(SubFilingItem subFilingItem : existSubFilingItemList){
-                if(unitNameList.contains(subFilingItem.getUnitName())){
-                    SubFiling subFiling = this.getById(subFilingItem.getSubFilingId());
-                    if(ObjectUtil.isNotEmpty(subFiling)){
-                        throw new CommonException("分包单位名称已与{}已被案分包单位名称重复！请确认后再发起",subFiling.getSealDept());
-                    }
-                }
-            }
+//            List<String> unitNameList = subFilingItemList.stream().map(SubFilingItemEditParam::getUnitName).collect(Collectors.toList());
+//            List<SubFiling> subFilingList = this.list(new LambdaQueryWrapper<SubFiling>()
+//                    .select(SubFiling::getId)
+//                    .eq(SubFiling::getSealDeptId, checkParam.getSealDeptId())
+//                    .eq(SubFiling::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue()));
+//            List<String> subFilingIdList = subFilingList.stream().map(SubFiling::getId).collect(Collectors.toList());
+//            LambdaQueryWrapper<SubFilingItem> itemQueryWrapper = new LambdaQueryWrapper<>();
+//            if(CollUtil.isNotEmpty(subFilingIdList)){
+//                itemQueryWrapper.notIn(SubFilingItem::getSubFilingId, subFilingIdList);
+//            }
+//            List<SubFilingItem> existSubFilingItemList = subFilingItemService.list(itemQueryWrapper);
+//            for(SubFilingItem subFilingItem : existSubFilingItemList){
+//                if(unitNameList.contains(subFilingItem.getUnitName())){
+//                    SubFiling subFiling = this.getById(subFilingItem.getSubFilingId());
+//                    if(ObjectUtil.isNotEmpty(subFiling)){
+//                        throw new CommonException("分包单位名称已与{}已被案分包单位名称重复！请确认后再发起",subFiling.getSealDept());
+//                    }
+//                }
+//            }
         }
     }
 
