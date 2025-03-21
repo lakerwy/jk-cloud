@@ -95,4 +95,16 @@ public class SocialInterviewAddParam {
     @ApiModelProperty(value = "流程状态", position = 24)
     private String status;
 
+    /** 毕业证扫描件 */
+    @ApiModelProperty(value = "毕业证扫描件", position = 30)
+    private String graduationCert;
+
+    /** 学业证扫描件 */
+    @ApiModelProperty(value = "学业证扫描件", position = 31)
+    private String academicCert;
+
+    /** 学籍查询报告 */
+    @ApiModelProperty(value = "学籍查询报告", position = 32)
+    private String studentReport;
+
 }
