@@ -108,7 +108,7 @@ public class BizFormTravel {
     @ApiModelProperty(value = "核定借支单编码", position = 21)
     private String verifyCashSn;
 
-    /** 核定拨付金额 */
+    /** 财务核定拨付金额 */
     @ApiModelProperty(value = "财务核定拨付金额", position = 22)
     private BigDecimal verifyPayAmount;
 
