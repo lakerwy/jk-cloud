@@ -34,7 +34,7 @@ public class IcManageAddParam {
     private String corpCode;
 
     /** 注册资本(元) */
-    @ApiModelProperty(value = "注册资本(元)", position = 5)
+    @ApiModelProperty(value = "注册资本(万元)", position = 5)
     private BigDecimal registeredCapital;
 
     /** 经营范围 */
@@ -42,7 +42,7 @@ public class IcManageAddParam {
     private String businessScope;
 
     /** 实缴资本(元) */
-    @ApiModelProperty(value = "实缴资本(元)", position = 7)
+    @ApiModelProperty(value = "实缴资本(万元)", position = 7)
     private BigDecimal paidinCapital;
 
     /** 住所 */

@@ -91,8 +91,9 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
         BeanUtil.copyProperties(icManageEditParam, icManage);
         this.updateById(icManage);
         String typeAfter = icManage.getType();// 变更后的类型
-        // 变更前后涉及分公司、子公司时,需要发送钉钉提醒
-        if("分公司".equals(typeBefore) || "子公司".equals(typeBefore) || "分公司".equals(typeAfter) || "子公司".equals(typeAfter) ){
+        // 变更前后涉及分公司、子公司、总公司时,需要发送钉钉提醒
+        String[] sendTypeArr = {"分公司", "子公司", "总公司"};
+        if(Arrays.asList(sendTypeArr).contains(typeBefore) || Arrays.asList(sendTypeArr).contains(typeAfter)){
             // 发送钉钉提醒
             List<String> informUserIdList = this.getInformUserId();
 //            List<String> informUserIdList = new ArrayList<>();
