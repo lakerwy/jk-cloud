@@ -213,4 +213,16 @@ public class SocialResume {
 //    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
 //    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String entryDate;
+
+    /** 毕业证扫描件 */
+    @ApiModelProperty(value = "毕业证扫描件", position = 30)
+    private String graduationCert;
+
+    /** 学业证扫描件 ACADEMICCERT*/
+    @ApiModelProperty(value = "学业证扫描件", position = 31)
+    private String academicCert;
+
+    /** 学籍查询报告 STUDENTREPORT*/
+    @ApiModelProperty(value = "学籍查询报告", position = 32)
+    private String studentReport;
 }
