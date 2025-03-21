@@ -68,6 +68,20 @@ public class SubFilingController {
     }
 
     /**
+     * 获取分包单位备案列表
+     *
+     * @author pzh
+     * @date  2025/03/21 09:20
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取分包单位备案列表 (无权限控制) ")
+//    @SaCheckPermission("/sys/hr/sub/filing/listAll")
+    @GetMapping("/sys/hr/sub/filing/listAll")
+    public CommonResult<List<SubFilingVo>> listAll(SubFilingListParam subFilingListParam) {
+        return CommonResult.data(subFilingService.getListAll(subFilingListParam));
+    }
+
+    /**
      * 添加分包单位备案
      *
      * @author pzh

@@ -137,6 +137,32 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
         return subFilingMapper.getSubFilingList(queryWrapper);
     }
 
+    @Override
+    public List<SubFilingVo> getListAll(SubFilingListParam subFilingListParam) {
+        QueryWrapper<SubFiling> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        // 仅查询审批通过的单据
+        queryWrapper.eq("a.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue());
+        // 关键词搜索
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.SEAL_DEPT",subFilingListParam.getSearchKey())
+                    .or().like("b.UNIT_NAME",subFilingListParam.getSearchKey())
+            );
+        }
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDeptId())){
+            queryWrapper.eq("a.SEAL_DEPT_ID", subFilingListParam.getSealDeptId());
+        }
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getOrgId())){
+            queryWrapper.eq("a.ORG_ID", subFilingListParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(subFilingListParam.getSealDept())){
+            queryWrapper.like("a.SEAL_DEPT", subFilingListParam.getSealDept());
+        }
+        queryWrapper.orderByDesc("a.UPDATE_TIME").orderByDesc("a.SEAL_DEPT_ID");
+        return subFilingMapper.getSubFilingList(queryWrapper);
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -243,14 +269,21 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
             }
             // 与数据库比较是否存在分包单位名称重复
             List<String> unitNameList = subFilingItemList.stream().map(SubFilingItemEditParam::getUnitName).collect(Collectors.toList());
-            List<SubFilingItem> subFilingList = subFilingItemService.list();
-            if(CollUtil.isNotEmpty(subFilingList)){
-                for(SubFilingItem subFilingItem:subFilingList){
-                    if(unitNameList.contains(subFilingItem.getUnitName())){
-                        SubFiling subFiling = this.getById(subFilingItem.getSubFilingId());
-                        if(ObjectUtil.isNotEmpty(subFiling) && !subFiling.getSealDeptId().equals(checkParam.getSealDeptId())){
-                            throw new CommonException("分包单位名称已与{}已被案分包单位名称重复！请确认后再发起",subFiling.getSealDept());
-                        }
+            List<SubFiling> subFilingList = this.list(new LambdaQueryWrapper<SubFiling>()
+                    .select(SubFiling::getId)
+                    .eq(SubFiling::getSealDeptId, checkParam.getSealDeptId())
+                    .eq(SubFiling::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue()));
+            List<String> subFilingIdList = subFilingList.stream().map(SubFiling::getId).collect(Collectors.toList());
+            LambdaQueryWrapper<SubFilingItem> itemQueryWrapper = new LambdaQueryWrapper<>();
+            if(CollUtil.isNotEmpty(subFilingIdList)){
+                itemQueryWrapper.notIn(SubFilingItem::getSubFilingId, subFilingIdList);
+            }
+            List<SubFilingItem> existSubFilingItemList = subFilingItemService.list(itemQueryWrapper);
+            for(SubFilingItem subFilingItem : existSubFilingItemList){
+                if(unitNameList.contains(subFilingItem.getUnitName())){
+                    SubFiling subFiling = this.getById(subFilingItem.getSubFilingId());
+                    if(ObjectUtil.isNotEmpty(subFiling)){
+                        throw new CommonException("分包单位名称已与{}已被案分包单位名称重复！请确认后再发起",subFiling.getSealDept());
                     }
                 }
             }
@@ -318,6 +351,9 @@ public class SubFilingServiceImpl extends ServiceImpl<SubFilingMapper, SubFiling
                     subFiling.setSealDept(partnerInfoVo.getName());
                     subFiling.setSealDeptId(partnerInfoVo.getId());
                     subFiling.setOrgId(partnerInfoVo.getOrgId());
+                    if(ObjectUtil.isNotEmpty(partnerInfoVo.getOrgId())){
+                        subFiling.setDataScopeId(partnerInfoVo.getOrgId());
+                    }
                     subFiling.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
                     subFiling.setCreateTime(now);
                     subFiling.setUpdateTime(now);
