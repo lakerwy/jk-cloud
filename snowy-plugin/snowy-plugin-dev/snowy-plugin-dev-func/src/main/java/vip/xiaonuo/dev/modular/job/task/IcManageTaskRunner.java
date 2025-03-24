@@ -60,6 +60,7 @@ public class IcManageTaskRunner implements CommonTimerTaskRunner {
         List<String> userIdList = new ArrayList<>();
         if(ObjectUtil.isEmpty(annualInformDeptIds)){
             log.error("工商信息年检发送提醒,未读取到部门Id配置!");
+            return userIdList;
         }
         String[] deptIdList = annualInformDeptIds.split(",");
         for(String orgId :deptIdList){

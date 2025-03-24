@@ -695,6 +695,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     OapiCheckinRecordGetResponse.PageResult checkinRecord = CommonDingDingUtil.getCheckinRecord(access_Token, dingUserId, startTime, endTime, 0L, 100L);
                     // 无签到记录
                     if (ObjectUtil.isEmpty(checkinRecord) || CollUtil.isEmpty(checkinRecord.getPageList())) {
+                        String dateStr = DateUtil.format(requireDayVal.getDate(), DatePattern.NORM_DATE_PATTERN);
+                        String memo = String.format("异地打卡人员，%s未签到。\n", dateStr);
+                        hrEmpAttendDingding.setMemo(ObjectUtil.isEmpty(hrEmpAttendDingding.getMemo()) ? memo : hrEmpAttendDingding.getMemo() + memo);
                         invalidDays ++;
                     }
                 }
@@ -749,6 +752,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 //                                .forEach(x -> x.setValue(value));
                         }
                         if(!isValidCheck){
+                            String dateStr = DateUtil.format(attendResVal.getDate(), DatePattern.NORM_DATE_PATTERN);
+                            String memo = String.format("%s，出差/外出未签到，且早晚上下班缺卡。\n", dateStr);
+                            hrEmpAttendDingding.setMemo(ObjectUtil.isEmpty(hrEmpAttendDingding.getMemo()) ? memo : hrEmpAttendDingding.getMemo() + memo);
                             invalidDays ++;
                         }
                     }
@@ -829,6 +835,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         .subtract(BigDecimal.valueOf(x.getSickDay()))
                         .subtract(BigDecimal.valueOf(x.getWorkDay()));
                 x.setRealDay(realDayValue.floatValue());
+                x.setMemo(null);
             }else {
                 Integer lateNumD = x.getLateNumD();
                 // 迟到45分钟以上算半天事假
@@ -851,7 +858,11 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             if(AttendWhiteListTypeEnum.REHIRE.getValue().equals(x.getType())){
                 if (x.getRealDay() > 0) {
                     x.setRealDay(maxRequiredDay);
+                    x.setMemo(null);
                 }
+            }
+            if(ObjectUtil.isNotEmpty(x.getMemo()) && x.getMemo().endsWith("\n")){
+                x.setMemo(x.getMemo().substring(0, x.getMemo().length() - 1));
             }
             isFull(x);// 是否全勤
         });
