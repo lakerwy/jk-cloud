@@ -853,7 +853,7 @@ public class NodeRuntimeUtil {
      **/
     public static void handleUserTaskTodoNotice(DelegateTask delegateTask) throws Exception{
         handleProcessNotice(delegateTask, null, "TODO", "processEnableTodoNotice",
-                "processTodoNoticeChannel", "processTodoNoticeTemplate");
+                "processTodoNoticeChannel", "processTodoNoticeTemplate",null);
     }
 
     /**
@@ -864,7 +864,7 @@ public class NodeRuntimeUtil {
      **/
     public static void handleUserTaskBackNotice(DelegateTask delegateTask) throws Exception {
         handleProcessNotice(delegateTask, null, "BACK", "processEnableBackNotice",
-                "processBackNoticeChannel", "processBackNoticeTemplate");
+                "processBackNoticeChannel", "processBackNoticeTemplate",null);
     }
 
     /**
@@ -875,7 +875,7 @@ public class NodeRuntimeUtil {
      **/
     public static void handleProcessCopyNotice(DelegateExecution delegateExecution) throws Exception{
         handleProcessNotice(null, delegateExecution, "COPY", "processEnableCopyNotice",
-                "processCopyNoticeChannel", "processCopyNoticeTemplate");
+                "processCopyNoticeChannel", "processCopyNoticeTemplate",null);
     }
 
     /**
@@ -886,7 +886,7 @@ public class NodeRuntimeUtil {
      **/
     public static void handleProcessCompleteNotice(DelegateExecution delegateExecution){
         handleProcessNotice(null, delegateExecution, "COMPLETE", "processEnableCompleteNotice",
-                "processCompleteNoticeChannel", "processCompleteNoticeTemplate");
+                "processCompleteNoticeChannel", "processCompleteNoticeTemplate",null);
     }
 
     /**
@@ -894,7 +894,7 @@ public class NodeRuntimeUtil {
      */
     public static void handleUserTaskRejectNotice(DelegateTask delegateTask){
         handleProcessNotice(delegateTask, null, "REJECT", "processEnableRejectNotice",
-                "processRejectNoticeChannel", "processRejectNoticeTemplate");
+                "processRejectNoticeChannel", "processRejectNoticeTemplate","processRejectNoticeScope");
     }
 
     /**
@@ -902,7 +902,7 @@ public class NodeRuntimeUtil {
      */
     public static void handleUserTaskUrgeNotice(DelegateTask delegateTask){
         handleProcessNotice(delegateTask, null, "URGE", "processEnableUrgeNotice",
-                "processUrgeNoticeChannel", "processUrgeNoticeTemplate");
+                "processUrgeNoticeChannel", "processUrgeNoticeTemplate",null);
     }
 
 
@@ -917,13 +917,15 @@ public class NodeRuntimeUtil {
                                             String noticeType,
                                             String processNoticeEnablePropertyKey,
                                             String processNoticeChannelPropertyKey,
-                                            String processNoticeTemplatePropertyKey) {
+                                            String processNoticeTemplatePropertyKey,
+                                            String processNoticeScopePropertyKey) {
         try {
             RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
             final boolean[] processNoticeEnabled = {false};
             AtomicReference<List<String>> processNoticeChannelList = new AtomicReference<>();
             AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
+            AtomicReference<String> processNoticeScope = new AtomicReference<>();  //通知范围
             boolean urgeTrue = noticeType.equals("URGE");//催办
             boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
             if (!urgeTrue) {
@@ -949,6 +951,9 @@ public class NodeRuntimeUtil {
                                             if (processNoticeEnabled[0]) {
                                                 processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(processConfigInfo.getStr(processNoticeChannelPropertyKey)), String.class));
                                                 processNoticeTemplate.set(processConfigInfo.getStr(processNoticeTemplatePropertyKey));
+                                                if(ObjectUtil.isNotEmpty(processNoticeScopePropertyKey)) {
+                                                    processNoticeScope.set(processConfigInfo.getStr(processNoticeScopePropertyKey));
+                                                }
                                             }
                                         }
                                     })));
@@ -961,9 +966,9 @@ public class NodeRuntimeUtil {
             }
             if (processNoticeEnabled[0]) {
                 if (flag) {
-                    handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
+                    handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get(),processNoticeScope.get());
                 } else {
-                    handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
+                    handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get(),processNoticeScope.get());
                 }
             }
         }catch (Exception e){
@@ -1029,7 +1034,7 @@ public class NodeRuntimeUtil {
     }
 
     private static void handleProcessNoticeExecute(DelegateTask delegateTask, DelegateExecution delegateExecution, String noticeType, String processNoticeTemplate,
-                                                   List<String> processNoticeChannelList){
+                                                   List<String> processNoticeChannelList,String processNoticeScope){
         try {
             RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
             DevMessageApi devMessageApi = SpringUtil.getBean(DevMessageApi.class);
@@ -1117,10 +1122,17 @@ public class NodeRuntimeUtil {
                     } catch (Exception e) {
                         initiator = runtimeService.getVariable(delegateTask.getProcessInstanceId(), "initiator");
                     }
-                    if(ObjectUtil.isNotEmpty(initiator)){
-                        //拒绝只发送给申请人
-                        participateUserIdList = Collections.singletonList(Convert.toStr(initiator));
-
+                    //通知范围（发起人）
+                    if("INITIATOR".equals(processNoticeScope) || ObjectUtil.isEmpty(processNoticeScope)) {
+                        if (ObjectUtil.isNotEmpty(initiator)) {
+                            //拒绝只发送给申请人
+                            participateUserIdList = Collections.singletonList(Convert.toStr(initiator));
+                        }
+                    } else if ("BEFORE_AUDITOR".equals(processNoticeScope)) { //前面审批人
+                        participateUserIdList =  getBeforeAssignList(delegateTask);
+                        if(ObjectUtil.isNotEmpty(initiator) && !participateUserIdList.contains(initiator)){
+                            participateUserIdList.add(Convert.toStr(initiator));
+                        }
                     }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
@@ -1996,6 +2008,24 @@ public class NodeRuntimeUtil {
                     break;
             }
         }
+    }
+
+
+    /**
+     * 根据流程实例，获取之前所有审批人
+     * @param delegateTask
+     * @return
+     */
+
+    public static List<String> getBeforeAssignList(DelegateTask delegateTask){
+        List<HistoricTaskInstance> historicTasks = delegateTask.getProcessEngineServices().getHistoryService()
+                .createHistoricTaskInstanceQuery().processInstanceId(delegateTask.getProcessInstanceId()).list();
+        List<String> assignList = historicTasks.stream()
+                .filter(x->!"deleted".equals(x.getDeleteReason()) && ObjectUtil.isNotEmpty(x.getAssignee()))
+                .map(x->x.getAssignee())
+                .distinct()
+                .collect(Collectors.toList());
+        return assignList;
     }
 
 }

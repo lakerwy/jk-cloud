@@ -315,6 +315,15 @@ public class SysUser extends CommonEntity implements TransPojo {
     private Boolean maskClosable;
 
 
+    /**  是否启用IM */
+    @ApiModelProperty(value = "是否启用IM", position = 66)
+    private Integer isUseIm;
+
+    /**  是否启用DS */
+    @ApiModelProperty(value = "是否启用DS", position = 67)
+    private Integer isUseDs;
+
+
     @ApiModelProperty(value = "【钉钉组织架构同步】同步备注", position = 100)
     private String dingSyncMemo;
 

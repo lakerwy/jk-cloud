@@ -142,6 +142,9 @@ public class FlwNode {
         /** 退回拒绝模板 */
         private String processRejectNoticeTemplate;
 
+        /** 拒绝通知范围 */
+        private String processRejectNoticeScope;
+
         /** 开启催办通知 */
         private Boolean processEnableUrgeNotice;
 

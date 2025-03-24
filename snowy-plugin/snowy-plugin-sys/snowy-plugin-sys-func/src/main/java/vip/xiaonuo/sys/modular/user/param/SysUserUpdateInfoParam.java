@@ -65,4 +65,12 @@ public class SysUserUpdateInfoParam {
     /** maskClosable 布尔默认为true */
     @ApiModelProperty(value = "maskClosable 布尔默认为true", position = 9)
     private Boolean maskClosable = Boolean.TRUE;
+
+    /**  是否启用IM */
+    @ApiModelProperty(value = "是否启用IM", position = 66)
+    private Integer isUseIm;
+
+    /**  是否启用DS */
+    @ApiModelProperty(value = "是否启用DS", position = 67)
+    private Integer isUseDs;
 }
