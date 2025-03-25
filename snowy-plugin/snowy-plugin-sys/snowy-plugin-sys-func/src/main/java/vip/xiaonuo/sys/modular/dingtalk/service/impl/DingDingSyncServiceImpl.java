@@ -679,6 +679,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             Integer invalidDays = 0;
             // 异地打卡人员：当日有签到记录即可记为当天全勤
             if(SyncUtils.isOutCheckPersonnel(sysUser.getOrgId())){
+                StringBuilder memo = new StringBuilder();
                 for(OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal requireDayVal : requiredDayVals) {
                     if(new BigDecimal(requireDayVal.getValue()).compareTo(BigDecimal.ZERO) <= 0){
                         continue;
@@ -696,13 +697,16 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     // 无签到记录
                     if (ObjectUtil.isEmpty(checkinRecord) || CollUtil.isEmpty(checkinRecord.getPageList())) {
                         String dateStr = DateUtil.format(requireDayVal.getDate(), DatePattern.NORM_DATE_PATTERN);
-                        String memo = String.format("异地打卡人员，%s未签到。\n", dateStr);
-                        hrEmpAttendDingding.setMemo(ObjectUtil.isEmpty(hrEmpAttendDingding.getMemo()) ? memo : hrEmpAttendDingding.getMemo() + memo);
+                        memo.append(dateStr).append("、");
                         invalidDays ++;
                     }
                 }
+                if(ObjectUtil.isNotEmpty(memo.toString())){
+                    hrEmpAttendDingding.setMemo(String.format("异地打卡人员未签到日期：%s", memo));
+                }
             }else {
                 // 考勤结果中包含出差或者外出，需要查询签到情况，有签到记录算当天全勤,如果没有签到记录，有打卡记录，那打卡需要早晚上下班正常打卡两次算全勤
+                StringBuilder memo = new StringBuilder();
                 for(OapiAttendanceGetcolumnvalResponse.ColumnDayAndVal attendResVal : attendResVals) {
                     if (attendResVal.getValue().contains("出差") || attendResVal.getValue().contains("外出")) {
                         // 获取当天的应出勤信息
@@ -753,11 +757,13 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         }
                         if(!isValidCheck){
                             String dateStr = DateUtil.format(attendResVal.getDate(), DatePattern.NORM_DATE_PATTERN);
-                            String memo = String.format("%s，出差/外出未签到，且早晚上下班缺卡。\n", dateStr);
-                            hrEmpAttendDingding.setMemo(ObjectUtil.isEmpty(hrEmpAttendDingding.getMemo()) ? memo : hrEmpAttendDingding.getMemo() + memo);
+                            memo.append(dateStr).append("、");
                             invalidDays ++;
                         }
                     }
+                }
+                if(ObjectUtil.isNotEmpty(memo.toString())){
+                    hrEmpAttendDingding.setMemo(String.format("出差/外出未签到，且早晚上下班缺卡日期：%s", memo));
                 }
             }
             hrEmpAttendDingding.setInvalidDays(invalidDays); // 需要扣除的天数
@@ -861,7 +867,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     x.setMemo(null);
                 }
             }
-            if(ObjectUtil.isNotEmpty(x.getMemo()) && x.getMemo().endsWith("\n")){
+            if(ObjectUtil.isNotEmpty(x.getMemo()) && x.getMemo().endsWith("、")){
                 x.setMemo(x.getMemo().substring(0, x.getMemo().length() - 1));
             }
             isFull(x);// 是否全勤
