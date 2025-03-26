@@ -104,6 +104,10 @@ public class BizFormTravelAddParam {
     @ApiModelProperty(value = "核定借支单编码", position = 21)
     private String verifyCashSn;
 
+    /** 核定借支单ID */
+    @ApiModelProperty(value = "核定借支单ID", position = 21)
+    private String verifyCashId;
+
     /** 核定拨付金额 */
     @ApiModelProperty(value = "核定拨付金额", position = 22)
     private BigDecimal verifyPayAmount;

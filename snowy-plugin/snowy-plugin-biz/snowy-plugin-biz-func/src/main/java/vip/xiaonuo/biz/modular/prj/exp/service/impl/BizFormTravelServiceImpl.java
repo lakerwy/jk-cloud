@@ -270,11 +270,18 @@ public class BizFormTravelServiceImpl extends ServiceImpl<BizFormTravelMapper, B
         if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizFormTravel::getStatus, bizFormTravelPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getVerifyCashId())){
+            queryWrapper.lambda().eq(BizFormTravel::getVerifyCashId,bizFormTravelPageParam.getVerifyCashId());
+        }
+        if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getVerifyCashSn())){
+            queryWrapper.lambda().eq(BizFormTravel::getVerifyCashSn,bizFormTravelPageParam.getVerifyCashSn());
+        }
         if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizFormTravel::getSn, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getCompany, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getOrgName, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getCashSn, bizFormTravelPageParam.getSearchKey())
+                    .or().like(BizFormTravel::getVerifyCashSn,bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getExpName, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getContractNo, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getDevNo, bizFormTravelPageParam.getSearchKey()));

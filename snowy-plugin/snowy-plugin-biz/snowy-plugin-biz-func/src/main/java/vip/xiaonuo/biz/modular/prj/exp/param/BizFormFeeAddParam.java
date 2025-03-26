@@ -90,6 +90,10 @@ public class BizFormFeeAddParam {
     @ApiModelProperty(value = "核定借支单编码", position = 17)
     private String verifyCashSn;
 
+    /** 核定借支单ID */
+    @ApiModelProperty(value = "核定借支单ID", position = 17)
+    private String verifyCashId;
+
     /** 核定付款金额 */
     @ApiModelProperty(value = "核定付款金额", position = 18)
     private BigDecimal verifyPayAmount;

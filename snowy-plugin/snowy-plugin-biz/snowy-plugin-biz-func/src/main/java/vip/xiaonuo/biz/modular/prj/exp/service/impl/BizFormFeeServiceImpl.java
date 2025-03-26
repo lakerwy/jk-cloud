@@ -402,12 +402,14 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         //有选择借支单 校验
         if(ObjectUtil.isNotEmpty(checkParam.getCashId())){
             List<BizFormFee> feeList = this.list(new LambdaQueryWrapper<BizFormFee>()
-                    .eq(BizFormFee::getCashId,checkParam.getCashId()).in(BizFormFee::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                    .in(BizFormFee::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue())
+                    .and(q->q.eq(BizFormFee::getCashId,checkParam.getCashId()).or().eq(BizFormFee::getVerifyCashId,checkParam.getCashId())));
             if(CollUtil.isNotEmpty(feeList)){
                 throw new CommonException("借支单{}还存在审核中的费用报销单，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
             }
             List<BizFormTravel> travelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>()
-                    .eq(BizFormTravel::getCashId,checkParam.getCashId()).in(BizFormTravel::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                    .in(BizFormTravel::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue())
+                    .and(q->q.eq(BizFormTravel::getCashId,checkParam.getCashId()).or().eq(BizFormTravel::getVerifyCashId,checkParam.getCashId())));
             if(CollUtil.isNotEmpty(travelList)){
                 throw new CommonException("借支单{}还存在审核中的差旅报销单，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
             }
@@ -456,12 +458,19 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getStatus())) {
             queryWrapper.lambda().eq(BizFormFee::getStatus, bizFormFeePageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getVerifyCashId())){
+            queryWrapper.lambda().eq(BizFormFee::getVerifyCashId,bizFormFeePageParam.getVerifyCashId());
+        }
+        if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getVerifyCashSn())){
+            queryWrapper.lambda().eq(BizFormFee::getVerifyCashSn,bizFormFeePageParam.getVerifyCashSn());
+        }
         if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizFormFee::getSn, bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getCompany, bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getOrgName, bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getExpName, bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getCashSn, bizFormFeePageParam.getSearchKey())
+                    .or().like(BizFormFee::getVerifyCashSn,bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getContractNo, bizFormFeePageParam.getSearchKey())
                     .or().like(BizFormFee::getDevNo, bizFormFeePageParam.getSearchKey()));
         }

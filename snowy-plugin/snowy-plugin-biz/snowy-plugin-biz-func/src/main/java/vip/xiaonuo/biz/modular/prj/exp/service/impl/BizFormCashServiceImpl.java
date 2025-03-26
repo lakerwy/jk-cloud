@@ -230,7 +230,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                     .eq(BizFormCash::getType,BizFormCashTypeEnum.BYJ.getValue())
                     .in(BizFormCash::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue()));
             BizFormCashTotal bizFormCashTotal = getBizFormCashTotal(tmpFormCashList, null);
-            if(bizFormCashTotal.getCashBalanceTotal().compareTo(BigDecimal.ZERO) != 0){
+            if(bizFormCashTotal.getCashBalanceTotal().compareTo(BigDecimal.ZERO) > 0){
                 throw new CommonException("您还有未冲借支完的备用金类型的借支单，无法提交，请确认后再提交！");
             }
         }
@@ -246,7 +246,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         }
         List<BizFormCash> queryList = this.list(queryWrapper);
         List<BizFormCashVo> dataList = getBizFormCashVoList(queryList,null);
-        List<BizFormCashVo> result = dataList.stream().filter(x->BigDecimal.ZERO.compareTo(x.getCashBalance()) !=0 ).collect(Collectors.toList());
+        List<BizFormCashVo> result = dataList.stream().filter(x->BigDecimal.ZERO.compareTo(x.getCashBalance()) < 0 ).collect(Collectors.toList());
         return result;
     }
 
@@ -524,13 +524,13 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         if(CollUtil.isNotEmpty(result)){
            result.forEach(item->{
                 //审批通过+审批中
-                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
-                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getVerifyCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getVerifyCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
                 List<BizFormBack> tmpBackList = bizFormBackService.list(new LambdaQueryWrapper<BizFormBack>().eq(BizFormBack::getCashId,item.getId()).in(BizFormBack::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
 
-                BigDecimal totalFee = tmpFeeList.stream().map(BizFormFee::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-                BigDecimal totalTravel = tmpTravelList.stream().map(BizFormTravel::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-                BigDecimal totalBack = tmpBackList.stream().map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+//                BigDecimal totalFee = tmpFeeList.stream().map(BizFormFee::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+//                BigDecimal totalTravel = tmpTravelList.stream().map(BizFormTravel::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+//                BigDecimal totalBack = tmpBackList.stream().map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
 
                 //审批通过
                 BigDecimal totalPassFee = tmpFeeList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormFee::getCostVerifyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
@@ -541,7 +541,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 item.setCashBalance(item.getAdvanceAmount().subtract(totalPassFee).subtract(totalPassTravel).subtract(totalPassBack));
                 item.setNoBackAmount(item.getAdvanceAmount().subtract(item.getBackAmount()));
 
-                if(item.getNoBackAmount().compareTo(BigDecimal.ZERO) == 0 ){
+                if(item.getNoBackAmount().compareTo(BigDecimal.ZERO) <= 0 ){
                     item.setBackStatus(BizFormCashBackStatusEnum.BACK.getValue());
                 }else {
                     LocalDate currentDate = LocalDate.now();

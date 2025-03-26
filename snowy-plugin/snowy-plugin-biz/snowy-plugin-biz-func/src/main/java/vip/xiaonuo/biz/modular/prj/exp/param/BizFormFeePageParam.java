@@ -84,4 +84,12 @@ public class BizFormFeePageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 核定借支单编码 */
+    @ApiModelProperty(value = "核定借支单编码")
+    private String verifyCashSn;
+
+    /** 核定借支单ID */
+    @ApiModelProperty(value = "核定借支单ID")
+    private String verifyCashId;
+
 }
