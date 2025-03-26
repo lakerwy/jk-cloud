@@ -17,8 +17,7 @@ public class ExpMonthParam {
     private String yearMonth;
 
     /** 报销类型: 费用报销单 FEE  差旅费用报销单 TRAVEL */
-    @ApiModelProperty(value = "报销类型: 费用报销单 FEE  差旅费用报销单 TRAVEL",required = true, position = 2)
-    @NotBlank(message = "报销类型不能为空")
+    @ApiModelProperty(value = "报销类型: 费用报销单 FEE  差旅费用报销单 TRAVEL", position = 2)
     private String expType;
 
     /** 公司 */

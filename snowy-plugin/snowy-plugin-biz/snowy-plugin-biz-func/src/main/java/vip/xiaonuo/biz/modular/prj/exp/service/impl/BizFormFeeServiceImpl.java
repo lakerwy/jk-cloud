@@ -249,8 +249,63 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         return result;
     }
 
+
     @Override
     public List<ExpMonthTotal> monthTotal(ExpMonthParam expMonthParam) {
+        //2025-02
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth yearMonth = YearMonth.parse(expMonthParam.getYearMonth(), formatter);
+        //2025-02-01
+        LocalDate firstDayOfYearMonth = yearMonth.atDay(1);
+        //2025-03
+        YearMonth nextYearMonth = yearMonth.plusMonths(1);
+        //2025-03-01
+        LocalDate firstDayOfNextYearMonth = nextYearMonth.atDay(1);
+
+        QueryWrapper<BizFormFee> feeQueryWrapper = new QueryWrapper<>();
+        feeQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        feeQueryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        feeQueryWrapper.in("b.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue());
+        feeQueryWrapper.ge("b.EXP_DATE",firstDayOfYearMonth);  //>=
+        feeQueryWrapper.lt("b.EXP_DATE",firstDayOfNextYearMonth); //<
+        if(ObjectUtil.isNotEmpty(expMonthParam.getCompany())){
+            feeQueryWrapper.eq("b.COMPANY",expMonthParam.getCompany());
+        }
+        if(ObjectUtil.isNotEmpty(expMonthParam.getOrgId())){
+            feeQueryWrapper.eq("b.ORG_ID",expMonthParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(expMonthParam.getOrgName())){
+            feeQueryWrapper.like("b.ORG_NAME",expMonthParam.getOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(expMonthParam.getExpItem())){
+            feeQueryWrapper.eq("a.EXP_ITEM",expMonthParam.getExpItem());
+        }
+        if(ObjectUtil.isNotEmpty(expMonthParam.getSecondExpItem())){
+            feeQueryWrapper.eq("a.SECOND_EXP_ITEM",expMonthParam.getSecondExpItem());
+        }
+        if(ObjectUtil.isNotEmpty(expMonthParam.getDeptName())){
+            feeQueryWrapper.eq("a.DEPT_NAME",expMonthParam.getDeptName());
+        }
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            feeQueryWrapper.in("b.ORG_ID", loginUserDataScope);
+        } else {
+            feeQueryWrapper.eq("b.EXP_ID", StpUtil.getLoginIdAsString());
+        }
+        List<ExpMonthTotal> result = bizFormFeeMapper.getMonthTotal(feeQueryWrapper);
+
+        result.sort(Comparator.comparing(ExpMonthTotal::getCompany,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getDeptName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getExpItem,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpMonthTotal::getSecondExpItem,Comparator.nullsLast(Comparator.naturalOrder())));
+        return result;
+    }
+
+
+
+    public List<ExpMonthTotal> monthTotalTmp(ExpMonthParam expMonthParam) {
         //2025-02
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         YearMonth yearMonth = YearMonth.parse(expMonthParam.getYearMonth(), formatter);

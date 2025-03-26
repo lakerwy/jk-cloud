@@ -24,4 +24,12 @@ public interface BizFormFeeMapper extends BaseMapper<BizFormFee> {
      */
     List<ExpMonthTotal> getFeeCostMonthTotal(@Param(Constants.WRAPPER) Wrapper<BizFormFee> queryWrapper);
 
+
+    /**
+     * 不区分 报销类型 统计在一起
+     * @param queryWrapper
+     * @return
+     */
+    List<ExpMonthTotal> getMonthTotal(@Param(Constants.WRAPPER) Wrapper<BizFormFee> queryWrapper);
+
 }
