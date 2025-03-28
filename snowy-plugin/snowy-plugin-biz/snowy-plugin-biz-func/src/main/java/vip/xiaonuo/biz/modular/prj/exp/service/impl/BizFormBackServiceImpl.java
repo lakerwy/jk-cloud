@@ -190,7 +190,7 @@ public class BizFormBackServiceImpl extends ServiceImpl<BizFormBackMapper, BizFo
             queryWrapper.orderBy(true, bizFormBackPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizFormBackPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("b.ADVANCE_DATE").orderByDesc("a.CASH_SN").orderByDesc("a.SN");
+            queryWrapper.orderByDesc("b.ADVANCE_DATE").orderByDesc("b.SN");
         }
         return queryWrapper;
     }
