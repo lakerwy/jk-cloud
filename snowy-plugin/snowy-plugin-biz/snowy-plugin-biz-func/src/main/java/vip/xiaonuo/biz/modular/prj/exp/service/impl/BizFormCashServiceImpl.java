@@ -533,8 +533,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 //                BigDecimal totalBack = tmpBackList.stream().map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
 
                 //审批通过
-                BigDecimal totalPassFee = tmpFeeList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormFee::getCostVerifyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-                BigDecimal totalPassTravel = tmpTravelList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormTravel::getCostVerifyAmountTotal).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+                BigDecimal totalPassFee = tmpFeeList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormFee::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+                BigDecimal totalPassTravel = tmpTravelList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormTravel::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
                 BigDecimal totalPassBack = tmpBackList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
 
                 item.setBackAmount(totalPassFee.add(totalPassTravel).add(totalPassBack));

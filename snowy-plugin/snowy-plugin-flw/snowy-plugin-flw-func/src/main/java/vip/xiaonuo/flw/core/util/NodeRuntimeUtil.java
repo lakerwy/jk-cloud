@@ -2018,8 +2018,8 @@ public class NodeRuntimeUtil {
      */
 
     public static List<String> getBeforeAssignList(DelegateTask delegateTask){
-        List<HistoricTaskInstance> historicTasks = delegateTask.getProcessEngineServices().getHistoryService()
-                .createHistoricTaskInstanceQuery().processInstanceId(delegateTask.getProcessInstanceId()).list();
+        HistoryService historyService = SpringUtil.getBean(HistoryService.class);
+        List<HistoricTaskInstance> historicTasks = historyService.createHistoricTaskInstanceQuery().processInstanceId(delegateTask.getProcessInstanceId()).list();
         List<String> assignList = historicTasks.stream()
                 .filter(x->!"deleted".equals(x.getDeleteReason()) && ObjectUtil.isNotEmpty(x.getAssignee()))
                 .map(x->x.getAssignee())
