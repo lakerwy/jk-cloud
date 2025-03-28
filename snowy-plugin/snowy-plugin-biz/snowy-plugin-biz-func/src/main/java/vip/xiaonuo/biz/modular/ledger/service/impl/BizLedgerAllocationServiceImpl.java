@@ -55,7 +55,7 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
                 queryWrapper.lambda().and(q -> keys.forEach(key -> q.or().like(BizLedgerAllocation::getProjectName, key)
                         .or().like(BizLedgerAllocation::getContractNo, key)
                         .or().like(BizLedgerAllocation::getUnitName, key)
-                        .or().like(BizLedgerAllocation::getContractType, key)
+                        .or().like(BizLedgerAllocation::getRegion, key)
                 ));
 //            }else {
 //                queryWrapper.lambda().and(q -> q.like(BizLedgerAllocation::getProjectName, pageParam.getSearchKey())
