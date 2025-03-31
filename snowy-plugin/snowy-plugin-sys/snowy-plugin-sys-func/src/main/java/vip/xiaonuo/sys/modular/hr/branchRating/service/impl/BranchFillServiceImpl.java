@@ -313,7 +313,7 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
     }
 
     @Override
-    public String getBranchScope(BranchAreaParam param) {
+    public BranchFill getBranchScope(BranchAreaParam param) {
         QueryWrapper<BranchFill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().in(BranchFill::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
         queryWrapper.lambda().eq(BranchFill::getBranchId,param.getBranchId());
@@ -322,7 +322,7 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
         queryWrapper.lambda().last("limit 1");
         BranchFill branchFill = this.getOne(queryWrapper);
         if(ObjectUtil.isNotEmpty(branchFill)){
-            return branchFill.getBranchScope();
+            return branchFill;
         }
         return null;
     }

@@ -186,9 +186,9 @@ public class BranchFillController {
      * @date  2025/03/18 08:48
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("获取分公司评级（二期）- 分公司评级填报 - 获取历史最后一次填报的经营范围")
+    @ApiOperation("获取分公司评级（二期）- 分公司评级填报 - 获取历史最后一次填报的经营范围、技术服务费率等信息")
     @GetMapping("/sys/hr/branchRating/fill/getBranchScope")
-    public CommonResult<String> getBranchScope(@Valid BranchAreaParam param) {
+    public CommonResult<BranchFill> getBranchScope(@Valid BranchAreaParam param) {
         return CommonResult.data(branchFillService.getBranchScope(param));
     }
 

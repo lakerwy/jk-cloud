@@ -96,7 +96,7 @@ public interface BranchFillService extends IService<BranchFill> {
      * @param param
      * @return
      */
-    String getBranchScope(BranchAreaParam param);
+    BranchFill getBranchScope(BranchAreaParam param);
 
 
     /**
