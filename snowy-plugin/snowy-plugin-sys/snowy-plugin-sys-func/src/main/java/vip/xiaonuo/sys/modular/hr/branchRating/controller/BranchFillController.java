@@ -207,4 +207,17 @@ public class BranchFillController {
     }
 
 
+
+    /**
+     * 获取分公司评级（二期）- 分公司评级填报 - 首页获取所有公示信息
+     *
+     * @author yong.ye
+     * @date  2025/03/18 08:48
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("获取分公司评级（二期）- 分公司评级填报 - 首页获取所有公示信息")
+    @GetMapping("/sys/hr/branchRating/fill/getShowList")
+    public CommonResult<List<BranchFill>> getShowList() {
+        return CommonResult.data(branchFillService.getShowList());
+    }
 }

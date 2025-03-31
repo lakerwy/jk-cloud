@@ -22,7 +22,8 @@ public class BranchFillShowParam {
     private Integer isShow;
 
     /** 填报季度 */
-    @ApiModelProperty(value = "填报季度", position = 3)
+    @ApiModelProperty(value = "填报季度", required = true, position = 3)
+    @NotNull(message = "填报季度必填")
     private String fillSeason;
 
     /** 填报记录 - 主键ID */

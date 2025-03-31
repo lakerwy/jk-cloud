@@ -229,6 +229,16 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
             tmpObj.setIsShow(showParam.getIsShow());
             this.updateById(tmpObj);
         }
+        //公示 ： 作废历史
+        if(1 == showParam.getIsShow()) {
+            List<BranchFill> oldList = this.list(new LambdaQueryWrapper<BranchFill>()
+                    .ne(BranchFill::getFillSeason, showParam.getFillSeason())
+                    .eq(BranchFill::getIsShow, 1));
+            if (CollUtil.isNotEmpty(oldList)) {
+                oldList.forEach(x -> x.setIsShow(0));
+                this.updateBatchById(oldList);
+            }
+        }
     }
 
     @Override
@@ -343,6 +353,11 @@ public class BranchFillServiceImpl extends ServiceImpl<BranchFillMapper, BranchF
             result.forEach(item->item.setExtJson(null));
         }
         return result;
+    }
+
+    @Override
+    public List<BranchFill> getShowList() {
+        return this.list(new LambdaQueryWrapper<BranchFill>().eq(BranchFill::getIsShow,1));
     }
 
 }

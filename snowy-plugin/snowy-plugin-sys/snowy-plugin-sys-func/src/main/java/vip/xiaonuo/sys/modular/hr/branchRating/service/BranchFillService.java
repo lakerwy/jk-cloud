@@ -105,4 +105,10 @@ public interface BranchFillService extends IService<BranchFill> {
      * @return
      */
     List<SubPersonnel> getBranchEmpList(BranchAreaParam param);
+
+    /**
+     *
+     * @return
+     */
+    List<BranchFill> getShowList();
 }
