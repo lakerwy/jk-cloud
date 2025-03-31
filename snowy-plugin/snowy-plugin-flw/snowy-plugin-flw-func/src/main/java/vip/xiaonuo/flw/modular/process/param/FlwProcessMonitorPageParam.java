@@ -93,4 +93,8 @@ public class FlwProcessMonitorPageParam {
     /** 当前办理人 */
     @ApiModelProperty(value = "当前办理人", position = 22)
     private String assignees;
+
+    /** 发起人姓名 */
+    @ApiModelProperty(value = "发起人姓名")
+    private String initiatorName;
 }

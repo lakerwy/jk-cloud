@@ -351,6 +351,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiator())) {
             historicProcessInstanceQuery.startedBy(flwProcessMonitorPageParam.getInitiator());
         }
+        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiatorName())) {
+            historicProcessInstanceQuery.variableValueLike("initiatorName",  flwProcessMonitorPageParam.getInitiatorName() + "%");
+        }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSearchKey())) {
             historicProcessInstanceQuery.variableValueLike("initiatorName", "%" + flwProcessMonitorPageParam.getSearchKey() + "%");
         }
