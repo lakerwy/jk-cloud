@@ -47,14 +47,20 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
         // 关键词
         if (ObjectUtil.isNotEmpty(pageParam.getSearchKey())) {
             List<String> keys = StrUtil.splitTrim(pageParam.getSearchKey().replace(" ",",").replace("，",","),",");
-            if(keys.size() > 1){
-                for (String key:keys) {
-                    queryWrapper.lambda().and(q->q.like(BizLedgerAllocation::getProjectName,key)
-                            .or().like(BizLedgerAllocation::getContractNo,key));
-                }
-            }else {
-                queryWrapper.lambda().and(q -> q.like(BizLedgerAllocation::getProjectName, pageParam.getSearchKey()));
-            }
+//            if(keys.size() > 1){
+//                for (String key:keys) {
+//                    queryWrapper.lambda().and(q->q.like(BizLedgerAllocation::getProjectName,key)
+//                            .or().like(BizLedgerAllocation::getContractNo,key));
+//                }
+                queryWrapper.lambda().and(q -> keys.forEach(key -> q.or().like(BizLedgerAllocation::getProjectName, key)
+                        .or().like(BizLedgerAllocation::getContractNo, key)
+                        .or().like(BizLedgerAllocation::getUnitName, key)
+                        .or().like(BizLedgerAllocation::getRegion, key)
+                ));
+//            }else {
+//                queryWrapper.lambda().and(q -> q.like(BizLedgerAllocation::getProjectName, pageParam.getSearchKey())
+//                        .or().like(BizLedgerAllocation::getContractNo, pageParam.getSearchKey()));
+//            }
         }
         // 合作类型
         if(ObjectUtil.isNotEmpty(pageParam.getContractType())){
