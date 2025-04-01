@@ -16,5 +16,5 @@ import java.util.List;
 public class ImportLedgerAllocation {
 
     @ApiModelProperty(value = "拨付台账 集合", position = 1)
-    private List<BizLedgerAllocationAddParam> importData;
+    private List<BizLedgerAllocationImportParam> importData;
 }
