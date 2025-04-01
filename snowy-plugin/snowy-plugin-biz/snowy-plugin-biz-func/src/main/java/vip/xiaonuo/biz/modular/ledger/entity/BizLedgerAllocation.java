@@ -129,4 +129,8 @@ public class BizLedgerAllocation {
     @ApiModelProperty(value = "数据权限控制字段", position = 26)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 42)
+    private String note;
 }

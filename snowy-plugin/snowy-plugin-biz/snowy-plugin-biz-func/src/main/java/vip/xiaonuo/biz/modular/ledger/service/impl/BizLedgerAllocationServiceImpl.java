@@ -3,18 +3,26 @@ package vip.xiaonuo.biz.modular.ledger.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
+import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 import vip.xiaonuo.biz.modular.ledger.param.*;
 import vip.xiaonuo.biz.modular.ledger.vo.BizLedgerAllocationCountAmountVo;
 import vip.xiaonuo.biz.modular.ledger.vo.BizLedgerAllocationRecentVo;
+import vip.xiaonuo.biz.modular.report.result.PartnerVo;
+import vip.xiaonuo.biz.modular.report.service.PartnerInfoService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -22,6 +30,7 @@ import vip.xiaonuo.biz.modular.ledger.entity.BizLedgerAllocation;
 import vip.xiaonuo.biz.modular.ledger.mapper.BizLedgerAllocationMapper;
 import vip.xiaonuo.biz.modular.ledger.service.BizLedgerAllocationService;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +44,12 @@ import java.util.Objects;
 @DS("slave_1")
 @Service
 public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocationMapper, BizLedgerAllocation> implements BizLedgerAllocationService {
+
+    @Resource
+    private HetongService hetongService;
+
+    @Resource
+    PartnerInfoService partnerInfoService;
 
     @Override
     public Page<BizLedgerAllocation> page(BizLedgerAllocationPageParam pageParam) {
@@ -186,5 +201,44 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
         vo.setManageAmountTotal(manageAmountTotal);
         vo.setReceiveAndManageAmountTotal(receiveAndManageAmountTotal);
         return vo;
+    }
+
+    @Override
+    public void importData(ImportLedgerAllocation input) {
+        List<BizLedgerAllocationAddParam> importData = input.getImportData();
+        if(CollUtil.isEmpty(importData)){
+            throw new CommonException("无有效导入数据");
+        }
+        List<BizLedgerAllocation> bizLedgerAllocationList = BeanUtil.copyToList(importData, BizLedgerAllocation.class);
+        bizLedgerAllocationList.forEach(x -> {
+            HetongPageParam hetongPageParam = new HetongPageParam();
+            hetongPageParam.setStatus("1");
+            hetongPageParam.setProjectName(x.getProjectName());
+            IPage<HetongDetailVo> page = hetongService.page(hetongPageParam);
+            if(CollUtil.isNotEmpty(page.getRecords())){
+                List<HetongDetailVo> heTongList = page.getRecords();
+                HetongDetailVo hetongDetailVo = heTongList.stream().filter(item -> item.getProjectName().equals(x.getProjectName())).findFirst().orElse(null);
+                // 合同ID，合同编号
+                if(ObjectUtil.isNotEmpty(hetongDetailVo)){
+                    x.setHetongId(hetongDetailVo.getId());
+                    x.setContractNo(hetongDetailVo.getContractNo());
+                }
+            }
+            List<PartnerVo> partnerVoList = partnerInfoService.getAll();
+            if(CollUtil.isNotEmpty(partnerVoList)){
+                PartnerVo partnerVo = partnerVoList.stream().filter(item -> ("分公司".equals(item.getPartnerType()) || "分公司（注册）".equals(item.getPartnerType()))
+                        && item.getName().equals(x.getUnitName())).findFirst().orElse(null);
+                // 合作类型（分公司、零星），合作单位ID
+                if(ObjectUtil.isNotEmpty(partnerVo)){
+                    x.setUnitId(partnerVo.getId());
+                    x.setOrgId(partnerVo.getOrgId());
+                    x.setContractType("分公司");
+                }else {
+                    x.setContractType("零星");
+                }
+            }
+            x.setNote(DateUtil.now()+"：页面导入；");
+        });
+        this.saveBatch(bizLedgerAllocationList);
     }
 }

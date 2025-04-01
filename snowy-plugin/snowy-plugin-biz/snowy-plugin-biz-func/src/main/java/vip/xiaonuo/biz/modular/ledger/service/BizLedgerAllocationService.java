@@ -80,4 +80,12 @@ public interface BizLedgerAllocationService extends IService<BizLedgerAllocation
      * @date  2025/03/18 11:00
      **/
     BizLedgerAllocationCountAmountVo countAmount(BizLedgerAllocationPageParam bizLedgerAllocationPageParam);
+
+    /**
+     * 分包单位备案 - 导入
+     *
+     * @author pzh
+     * @date  2025/03/31 10:30
+     **/
+    void importData(ImportLedgerAllocation input);
 }

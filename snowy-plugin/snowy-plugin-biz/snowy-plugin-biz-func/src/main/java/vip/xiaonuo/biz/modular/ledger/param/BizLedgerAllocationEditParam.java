@@ -96,4 +96,8 @@ public class BizLedgerAllocationEditParam {
     @ApiModelProperty(value = "附件", position = 23)
     private String attachments;
 
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 42)
+    private String note;
+
 }

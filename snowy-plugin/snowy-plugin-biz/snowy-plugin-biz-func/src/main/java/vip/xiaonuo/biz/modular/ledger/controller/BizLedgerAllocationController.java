@@ -142,4 +142,19 @@ public class BizLedgerAllocationController {
     public CommonResult<BizLedgerAllocationCountAmountVo> countAmount(BizLedgerAllocationPageParam bizLedgerAllocationPageParam) {
         return CommonResult.data(bizLedgerAllocationService.countAmount(bizLedgerAllocationPageParam));
     }
+
+    /**
+     * 分包单位备案 - 导入
+     *
+     * @author pzh
+     * @date  2025/03/31 10:30
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("拨付台账 - 导入")
+    @CommonLog("拨付台账 - 导入")
+    @PostMapping("/biz/ledger/allocation/importData")
+    public CommonResult<String> importData(@RequestBody @Valid ImportLedgerAllocation input) {
+        bizLedgerAllocationService.importData(input);
+        return CommonResult.ok();
+    }
 }
