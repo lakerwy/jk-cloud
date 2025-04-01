@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.branch.entity.BranchBankInfo;
+import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
@@ -39,6 +40,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 拨付台账Service接口实现类
@@ -242,35 +244,34 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
             }
         });
         List<BizLedgerAllocation> bizLedgerAllocationList = BeanUtil.copyToList(importData, BizLedgerAllocation.class);
-        List<PartnerVo> partnerVoList = partnerInfoService.getAll();
-        bizLedgerAllocationList.forEach(x -> {
-            HetongPageParam hetongPageParam = new HetongPageParam();
-            hetongPageParam.setStatus("1");
-            hetongPageParam.setProjectName(x.getProjectName());
-            IPage<HetongDetailVo> page = hetongService.page(hetongPageParam);
-            if(CollUtil.isNotEmpty(page.getRecords())){
-                List<HetongDetailVo> heTongList = page.getRecords();
-                HetongDetailVo hetongDetailVo = heTongList.stream().filter(item -> item.getProjectName().equals(x.getProjectName())).findFirst().orElse(null);
-                // 合同ID，合同编号
-                if(ObjectUtil.isNotEmpty(hetongDetailVo)){
-                    x.setHetongId(hetongDetailVo.getId());
-                    x.setContractNo(hetongDetailVo.getContractNo());
-                }
-            }
-            if(CollUtil.isNotEmpty(partnerVoList)){
-                PartnerVo partnerVo = partnerVoList.stream().filter(item -> ("分公司".equals(item.getPartnerType()) || "分公司（注册）".equals(item.getPartnerType()))
-                        && item.getName().equals(x.getUnitName())).findFirst().orElse(null);
-                // 合作类型（分公司、零星），合作单位ID
-                if(ObjectUtil.isNotEmpty(partnerVo)){
-                    x.setUnitId(partnerVo.getId());
-                    x.setOrgId(partnerVo.getOrgId());
-                    x.setContractType("分公司");
-                }else {
-                    x.setContractType("零星");
-                }
-            }
-            x.setNote(DateUtil.now()+"：页面导入；");
-        });
+//        List<PartnerVo> partnerVoList = partnerInfoService.getAll().stream()
+//                .filter(item -> "分公司".equals(item.getPartnerType()) || "分公司（注册）".equals(item.getPartnerType())).collect(Collectors.toList());
+//        List<Hetong> heTongList = hetongService.list(new LambdaQueryWrapper<Hetong>().select(Hetong::getId,Hetong::getContractNo)
+//                .in(Hetong::getStatus,"0","1"));
+//        bizLedgerAllocationList.forEach(x -> {
+//            if(CollUtil.isNotEmpty(heTongList)){
+//                Hetong hetong = heTongList.stream().filter(item -> ObjectUtil.isNotEmpty(x.getProjectName())
+//                        && x.getProjectName().equals(item.getProjectName())).findFirst().orElse(null);
+//                // 合同ID，合同编号
+//                if(ObjectUtil.isNotEmpty(hetong)){
+//                    x.setHetongId(hetong.getId());
+//                    x.setContractNo(hetong.getContractNo());
+//                }
+//            }
+//            if(CollUtil.isNotEmpty(partnerVoList)){
+//                PartnerVo partnerVo = partnerVoList.stream().filter(item -> ObjectUtil.isNotEmpty(x.getUnitName())
+//                        && x.getUnitName().equals(item.getName())).findFirst().orElse(null);
+//                // 合作类型（分公司、零星），合作单位ID
+//                if(ObjectUtil.isNotEmpty(partnerVo)){
+//                    x.setUnitId(partnerVo.getId());
+//                    x.setOrgId(partnerVo.getOrgId());
+//                    x.setContractType("分公司");
+//                }else {
+//                    x.setContractType("零星");
+//                }
+//            }
+//            x.setNote(DateUtil.now()+"：页面导入；");
+//        });
         this.saveBatch(bizLedgerAllocationList);
     }
 }
