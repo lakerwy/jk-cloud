@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.branch.entity.BranchBankInfo;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
@@ -32,6 +33,10 @@ import vip.xiaonuo.biz.modular.ledger.service.BizLedgerAllocationService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -205,11 +210,39 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
 
     @Override
     public void importData(ImportLedgerAllocation input) {
-        List<BizLedgerAllocationAddParam> importData = input.getImportData();
+        List<BizLedgerAllocationImportParam> importData = input.getImportData();
         if(CollUtil.isEmpty(importData)){
             throw new CommonException("无有效导入数据");
         }
+        // 处理时间格式
+        importData.forEach(x -> {
+            if(ObjectUtil.isNotEmpty(x.getCreateTime())){
+                LocalDate date = LocalDate.parse(x.getCreateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 将 LocalDate 转换为 LocalDateTime，并设置时间为当天的开始时间（00:00:00）
+                LocalDateTime startOfDay = date.atStartOfDay();
+                x.setCreateTime(startOfDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            }
+            if(ObjectUtil.isNotEmpty(x.getReceiveAmountTime())){
+                LocalDate date = LocalDate.parse(x.getReceiveAmountTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 将 LocalDate 转换为 LocalDateTime，并设置时间为当天的开始时间（00:00:00）
+                LocalDateTime startOfDay = date.atStartOfDay();
+                x.setReceiveAmountTime(startOfDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            }
+            if(ObjectUtil.isNotEmpty(x.getSubmitXzTime())){
+                LocalDate date = LocalDate.parse(x.getSubmitXzTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 将 LocalDate 转换为 LocalDateTime，并设置时间为当天的开始时间（00:00:00）
+                LocalDateTime startOfDay = date.atStartOfDay();
+                x.setSubmitXzTime(startOfDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            }
+            if(ObjectUtil.isNotEmpty(x.getSubmitCwTime())){
+                LocalDate date = LocalDate.parse(x.getSubmitCwTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 将 LocalDate 转换为 LocalDateTime，并设置时间为当天的开始时间（00:00:00）
+                LocalDateTime startOfDay = date.atStartOfDay();
+                x.setSubmitCwTime(startOfDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            }
+        });
         List<BizLedgerAllocation> bizLedgerAllocationList = BeanUtil.copyToList(importData, BizLedgerAllocation.class);
+        List<PartnerVo> partnerVoList = partnerInfoService.getAll();
         bizLedgerAllocationList.forEach(x -> {
             HetongPageParam hetongPageParam = new HetongPageParam();
             hetongPageParam.setStatus("1");
@@ -224,7 +257,6 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
                     x.setContractNo(hetongDetailVo.getContractNo());
                 }
             }
-            List<PartnerVo> partnerVoList = partnerInfoService.getAll();
             if(CollUtil.isNotEmpty(partnerVoList)){
                 PartnerVo partnerVo = partnerVoList.stream().filter(item -> ("分公司".equals(item.getPartnerType()) || "分公司（注册）".equals(item.getPartnerType()))
                         && item.getName().equals(x.getUnitName())).findFirst().orElse(null);
