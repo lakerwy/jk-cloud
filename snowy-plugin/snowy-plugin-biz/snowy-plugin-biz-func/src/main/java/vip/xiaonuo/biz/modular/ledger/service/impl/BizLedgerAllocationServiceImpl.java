@@ -248,7 +248,8 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
 //                .filter(item -> "分公司".equals(item.getPartnerType()) || "分公司（注册）".equals(item.getPartnerType())).collect(Collectors.toList());
 //        List<Hetong> heTongList = hetongService.list(new LambdaQueryWrapper<Hetong>().select(Hetong::getId,Hetong::getContractNo)
 //                .in(Hetong::getStatus,"0","1"));
-//        bizLedgerAllocationList.forEach(x -> {
+        long timestamp = System.currentTimeMillis();
+        bizLedgerAllocationList.forEach(x -> {
 //            if(CollUtil.isNotEmpty(heTongList)){
 //                Hetong hetong = heTongList.stream().filter(item -> ObjectUtil.isNotEmpty(x.getProjectName())
 //                        && x.getProjectName().equals(item.getProjectName())).findFirst().orElse(null);
@@ -270,8 +271,8 @@ public class BizLedgerAllocationServiceImpl extends ServiceImpl<BizLedgerAllocat
 //                    x.setContractType("零星");
 //                }
 //            }
-//            x.setNote(DateUtil.now()+"：页面导入；");
-//        });
+            x.setNote(timestamp + "：页面导入；");
+        });
         this.saveBatch(bizLedgerAllocationList);
     }
 }
