@@ -77,6 +77,10 @@ public class BizFormCashEditParam {
     @ApiModelProperty(value = "累计未还金额", position = 13)
     private BigDecimal ljWhAmount;
 
+    /** 借款方式 */
+    @ApiModelProperty(value = "借款方式", position = 13)
+    private String advanceType;
+
     /** 收款账户名 */
     @ApiModelProperty(value = "收款账户名", position = 14)
     private String bankUserName;
