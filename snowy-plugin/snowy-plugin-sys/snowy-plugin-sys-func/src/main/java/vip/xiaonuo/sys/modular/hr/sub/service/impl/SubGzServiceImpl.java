@@ -930,7 +930,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     SubFundItemVo tmpFundItemIns = tmpFundItemList.stream().filter(x -> SubFundItemTypeEnum.INS.getValue().equals(x.getType()) && item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
                     SubFundItemVo tmpFundItemGjj = tmpFundItemList.stream().filter(x -> SubFundItemTypeEnum.GJJ.getValue().equals(x.getType()) && item.getIdCardNumber().equals(x.getIdCardNumber()) && item.getUserName().equals(x.getUserName())).findFirst().orElse(null);
                     boolean insFlag = (ObjectUtil.isNotEmpty(tmpFundItemIns) && item.getIns().compareTo(tmpFundItemIns.getSjPer()) != 0) ? true : false;  //true 代表不一致
-                    boolean gjjFlag = (ObjectUtil.isNotEmpty(tmpFundItemGjj) && item.getIns().compareTo(tmpFundItemGjj.getSjPer()) != 0) ? true : false;
+                    boolean gjjFlag = (ObjectUtil.isNotEmpty(tmpFundItemGjj) && item.getGjj().compareTo(tmpFundItemGjj.getSjPer()) != 0) ? true : false;
                     if(insFlag && gjjFlag) errMsg = "五险与公积金（个人部分）不一致！";
                     else if (insFlag) errMsg = "五险（个人部分）不一致！";
                     else if (gjjFlag) errMsg = "公积金（个人部分）不一致！";
