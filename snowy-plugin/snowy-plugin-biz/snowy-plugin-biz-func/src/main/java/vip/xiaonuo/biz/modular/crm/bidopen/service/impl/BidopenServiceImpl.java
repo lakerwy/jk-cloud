@@ -17,14 +17,17 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
@@ -107,6 +110,11 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BidopenAddParam bidopenAddParam) {
+        // 检查重复
+        long count = this.count(new LambdaQueryWrapper<Bidopen>().eq(Bidopen::getProjectId, bidopenAddParam.getProjectId()));
+        if(count > 0) {
+            throw new CommonException("该立项已被登记，不能重复登记！");
+        }
         Bidopen bidopen = BeanUtil.toBean(bidopenAddParam, Bidopen.class);
         //处理Sn编号
         Bidopen tmp = this.getOne(new QueryWrapper<Bidopen>().lambda().orderByDesc(Bidopen::getCreateTime).last("limit 1"));
@@ -123,6 +131,12 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BidopenEditParam bidopenEditParam) {
+        // 检查重复
+        long count = this.count(new LambdaQueryWrapper<Bidopen>().eq(Bidopen::getProjectId, bidopenEditParam.getProjectId())
+                .ne(Bidopen::getId, bidopenEditParam.getId()));
+        if(count > 0) {
+            throw new CommonException("该立项已被登记，不能重复登记！");
+        }
         Bidopen bidopen = this.queryEntity(bidopenEditParam.getId());
         BeanUtil.copyProperties(bidopenEditParam, bidopen);
         this.updateById(bidopen);
