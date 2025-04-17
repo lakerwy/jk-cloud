@@ -14,7 +14,9 @@ public enum SubGzItemTypeEnum {
     /** 工资 */
     GZ("工资"),
     /** 奖金 */
-    JJ("奖金");
+    JJ("奖金"),
+    /** 经济补偿金 */
+    BCJ("经济补偿金");
 
     private final String value;
 

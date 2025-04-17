@@ -23,7 +23,7 @@ import vip.xiaonuo.sys.modular.hr.sub.service.SubGzItemService;
 import java.util.List;
 
 /**
- * 分公司-工资发放 - 工资|奖金明细Service接口实现类
+ * 分公司-工资发放 - 工资|奖金|经济补偿金明细Service接口实现类
  *
  * @author yong.ye
  * @date  2025/02/06 09:11
@@ -96,7 +96,7 @@ public class SubGzItemServiceImpl extends ServiceImpl<SubGzItemMapper, SubGzItem
     public SubGzItem queryEntity(String id) {
         SubGzItem subGzItem = this.getById(id);
         if(ObjectUtil.isEmpty(subGzItem)) {
-            throw new CommonException("分公司-工资发放 - 工资|奖金明细不存在，id值为：{}", id);
+            throw new CommonException("分公司-工资发放 - 工资|奖金|经济补偿金明细不存在，id值为：{}", id);
         }
         return subGzItem;
     }

@@ -27,8 +27,8 @@ public class SubGzItem {
     @ApiModelProperty(value = "工资发放流程主键id", position = 2)
     private String subGzId;
 
-    /** 明细类别：工资|奖金 */
-    @ApiModelProperty(value = "明细类别：工资|奖金", position = 3)
+    /** 明细类别：工资|奖金|经济补偿金 */
+    @ApiModelProperty(value = "明细类别：工资|奖金|经济补偿金", position = 3)
     private String type;
 
     /** 所属月份 */
@@ -55,8 +55,8 @@ public class SubGzItem {
     @ApiModelProperty(value = "用工性质", position = 9)
     private String nature;
 
-    /** 应发工资合计|应发奖金合计 */
-    @ApiModelProperty(value = "应发工资合计|应发奖金合计", position = 10)
+    /** 应发工资合计|应发奖金合计|应发金额 */
+    @ApiModelProperty(value = "应发工资合计|应发奖金合计|应发金额", position = 10)
     private BigDecimal yf;
 
     /** 五险（个人部分） */
@@ -67,12 +67,12 @@ public class SubGzItem {
     @ApiModelProperty(value = "公积金（个人部分）", position = 12)
     private BigDecimal gjj;
 
-    /** 本月应扣税额|应扣税额 */
-    @ApiModelProperty(value = "本月应扣税额|应扣税额", position = 13)
+    /** 本月应扣税额|应扣税额|个税 */
+    @ApiModelProperty(value = "本月应扣税额|应扣税额|个税", position = 13)
     private BigDecimal yk;
 
-    /** 实发工资|实发奖金 */
-    @ApiModelProperty(value = "实发工资|实发奖金", position = 14)
+    /** 实发工资|实发奖金|实际补偿金额 */
+    @ApiModelProperty(value = "实发工资|实发奖金|实际补偿金额", position = 14)
     private BigDecimal sf;
 
     /** 备注 */
@@ -112,4 +112,16 @@ public class SubGzItem {
     @ApiModelProperty(value = "修改用户", position = 22)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 入司时间（格式：yyyy-MM-dd） */
+    @ApiModelProperty(value = "入司时间（格式：yyyy-MM-dd）", position = 40)
+    private Date hireDate;
+
+    /** 补偿基数 */
+    @ApiModelProperty(value = "补偿基数", position = 41)
+    private BigDecimal bcjs;
+
+    /** 补偿基数 */
+    @ApiModelProperty(value = "补偿系数", position = 42)
+    private BigDecimal bcxs;
 }

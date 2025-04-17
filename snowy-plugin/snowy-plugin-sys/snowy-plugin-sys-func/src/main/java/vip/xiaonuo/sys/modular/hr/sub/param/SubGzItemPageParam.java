@@ -36,8 +36,8 @@ public class SubGzItemPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 明细类别：工资|奖金 */
-    @ApiModelProperty(value = "明细类别：工资|奖金")
+    /** 明细类别：工资|奖金|经济补偿金 */
+    @ApiModelProperty(value = "明细类别：工资|奖金|经济补偿金")
     private String type;
 
     /** 所属月份 */

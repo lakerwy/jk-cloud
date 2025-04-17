@@ -27,8 +27,8 @@ public class SubGzAddParam {
     @ApiModelProperty(value = "部门", position = 3)
     private String orgName;
 
-    /** 类型：工资|奖金|工资+奖金 */
-    @ApiModelProperty(value = "类型：工资|奖金|工资+奖金", position = 3)
+    /** 类型：工资|奖金|工资+奖金|经济补偿金 */
+    @ApiModelProperty(value = "类型：工资|奖金|工资+奖金|经济补偿金", position = 3)
     private String type;
 
     /** 所属月份 */
@@ -118,4 +118,29 @@ public class SubGzAddParam {
     /** 奖金附件 */
     @ApiModelProperty(value = "奖金附件", position = 32)
     private String jjAttach;
+
+    /** 补偿金应发人数 */
+    @ApiModelProperty(value = "补偿金应发人数", position = 40)
+    private Integer bcjYfNum;
+
+    /** 补偿金实发人数 */
+    @ApiModelProperty(value = "补偿金实发人数", position = 41)
+    private Integer bcjSfNum;
+
+    /** 应发补偿金合计 */
+    @ApiModelProperty(value = "应发补偿金合计", position = 42)
+    private BigDecimal yfBcjTotal;
+
+    /** 实发补偿金合计 */
+    @ApiModelProperty(value = "实发补偿金合计", position = 43)
+    private BigDecimal sfBcjTotal;
+
+    /** 补偿金应扣税额合计 */
+    @ApiModelProperty(value = "补偿金应扣税额合计", position = 44)
+    private BigDecimal bcjTaxTotal;
+
+    /** 补偿金附件 */
+    @ApiModelProperty(value = "补偿金附件", position = 45)
+    private String bcjAttach;
+
 }

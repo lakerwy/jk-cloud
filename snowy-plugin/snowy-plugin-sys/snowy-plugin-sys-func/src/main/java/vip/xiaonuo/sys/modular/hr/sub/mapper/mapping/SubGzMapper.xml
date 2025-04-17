@@ -17,7 +17,12 @@
                sum(a.JJ_SF_NUM) as jjSfNum,
                sum(a.YF_JJ_TOTAL) as yfJjTotal,
                sum(a.JJ_TAX_TOTAL) as jjTaxTotal,
-               sum(a.SF_JJ_TOTAL) as sfJjTotal
+               sum(a.SF_JJ_TOTAL) as sfJjTotal,
+
+               sum(a.BCJ_YF_NUM) as bcjYfNum,
+               sum(a.BCJ_SF_NUM) as bcjSfNum,
+               sum(a.YF_BCJ_TOTAL) as yfBcjTotal,
+               sum(a.SF_BCJ_TOTAL) as sfBcjTotal
         from SUB_GZ a ${ew.customSqlSegment}
         group by a.Y_M,a.REGION,a.ORG_ID,a.ORG_NAME
     </select>

@@ -86,9 +86,9 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     private SubPersonnelService subPersonnelService;
 
     /**
-     * SubGz - 工资奖金  - 报表
+     * SubGz - 工资|奖金|经济补偿金  - 报表
      */
-    public static final String[] GZ_REPORT_TYPE_LIST = {"1","2","3","4"};
+    public static final String[] GZ_REPORT_TYPE_LIST = {"1","2","3","4","10","11","12","13"};
 
     /**
      * SubFund - 五险一金 - 报表
@@ -103,12 +103,12 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
     /**
      * SubGz - 报表 - 求平均
      */
-    public static final String[] AVG_REPORT_TYPE_LIST = {"1","2","5","7"};
+    public static final String[] AVG_REPORT_TYPE_LIST = {"1","2","5","7","10","11"};
 
     /**
      * SubGz - 报表 - 求小计
      */
-    public static final String[] TOTAL_REPORT_TYPE_LIST = {"3","4","6","8"};
+    public static final String[] TOTAL_REPORT_TYPE_LIST = {"3","4","6","8","12","13"};
 
     /**
      * 构造12月
@@ -181,7 +181,7 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             subGz.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
         this.save(subGz);
-        //处理发票
+        //处理工资明细
         List<SubGzItem> subGzItemList = new ArrayList<>();
 //        List<SubPersonnel> subPersonnelList = getSubPersonnelList(subGzParam.getOrgName());
         if(CollUtil.isNotEmpty(subGzParam.getGzList())){
@@ -199,6 +199,14 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             tmpItems.forEach(x->{
                 x.setSubGzId(subGz.getId());
                 x.setType(SubGzItemTypeEnum.JJ.getValue());
+            });
+            subGzItemList.addAll(tmpItems);
+        }
+        if(CollUtil.isNotEmpty(subGzParam.getBcjList())){
+            List<SubGzItem> tmpItems = BeanUtil.copyToList(subGzParam.getBcjList(), SubGzItem.class);
+            tmpItems.forEach(x->{
+                x.setSubGzId(subGz.getId());
+                x.setType(SubGzItemTypeEnum.BCJ.getValue());
             });
             subGzItemList.addAll(tmpItems);
         }
@@ -264,6 +272,35 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
             //获取历史数据
             List<SubGzItem> oldGzItemList = subGzItemService.list(new QueryWrapper<SubGzItem>().lambda().eq(SubGzItem::getSubGzId,subGz.getId())
                     .eq(SubGzItem::getType,SubGzItemTypeEnum.JJ.getValue()));
+            List<String> oldIds = oldGzItemList.stream().map(x->x.getId()).collect(Collectors.toList());
+            //待新增的
+            List<SubGzItem> addList = gzItemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<SubGzItem> updateList = gzItemList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<SubGzItem> removeList = oldGzItemList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                subGzItemService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                subGzItemService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                subGzItemService.removeByIds(removeList);
+            }
+        }
+        //处理经济补偿金
+        if(CollUtil.isNotEmpty(subGzParam.getBcjList())){
+            //本次传入的数据
+            List<SubGzItem> gzItemList = BeanUtil.copyToList(subGzParam.getBcjList(),SubGzItem.class);
+            gzItemList.forEach(x->{
+                x.setSubGzId(subGz.getId());
+                x.setType(SubGzItemTypeEnum.BCJ.getValue());
+            });
+            //获取历史数据
+            List<SubGzItem> oldGzItemList = subGzItemService.list(new QueryWrapper<SubGzItem>().lambda().eq(SubGzItem::getSubGzId,subGz.getId())
+                    .eq(SubGzItem::getType,SubGzItemTypeEnum.BCJ.getValue()));
             List<String> oldIds = oldGzItemList.stream().map(x->x.getId()).collect(Collectors.toList());
             //待新增的
             List<SubGzItem> addList = gzItemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
@@ -425,6 +462,14 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             tmpNums = tmpData.getSjWxTotal();
                         } else if ("8".equals(searchTotal.getReportType())) {
                             tmpNums = tmpData.getSjGjjTotal();
+                        } else if ("10".equals(searchTotal.getReportType())) {
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getBcjYfNum());
+                        } else if ("11".equals(searchTotal.getReportType())) {
+                            tmpNums = SubUtils.intToBigDecimal(tmpData.getBcjSfNum());
+                        } else if ("12".equals(searchTotal.getReportType())) {
+                            tmpNums = tmpData.getYfBcjTotal();
+                        } else if ("13".equals(searchTotal.getReportType())) {
+                            tmpNums = tmpData.getSfBcjTotal();
                         }
                     }
                     sumNums = sumNums.add(tmpNums);
@@ -683,10 +728,14 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 Integer sfGzNumSum = 0;
                 Integer sjWxNumSum = 0;
                 Integer sjGjjNumSum = 0;
+                Integer yfBcjNumSum = 0;
+                Integer sfBcjNumSum = 0;
                 BigDecimal yfGzAmountSum = BigDecimal.ZERO;
                 BigDecimal sfGzAmountSum = BigDecimal.ZERO;
                 BigDecimal sjWxAmountSum = BigDecimal.ZERO;
                 BigDecimal sjGjjAmountSum = BigDecimal.ZERO;
+                BigDecimal yfBcjAmountSum = BigDecimal.ZERO;
+                BigDecimal sfBcjAmountSum = BigDecimal.ZERO;
                 for (String month : monthList) {
                     String tmpYM = obj.getYM() + "-" + month;
                     MonthVo tmpGzData = gzDataList.stream().filter(x -> obj.getRegion().equals(x.getRegion()) && obj.getOrgId().equals(x.getOrgId()) && obj.getOrgName().equals(x.getOrgName()) && tmpYM.equals(x.getYM())).findFirst().orElse(null);
@@ -695,15 +744,23 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     Integer tmpSfGzNum = 0;
                     Integer tmpSjWxNum = 0;
                     Integer tmpSjGjjNum = 0;
+                    Integer tmpYfBcjNum = 0;
+                    Integer tmpSfBcjNum = 0;
                     BigDecimal tmpYfGzAmount = BigDecimal.ZERO;
                     BigDecimal tmpSfGzAmount = BigDecimal.ZERO;
                     BigDecimal tmpSjWxAmount = BigDecimal.ZERO;
                     BigDecimal tmpSjGjjAmount = BigDecimal.ZERO;
+                    BigDecimal tmpYfBcjAmount = BigDecimal.ZERO;
+                    BigDecimal tmpSfBcjAmount = BigDecimal.ZERO;
                     if(ObjectUtil.isNotEmpty(tmpGzData)){
                         tmpYfGzNum = tmpGzData.getGzYfNum();
                         tmpSfGzNum = tmpGzData.getGzSfNum();
                         tmpYfGzAmount = tmpGzData.getYfGzTotal();
                         tmpSfGzAmount = tmpGzData.getSfGzTotal();
+                        tmpYfBcjNum = tmpGzData.getBcjYfNum();
+                        tmpSfBcjNum = tmpGzData.getBcjSfNum();
+                        tmpYfBcjAmount = tmpGzData.getYfBcjTotal();
+                        tmpSfBcjAmount = tmpGzData.getSfBcjTotal();
                     }
                     if(ObjectUtil.isNotEmpty(tmpFundData)){
                         tmpSjWxNum = tmpFundData.getSjWxNum();
@@ -719,6 +776,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                     sjGjjNumSum = sjGjjNumSum + tmpSjGjjNum;
                     sjWxAmountSum = sjWxAmountSum.add(tmpSjWxAmount);
                     sjGjjAmountSum = sjGjjAmountSum.add(tmpSjGjjAmount);
+                    yfBcjNumSum = yfBcjNumSum + tmpYfBcjNum;
+                    sfBcjNumSum = sfBcjNumSum + tmpSfBcjNum;
+                    yfBcjAmountSum = yfBcjAmountSum.add(tmpYfBcjAmount);
+                    sfBcjAmountSum = sfBcjAmountSum.add(tmpSfBcjAmount);
 
                     switch (month){
                         case "01":
@@ -730,6 +791,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount1(tmpSjWxAmount);
                             obj.setSjGjjNum1(tmpSjGjjNum);
                             obj.setSjGjjAmount1(tmpSjGjjAmount);
+                            obj.setYfBcjNum1(tmpYfBcjNum);
+                            obj.setSfBcjNum1(tmpSfBcjNum);
+                            obj.setYfBcjAmount1(tmpYfBcjAmount);
+                            obj.setSfBcjAmount1(tmpSfBcjAmount);
                             break;
                         case "02":
                             obj.setYfGzNum2(tmpYfGzNum);
@@ -740,6 +805,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount2(tmpSjWxAmount);
                             obj.setSjGjjNum2(tmpSjGjjNum);
                             obj.setSjGjjAmount2(tmpSjGjjAmount);
+                            obj.setYfBcjNum2(tmpYfBcjNum);
+                            obj.setSfBcjNum2(tmpSfBcjNum);
+                            obj.setYfBcjAmount2(tmpYfBcjAmount);
+                            obj.setSfBcjAmount2(tmpSfBcjAmount);
                             break;
                         case "03":
                             obj.setYfGzNum3(tmpYfGzNum);
@@ -750,6 +819,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount3(tmpSjWxAmount);
                             obj.setSjGjjNum3(tmpSjGjjNum);
                             obj.setSjGjjAmount3(tmpSjGjjAmount);
+                            obj.setYfBcjNum3(tmpYfBcjNum);
+                            obj.setSfBcjNum3(tmpSfBcjNum);
+                            obj.setYfBcjAmount3(tmpYfBcjAmount);
+                            obj.setSfBcjAmount3(tmpSfBcjAmount);
                             break;
                         case "04":
                             obj.setYfGzNum4(tmpYfGzNum);
@@ -760,6 +833,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount4(tmpSjWxAmount);
                             obj.setSjGjjNum4(tmpSjGjjNum);
                             obj.setSjGjjAmount4(tmpSjGjjAmount);
+                            obj.setYfBcjNum4(tmpYfBcjNum);
+                            obj.setSfBcjNum4(tmpSfBcjNum);
+                            obj.setYfBcjAmount4(tmpYfBcjAmount);
+                            obj.setSfBcjAmount4(tmpSfBcjAmount);
                             break;
                         case "05":
                             obj.setYfGzNum5(tmpYfGzNum);
@@ -770,6 +847,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount5(tmpSjWxAmount);
                             obj.setSjGjjNum5(tmpSjGjjNum);
                             obj.setSjGjjAmount5(tmpSjGjjAmount);
+                            obj.setYfBcjNum5(tmpYfBcjNum);
+                            obj.setSfBcjNum5(tmpSfBcjNum);
+                            obj.setYfBcjAmount5(tmpYfBcjAmount);
+                            obj.setSfBcjAmount5(tmpSfBcjAmount);
                             break;
                         case "06":
                             obj.setYfGzNum6(tmpYfGzNum);
@@ -780,6 +861,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount6(tmpSjWxAmount);
                             obj.setSjGjjNum6(tmpSjGjjNum);
                             obj.setSjGjjAmount6(tmpSjGjjAmount);
+                            obj.setYfBcjNum6(tmpYfBcjNum);
+                            obj.setSfBcjNum6(tmpSfBcjNum);
+                            obj.setYfBcjAmount6(tmpYfBcjAmount);
+                            obj.setSfBcjAmount6(tmpSfBcjAmount);
                             break;
                         case "07":
                             obj.setYfGzNum7(tmpYfGzNum);
@@ -790,6 +875,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount7(tmpSjWxAmount);
                             obj.setSjGjjNum7(tmpSjGjjNum);
                             obj.setSjGjjAmount7(tmpSjGjjAmount);
+                            obj.setYfBcjNum7(tmpYfBcjNum);
+                            obj.setSfBcjNum7(tmpSfBcjNum);
+                            obj.setYfBcjAmount7(tmpYfBcjAmount);
+                            obj.setSfBcjAmount7(tmpSfBcjAmount);
                             break;
                         case "08":
                             obj.setYfGzNum8(tmpYfGzNum);
@@ -800,6 +889,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount8(tmpSjWxAmount);
                             obj.setSjGjjNum8(tmpSjGjjNum);
                             obj.setSjGjjAmount8(tmpSjGjjAmount);
+                            obj.setYfBcjNum8(tmpYfBcjNum);
+                            obj.setSfBcjNum8(tmpSfBcjNum);
+                            obj.setYfBcjAmount8(tmpYfBcjAmount);
+                            obj.setSfBcjAmount8(tmpSfBcjAmount);
                             break;
                         case "09":
                             obj.setYfGzNum9(tmpYfGzNum);
@@ -810,6 +903,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount9(tmpSjWxAmount);
                             obj.setSjGjjNum9(tmpSjGjjNum);
                             obj.setSjGjjAmount9(tmpSjGjjAmount);
+                            obj.setYfBcjNum9(tmpYfBcjNum);
+                            obj.setSfBcjNum9(tmpSfBcjNum);
+                            obj.setYfBcjAmount9(tmpYfBcjAmount);
+                            obj.setSfBcjAmount9(tmpSfBcjAmount);
                             break;
                         case "10":
                             obj.setYfGzNum10(tmpYfGzNum);
@@ -820,6 +917,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount10(tmpSjWxAmount);
                             obj.setSjGjjNum10(tmpSjGjjNum);
                             obj.setSjGjjAmount10(tmpSjGjjAmount);
+                            obj.setYfBcjNum10(tmpYfBcjNum);
+                            obj.setSfBcjNum10(tmpSfBcjNum);
+                            obj.setYfBcjAmount10(tmpYfBcjAmount);
+                            obj.setSfBcjAmount10(tmpSfBcjAmount);
                             break;
                         case "11":
                             obj.setYfGzNum11(tmpYfGzNum);
@@ -830,6 +931,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount11(tmpSjWxAmount);
                             obj.setSjGjjNum11(tmpSjGjjNum);
                             obj.setSjGjjAmount11(tmpSjGjjAmount);
+                            obj.setYfBcjNum11(tmpYfBcjNum);
+                            obj.setSfBcjNum11(tmpSfBcjNum);
+                            obj.setYfBcjAmount11(tmpYfBcjAmount);
+                            obj.setSfBcjAmount11(tmpSfBcjAmount);
                             break;
                         case "12":
                             obj.setYfGzNum12(tmpYfGzNum);
@@ -840,6 +945,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                             obj.setSjWxAmount12(tmpSjWxAmount);
                             obj.setSjGjjNum12(tmpSjGjjNum);
                             obj.setSjGjjAmount12(tmpSjGjjAmount);
+                            obj.setYfBcjNum12(tmpYfBcjNum);
+                            obj.setSfBcjNum12(tmpSfBcjNum);
+                            obj.setYfBcjAmount12(tmpYfBcjAmount);
+                            obj.setSfBcjAmount12(tmpSfBcjAmount);
                             break;
                         default:break;
                     }
@@ -852,6 +961,10 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 obj.setSjWxTotal(sjWxAmountSum);
                 obj.setSjGjjAvgNum(SubUtils.getDoubleVal(sjGjjNumSum/12.0,2));
                 obj.setSjGjjTotal(sjGjjAmountSum);
+                obj.setYfBcjAvgNum(SubUtils.getDoubleVal(yfBcjNumSum/12.0,2));
+                obj.setSfBcjAvgNum(SubUtils.getDoubleVal(sfBcjNumSum/12.0,2));
+                obj.setYfBcjTotal(yfBcjAmountSum);
+                obj.setSfBcjTotal(sfBcjAmountSum);
             }
         }
 
@@ -1126,6 +1239,63 @@ public class SubGzServiceImpl extends ServiceImpl<SubGzMapper, SubGz> implements
                 result.setSjGjjAmount11(result.getSjGjjAmount11().add(item.getSjGjjAmount11()));
                 result.setSjGjjAmount12(result.getSjGjjAmount12().add(item.getSjGjjAmount12()));
                 result.setSjGjjTotal(result.getSjGjjTotal().add(item.getSjGjjTotal()));
+
+
+                result.setYfBcjNum1(result.getYfBcjNum1()+item.getYfBcjNum1());
+                result.setYfBcjNum2(result.getYfBcjNum2()+item.getYfBcjNum2());
+                result.setYfBcjNum3(result.getYfBcjNum3()+item.getYfBcjNum3());
+                result.setYfBcjNum4(result.getYfBcjNum4()+item.getYfBcjNum4());
+                result.setYfBcjNum5(result.getYfBcjNum5()+item.getYfBcjNum5());
+                result.setYfBcjNum6(result.getYfBcjNum6()+item.getYfBcjNum6());
+                result.setYfBcjNum7(result.getYfBcjNum7()+item.getYfBcjNum7());
+                result.setYfBcjNum8(result.getYfBcjNum8()+item.getYfBcjNum8());
+                result.setYfBcjNum9(result.getYfBcjNum9()+item.getYfBcjNum9());
+                result.setYfBcjNum10(result.getYfBcjNum10()+item.getYfBcjNum10());
+                result.setYfBcjNum11(result.getYfBcjNum11()+item.getYfBcjNum11());
+                result.setYfBcjNum12(result.getYfBcjNum12()+item.getYfBcjNum12());
+                result.setYfBcjAvgNum(result.getYfBcjAvgNum()+item.getYfBcjAvgNum());
+
+                result.setSfBcjNum1(result.getSfBcjNum1()+item.getSfBcjNum1());
+                result.setSfBcjNum2(result.getSfBcjNum2()+item.getSfBcjNum2());
+                result.setSfBcjNum3(result.getSfBcjNum3()+item.getSfBcjNum3());
+                result.setSfBcjNum4(result.getSfBcjNum4()+item.getSfBcjNum4());
+                result.setSfBcjNum5(result.getSfBcjNum5()+item.getSfBcjNum5());
+                result.setSfBcjNum6(result.getSfBcjNum6()+item.getSfBcjNum6());
+                result.setSfBcjNum7(result.getSfBcjNum7()+item.getSfBcjNum7());
+                result.setSfBcjNum8(result.getSfBcjNum8()+item.getSfBcjNum8());
+                result.setSfBcjNum9(result.getSfBcjNum9()+item.getSfBcjNum9());
+                result.setSfBcjNum10(result.getSfBcjNum10()+item.getSfBcjNum10());
+                result.setSfBcjNum11(result.getSfBcjNum11()+item.getSfBcjNum11());
+                result.setSfBcjNum12(result.getSfBcjNum12()+item.getSfBcjNum12());
+                result.setSfBcjAvgNum(result.getSfBcjAvgNum()+item.getSfBcjAvgNum());
+
+                result.setYfBcjAmount1(result.getYfBcjAmount1().add(item.getYfBcjAmount1()));
+                result.setYfBcjAmount2(result.getYfBcjAmount2().add(item.getYfBcjAmount2()));
+                result.setYfBcjAmount3(result.getYfBcjAmount3().add(item.getYfBcjAmount3()));
+                result.setYfBcjAmount4(result.getYfBcjAmount4().add(item.getYfBcjAmount4()));
+                result.setYfBcjAmount5(result.getYfBcjAmount5().add(item.getYfBcjAmount5()));
+                result.setYfBcjAmount6(result.getYfBcjAmount6().add(item.getYfBcjAmount6()));
+                result.setYfBcjAmount7(result.getYfBcjAmount7().add(item.getYfBcjAmount7()));
+                result.setYfBcjAmount8(result.getYfBcjAmount8().add(item.getYfBcjAmount8()));
+                result.setYfBcjAmount9(result.getYfBcjAmount9().add(item.getYfBcjAmount9()));
+                result.setYfBcjAmount10(result.getYfBcjAmount10().add(item.getYfBcjAmount10()));
+                result.setYfBcjAmount11(result.getYfBcjAmount11().add(item.getYfBcjAmount11()));
+                result.setYfBcjAmount12(result.getYfBcjAmount12().add(item.getYfBcjAmount12()));
+                result.setYfBcjTotal(result.getYfBcjTotal().add(item.getYfBcjTotal()));
+
+                result.setSfBcjAmount1(result.getSfBcjAmount1().add(item.getSfBcjAmount1()));
+                result.setSfBcjAmount2(result.getSfBcjAmount2().add(item.getSfBcjAmount2()));
+                result.setSfBcjAmount3(result.getSfBcjAmount3().add(item.getSfBcjAmount3()));
+                result.setSfBcjAmount4(result.getSfBcjAmount4().add(item.getSfBcjAmount4()));
+                result.setSfBcjAmount5(result.getSfBcjAmount5().add(item.getSfBcjAmount5()));
+                result.setSfBcjAmount6(result.getSfBcjAmount6().add(item.getSfBcjAmount6()));
+                result.setSfBcjAmount7(result.getSfBcjAmount7().add(item.getSfBcjAmount7()));
+                result.setSfBcjAmount8(result.getSfBcjAmount8().add(item.getSfBcjAmount8()));
+                result.setSfBcjAmount9(result.getSfBcjAmount9().add(item.getSfBcjAmount9()));
+                result.setSfBcjAmount10(result.getSfBcjAmount10().add(item.getSfBcjAmount10()));
+                result.setSfBcjAmount11(result.getSfBcjAmount11().add(item.getSfBcjAmount11()));
+                result.setSfBcjAmount12(result.getSfBcjAmount12().add(item.getSfBcjAmount12()));
+                result.setSfBcjTotal(result.getSfBcjTotal().add(item.getSfBcjTotal()));
             });
         }
         return result;

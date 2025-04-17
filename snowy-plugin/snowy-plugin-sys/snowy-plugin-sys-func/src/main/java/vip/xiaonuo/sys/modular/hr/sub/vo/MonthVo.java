@@ -112,4 +112,23 @@ public class MonthVo {
     /** 五险一金 - 实缴公积金总额 */
     @ApiModelProperty(value = "五险一金 - 实缴公积金总额", position = 38)
     private BigDecimal sjGjjTotal = BigDecimal.ZERO;
+
+
+    /** 补偿金 - 补偿金应发人数 */
+    @ApiModelProperty(value = "补偿金 - 补偿金应发人数", position = 40)
+    private Integer bcjYfNum = 0;
+
+    /** 补偿金 - 补偿金实发人数 */
+    @ApiModelProperty(value = "补偿金 - 补偿金实发人数", position = 41)
+    private Integer bcjSfNum = 0;
+
+    /** 补偿金 - 应发补偿金合计 */
+    @ApiModelProperty(value = "补偿金 - 应发补偿金合计", position = 42)
+    private BigDecimal yfBcjTotal = BigDecimal.ZERO;
+
+    /** 补偿金 - 实发补偿金合计 */
+    @ApiModelProperty(value = "补偿金 - 实发补偿金合计", position = 43)
+    private BigDecimal sfBcjTotal = BigDecimal.ZERO;
+
+
 }
