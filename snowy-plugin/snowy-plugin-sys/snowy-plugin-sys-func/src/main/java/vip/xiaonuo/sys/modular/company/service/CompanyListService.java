@@ -75,11 +75,4 @@ public interface CompanyListService extends IService<CompanyList> {
      **/
     CompanyList queryEntity(String id);
 
-    /**
-     * 发送年报提醒
-     *
-     * @author pzh
-     * @date  2025/04/21 10:04
-     */
-    void sendMsg(CompanyListMsgParam companyListMsgParam);
 }

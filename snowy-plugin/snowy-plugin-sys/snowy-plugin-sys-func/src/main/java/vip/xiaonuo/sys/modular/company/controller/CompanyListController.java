@@ -126,18 +126,4 @@ public class CompanyListController {
         return CommonResult.data(companyListService.detail(companyListIdParam));
     }
 
-    /**
-     * 发送年报提醒
-     *
-     * @author pzh
-     * @date  2025/04/21 10:04
-     */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("发送年报提醒")
-//    @SaCheckPermission("/sys/company/sendMsg")
-    @PostMapping("/sys/company/sendMsg")
-    public CommonResult<String> sendMsg(@RequestBody @Valid CompanyListMsgParam companyListMsgParam) {
-        companyListService.sendMsg(companyListMsgParam);
-        return CommonResult.ok();
-    }
 }

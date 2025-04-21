@@ -28,14 +28,18 @@ import java.util.List;
  **/
 @Getter
 @Setter
-public class CompanyListMsgParam {
+public class SendMsgParam {
 
-    @ApiModelProperty(value = "用户Id集合", required = true)
+    @ApiModelProperty(value = "提醒标题（例如：年报提醒）", required = true, position = 1)
+    @NotBlank(message = "提醒标题不能为空")
+    private String title;
+
+    @ApiModelProperty(value = "提醒内容", required = true, position = 2)
+    @NotBlank(message = "提醒内容不能为空")
+    private String content;
+
+    @ApiModelProperty(value = "用户Id集合", required = true,  position = 3)
     @NotEmpty(message = "用户Id集合不能为空")
     private List<String> userIdList;
-
-    @ApiModelProperty(value = "提醒内容", required = true)
-    @NotBlank(message = "提醒内容不能为空")
-    private String msg;
 
 }

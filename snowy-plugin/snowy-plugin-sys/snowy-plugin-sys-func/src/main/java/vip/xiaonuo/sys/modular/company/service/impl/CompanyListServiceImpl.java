@@ -44,12 +44,6 @@ import java.util.List;
 @Service
 public class CompanyListServiceImpl extends ServiceImpl<CompanyListMapper, CompanyList> implements CompanyListService {
 
-    @Resource
-    DevMessageApi devMessageApi;
-
-    @Resource
-    IDingDingService dingDingService;
-
     @Override
     public Page<CompanyList> page(CompanyListPageParam companyListPageParam) {
         QueryWrapper<CompanyList> queryWrapper = new QueryWrapper<>();
@@ -115,14 +109,4 @@ public class CompanyListServiceImpl extends ServiceImpl<CompanyListMapper, Compa
         return companyList;
     }
 
-    @Override
-    public void sendMsg(CompanyListMsgParam companyListMsgParam) {
-        List<String> userIdList = companyListMsgParam.getUserIdList();
-        String subject = "年报提醒"; // 主题
-        String msg = companyListMsgParam.getMsg(); // 内容
-        // 发送站内信
-        devMessageApi.sendMessageWithContent(userIdList, DevMessageCategoryEnum.BIZ.getValue(), subject, msg, null);
-        // 发送钉钉提醒
-        dingDingService.batchSend(String.format("【%s】%s", subject, msg),userIdList);
-    }
 }
