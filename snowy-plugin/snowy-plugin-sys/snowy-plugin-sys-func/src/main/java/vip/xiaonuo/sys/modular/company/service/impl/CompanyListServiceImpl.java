@@ -24,14 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.DevMessageApi;
+import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.dev.modular.message.enums.DevMessageCategoryEnum;
 import vip.xiaonuo.sys.modular.company.entity.CompanyList;
 import vip.xiaonuo.sys.modular.company.mapper.CompanyListMapper;
-import vip.xiaonuo.sys.modular.company.param.CompanyListAddParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListEditParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListIdParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListPageParam;
+import vip.xiaonuo.sys.modular.company.param.*;
 import vip.xiaonuo.sys.modular.company.service.CompanyListService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -42,6 +43,12 @@ import java.util.List;
  **/
 @Service
 public class CompanyListServiceImpl extends ServiceImpl<CompanyListMapper, CompanyList> implements CompanyListService {
+
+    @Resource
+    DevMessageApi devMessageApi;
+
+    @Resource
+    IDingDingService dingDingService;
 
     @Override
     public Page<CompanyList> page(CompanyListPageParam companyListPageParam) {
@@ -106,5 +113,16 @@ public class CompanyListServiceImpl extends ServiceImpl<CompanyListMapper, Compa
             throw new CommonException("建科公司列表(子公司、分公司)不存在，id值为：{}", id);
         }
         return companyList;
+    }
+
+    @Override
+    public void sendMsg(CompanyListMsgParam companyListMsgParam) {
+        List<String> userIdList = companyListMsgParam.getUserIdList();
+        String subject = "年报提醒"; // 主题
+        String msg = companyListMsgParam.getMsg(); // 内容
+        // 发送站内信
+        devMessageApi.sendMessageWithContent(userIdList, DevMessageCategoryEnum.BIZ.getValue(), subject, msg, null);
+        // 发送钉钉提醒
+        dingDingService.batchSend(String.format("【%s】%s", subject, msg),userIdList);
     }
 }

@@ -27,10 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.company.entity.CompanyList;
-import vip.xiaonuo.sys.modular.company.param.CompanyListAddParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListEditParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListIdParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListPageParam;
+import vip.xiaonuo.sys.modular.company.param.*;
 import vip.xiaonuo.sys.modular.company.service.CompanyListService;
 
 import javax.annotation.Resource;
@@ -127,5 +124,20 @@ public class CompanyListController {
     @GetMapping("/sys/company/detail")
     public CommonResult<CompanyList> detail(@Valid CompanyListIdParam companyListIdParam) {
         return CommonResult.data(companyListService.detail(companyListIdParam));
+    }
+
+    /**
+     * 发送年报提醒
+     *
+     * @author pzh
+     * @date  2025/04/21 10:04
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("发送年报提醒")
+//    @SaCheckPermission("/sys/company/sendMsg")
+    @PostMapping("/sys/company/sendMsg")
+    public CommonResult<String> sendMsg(@RequestBody @Valid CompanyListMsgParam companyListMsgParam) {
+        companyListService.sendMsg(companyListMsgParam);
+        return CommonResult.ok();
     }
 }
