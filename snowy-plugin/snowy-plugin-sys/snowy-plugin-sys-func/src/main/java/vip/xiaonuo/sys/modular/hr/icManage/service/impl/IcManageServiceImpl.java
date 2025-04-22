@@ -202,7 +202,7 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
                 ChangeParam tmpChangeParam = new ChangeParam();
                 tmpChangeParam.setId(IdWorker.getIdStr());
                 tmpChangeParam.setDate(DateUtil.formatDate(new Date()));
-                tmpChangeParam.setChangeItem(JSONUtil.toJsonStr(fileNameList));
+                tmpChangeParam.setChangeItem(fileNameList);
                 tmpChangeParam.setOperator(object.getStr("applyName"));
                 tmpChangeParam.setAttach(object.getStr("applyAttach"));
                 tmpChangeParam.setMemo(object.getStr("applyMemo"));

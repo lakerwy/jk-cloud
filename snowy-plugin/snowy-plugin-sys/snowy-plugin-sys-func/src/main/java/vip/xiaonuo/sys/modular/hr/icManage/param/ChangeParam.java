@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -19,7 +21,7 @@ public class ChangeParam {
 
     /** 变更事项 */
     @ApiModelProperty(value = "变更事项", position = 3)
-    private String changeItem;
+    private List<String> changeItem;
 
     /** 经办人 */
     @ApiModelProperty(value = "经办人", position = 4)
