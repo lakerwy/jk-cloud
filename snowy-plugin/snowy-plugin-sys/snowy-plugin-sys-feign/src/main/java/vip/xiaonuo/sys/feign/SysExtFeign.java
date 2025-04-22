@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.feign;
 
+import cn.hutool.json.JSONObject;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,4 +36,12 @@ public interface SysExtFeign {
     @RequestMapping(value = "/feign/sys/ext/saveRegSubsidyResult",method = RequestMethod.POST)
     Boolean saveRegSubsidyResult(@RequestBody Map<String,String> paramMap);
 
+
+    /**
+     * 工商信息 新增|变更|注销 审批 通过 处理
+     * @param object
+     * @return
+     */
+    @RequestMapping(value = "/feign/sys/ext/dealIcManage",method = RequestMethod.POST)
+    Boolean dealIcManage(@RequestBody JSONObject object);
 }

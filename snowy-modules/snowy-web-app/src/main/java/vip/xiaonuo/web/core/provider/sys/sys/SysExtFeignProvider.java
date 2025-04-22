@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.web.core.provider.sys.sys;
 
+import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,4 +45,18 @@ public class SysExtFeignProvider implements SysExtFeign {
     public Boolean saveRegSubsidyResult(@RequestBody Map<String,String> paramMap) {
         return sysExtApiProvider.saveRegSubsidyResult(paramMap);
     }
+
+
+    /**
+     * 工商信息 新增|变更|注销 审批 通过 处理
+     * @param object
+     * @return
+     */
+    @RequestMapping(value = "/feign/sys/ext/dealIcManage",method = RequestMethod.POST)
+    @Override
+    public Boolean dealIcManage(@RequestBody JSONObject object) {
+        return sysExtApiProvider.dealIcManage(object);
+    }
+
+
 }

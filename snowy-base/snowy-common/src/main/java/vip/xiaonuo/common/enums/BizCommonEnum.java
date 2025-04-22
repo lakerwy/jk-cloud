@@ -93,6 +93,9 @@ public enum BizCommonEnum {
 
     BRANCH_FILL("BRANCH_FILL","BRANCH_FILL","BranchFillServiceImpl"), //分公司评级二期填报审批
 
+
+    HR_IC_MANAGE_APPLY("HR_IC_MANAGE_APPLY","HR_IC_MANAGE_APPLY","IcManageApplyServiceImpl"), //工商信息新增变更注销
+
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
 
     String bizModel;

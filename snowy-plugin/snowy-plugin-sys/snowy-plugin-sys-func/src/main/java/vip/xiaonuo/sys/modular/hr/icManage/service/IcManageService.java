@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.icManage.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.icManage.entity.IcManage;
@@ -65,4 +66,8 @@ public interface IcManageService extends IService<IcManage> {
      * @date  2025/02/25 16:33
      **/
     IcManage queryEntity(String id);
+
+
+
+    Boolean dealIcManage(JSONObject object);
 }

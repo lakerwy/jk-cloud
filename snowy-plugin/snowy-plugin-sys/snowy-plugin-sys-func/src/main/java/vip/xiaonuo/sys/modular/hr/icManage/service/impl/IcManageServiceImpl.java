@@ -3,10 +3,14 @@ package vip.xiaonuo.sys.modular.hr.icManage.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +22,11 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.sys.modular.hr.icManage.entity.IcManage;
+import vip.xiaonuo.sys.modular.hr.icManage.enums.IcManageApplyEnum;
 import vip.xiaonuo.sys.modular.hr.icManage.mapper.IcManageMapper;
-import vip.xiaonuo.sys.modular.hr.icManage.param.IcManageAddParam;
-import vip.xiaonuo.sys.modular.hr.icManage.param.IcManageEditParam;
-import vip.xiaonuo.sys.modular.hr.icManage.param.IcManageIdParam;
-import vip.xiaonuo.sys.modular.hr.icManage.param.IcManagePageParam;
+import vip.xiaonuo.sys.modular.hr.icManage.param.*;
 import vip.xiaonuo.sys.modular.hr.icManage.service.IcManageService;
+import vip.xiaonuo.sys.modular.hr.icManage.util.CompareUtil;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
@@ -49,6 +52,31 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
 
     @Resource
     SysOrgService sysOrgService;
+
+
+    /**
+     * 变更信息 校验项集合
+     */
+    private final static Map<String,String> fieldMap = new HashMap<>();
+
+    static {
+        fieldMap.put("companyName","公司名称");
+        fieldMap.put("type","类型");
+        fieldMap.put("corpCode","统一社会信用代码");
+        fieldMap.put("registeredCapital","注册资本");
+        fieldMap.put("businessScope","经营范围");
+        fieldMap.put("paidinCapital","实缴资本");
+        fieldMap.put("address","住所");
+        fieldMap.put("establishTime","成立日期");
+        fieldMap.put("legalRepresentative","法定代表人");
+        fieldMap.put("legalRepresentativeId","法定代表人身份信息");
+        fieldMap.put("businessTermType","经营期限类型");
+        fieldMap.put("businessTermStart","经营期限-开始时间");
+        fieldMap.put("businessTermEnd","经营期限-结束时间");
+        fieldMap.put("shareholderInfoJson","股东信息");
+        fieldMap.put("mainPersonnelJson","主要人员");
+        fieldMap.put("memo","备注");
+    }
 
 
     @Override
@@ -141,5 +169,62 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
             throw new CommonException("工商管理不存在，id值为：{}", id);
         }
         return icManage;
+    }
+
+    @Override
+    public Boolean dealIcManage(JSONObject object) {
+        String applyType = object.getStr("applyType");
+        String icManageId = object.getStr("icManageId");
+        if(IcManageApplyEnum.ADD.equals(applyType)){
+            IcManage icManage = JSONUtil.toBean(object,IcManage.class);
+            icManage.setId(IdWorker.getIdStr());
+            this.save(icManage);
+
+        }else if (IcManageApplyEnum.CHANGE.getValue().equals(applyType)){
+            IcManage icManageA = this.getById(icManageId);
+            if(ObjectUtil.isNotEmpty(icManageA)){
+                //历史变更记录
+                List<ChangeParam> changeParamList = new ArrayList<>();
+                if(ObjectUtil.isNotEmpty(icManageA.getIcUpdateRecordJson())) {
+                    changeParamList = JSONUtil.toList(icManageA.getIcUpdateRecordJson(), ChangeParam.class);
+                }
+                //本次变更
+                List<String> fileNameList = new ArrayList<>();
+                IcManage icManageB = JSONUtil.toBean(object,IcManage.class);
+                icManageB.setId(icManageId);
+                Map<String, String> tmpMap = CompareUtil.compareEntities(icManageA, icManageB);
+                for(Map.Entry<String,String> entry : tmpMap.entrySet()){
+                    String fieldName = fieldMap.get(entry.getKey());
+                    if(ObjectUtil.isNotEmpty(fieldName)){
+                        fileNameList.add(fieldName);
+                    }
+                }
+                ChangeParam tmpChangeParam = new ChangeParam();
+                tmpChangeParam.setId(IdWorker.getIdStr());
+                tmpChangeParam.setDate(DateUtil.formatDate(new Date()));
+                tmpChangeParam.setChangeItem(JSONUtil.toJsonStr(fileNameList));
+                tmpChangeParam.setOperator(object.getStr("applyName"));
+                tmpChangeParam.setAttach(object.getStr("applyAttach"));
+                tmpChangeParam.setMemo(object.getStr("applyMemo"));
+                tmpChangeParam.setProcessInstanceId(object.getStr("applyProcessInstanceId"));
+                changeParamList.add(tmpChangeParam);
+                icManageB.setIcUpdateRecordJson(JSONUtil.toJsonStr(changeParamList));
+
+                //跟新
+                BeanUtil.copyProperties(icManageB, icManageA);
+                this.updateById(icManageA);
+            }
+
+        } else if (IcManageApplyEnum.CANCEL.getValue().equals(applyType)) {
+            IcManage icManage = this.getById(icManageId);
+            if(ObjectUtil.isNotEmpty(icManage)){
+                this.removeById(icManage);
+            }
+
+        }else {
+            log.error("不支持的事项类别");
+            return false;
+        }
+        return true;
     }
 }

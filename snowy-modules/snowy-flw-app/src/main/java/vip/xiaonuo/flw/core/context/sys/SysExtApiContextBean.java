@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.core.context.sys;
 
+import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,5 +39,16 @@ public class SysExtApiContextBean implements SysExtApi {
     @Override
     public Boolean saveRegSubsidyResult(Map<String,String> paramMap) {
         return sysExtFeign.saveRegSubsidyResult(paramMap);
+    }
+
+
+    /**
+     * 工商信息 新增|变更|注销 审批 通过 处理
+     * @param object
+     * @return
+     */
+    @Override
+    public Boolean dealIcManage(JSONObject object) {
+        return sysExtFeign.dealIcManage(object);
     }
 }

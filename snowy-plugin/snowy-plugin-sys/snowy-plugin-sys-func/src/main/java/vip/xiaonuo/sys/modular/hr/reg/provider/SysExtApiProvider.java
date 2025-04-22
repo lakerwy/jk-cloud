@@ -1,11 +1,13 @@
 package vip.xiaonuo.sys.modular.hr.reg.provider;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.sys.api.SysExtApi;
+import vip.xiaonuo.sys.modular.hr.icManage.service.IcManageService;
 import vip.xiaonuo.sys.modular.hr.reg.entity.RegSubsidyResult;
 import vip.xiaonuo.sys.modular.hr.reg.service.RegSubsidyResultService;
 
@@ -19,6 +21,9 @@ public class SysExtApiProvider implements SysExtApi {
 
     @Resource
     private RegSubsidyResultService regSubsidyResultService;
+
+    @Resource
+    private IcManageService icManageService;
 
     /**
      * 注册补贴 审批 通过 处理结果反馈
@@ -53,4 +58,17 @@ public class SysExtApiProvider implements SysExtApi {
             return false;
         }
     }
+
+
+
+    /**
+     * 工商信息 新增|变更|注销 审批 通过 处理
+     * @param object
+     * @return
+     */
+    @Override
+    public Boolean dealIcManage(JSONObject object) {
+        return icManageService.dealIcManage(object);
+    }
+
 }
