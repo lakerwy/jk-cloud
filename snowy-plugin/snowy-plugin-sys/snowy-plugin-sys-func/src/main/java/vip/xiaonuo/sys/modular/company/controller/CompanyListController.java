@@ -27,10 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.company.entity.CompanyList;
-import vip.xiaonuo.sys.modular.company.param.CompanyListAddParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListEditParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListIdParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListPageParam;
+import vip.xiaonuo.sys.modular.company.param.*;
 import vip.xiaonuo.sys.modular.company.service.CompanyListService;
 
 import javax.annotation.Resource;
@@ -128,4 +125,5 @@ public class CompanyListController {
     public CommonResult<CompanyList> detail(@Valid CompanyListIdParam companyListIdParam) {
         return CommonResult.data(companyListService.detail(companyListIdParam));
     }
+
 }

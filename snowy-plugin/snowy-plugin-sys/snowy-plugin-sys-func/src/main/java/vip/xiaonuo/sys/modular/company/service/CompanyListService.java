@@ -15,10 +15,7 @@ package vip.xiaonuo.sys.modular.company.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.company.entity.CompanyList;
-import vip.xiaonuo.sys.modular.company.param.CompanyListAddParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListEditParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListIdParam;
-import vip.xiaonuo.sys.modular.company.param.CompanyListPageParam;
+import vip.xiaonuo.sys.modular.company.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,5 @@ public interface CompanyListService extends IService<CompanyList> {
      * @date  2024/03/07 15:04
      **/
     CompanyList queryEntity(String id);
+
 }

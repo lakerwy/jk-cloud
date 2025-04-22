@@ -111,6 +111,10 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         //发送钉钉通知
 //        dingDingService.baseBatchSend(JSONUtil.parseObj(devMessage),receiverIdList);
         Map<String, String> taskMap = devMessage.getTaskMap();
+        // taskMap参数为null，则不发送钉钉提醒
+        if(CollUtil.isEmpty(taskMap)){
+            return;
+        }
         JSONObject jsonObject = new JSONObject();
         Object processDefinitionId = taskMap.get("processDefinitionId");
         Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
