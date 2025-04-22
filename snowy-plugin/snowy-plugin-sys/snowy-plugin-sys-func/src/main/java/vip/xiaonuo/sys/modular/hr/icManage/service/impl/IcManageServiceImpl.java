@@ -175,7 +175,7 @@ public class IcManageServiceImpl extends ServiceImpl<IcManageMapper, IcManage> i
     public Boolean dealIcManage(JSONObject object) {
         String applyType = object.getStr("applyType");
         String icManageId = object.getStr("icManageId");
-        if(IcManageApplyEnum.ADD.equals(applyType)){
+        if(IcManageApplyEnum.ADD.getValue().equals(applyType)){
             IcManage icManage = JSONUtil.toBean(object,IcManage.class);
             icManage.setId(IdWorker.getIdStr());
             this.save(icManage);
