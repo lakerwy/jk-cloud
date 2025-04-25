@@ -331,4 +331,17 @@ public class BizProject {
     /** 经营部门 */
     @ApiModelProperty(value = "经营部门", position = 200)
     private String manageDept;
+
+    /** 是否为重大项目 */
+    @ApiModelProperty(value = "是否为重大项目", position = 210)
+    private String isVital;
+
+    /** 项目技术负责人 */
+    @ApiModelProperty(value = "项目技术负责人", position = 211)
+    private String projectTechHeader;
+
+    /** 项目技术负责人Id */
+    @ApiModelProperty(value = "项目技术负责人Id", position = 212)
+    private String projectTechHeaderId;
+
 }
