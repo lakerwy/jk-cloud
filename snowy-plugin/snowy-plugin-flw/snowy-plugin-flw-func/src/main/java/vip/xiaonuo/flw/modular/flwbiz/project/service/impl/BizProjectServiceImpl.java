@@ -42,6 +42,7 @@ import vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
 import vip.xiaonuo.flw.modular.flwbiz.project.util.MyUtil;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -231,6 +232,43 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             }
         });
         return false;
+    }
+
+    @Override
+    public Page<BizProjectVo> epcMpPage(BizProjectPageParam bizProjectPageParam) {
+        QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectPageParam.getEndApplyTime())) {
+            queryWrapper.between("a.APPLY_TIME", bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())) {
+            queryWrapper.like("a.SN", bizProjectPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())) {
+            queryWrapper.like("a.NAME", bizProjectPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
+            queryWrapper.like("a.SOURCE", bizProjectPageParam.getSource());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.NAME",bizProjectPageParam.getSearchKey())
+                    .or().like("a.SN",bizProjectPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
+            queryWrapper.eq("a.IS_HEAD",bizProjectPageParam.getIsHead());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getType())){
+            queryWrapper.eq("a.TYPE",bizProjectPageParam.getType());
+        }
+        if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizProjectPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.SN");
+        }
+        return bizProjectMapper.getEpcMpPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
 }

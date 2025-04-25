@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 
 import java.util.List;
 
@@ -81,4 +82,6 @@ public interface BizProjectService extends IService<BizProject> {
      * @return
      */
     Boolean checkName(CheckNameParam checkNameParam);
+
+    Page<BizProjectVo> epcMpPage(BizProjectPageParam bizProjectPageParam);
 }

@@ -29,6 +29,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -135,5 +136,22 @@ public class BizProjectController {
     @GetMapping("/flw/project/checkName")
     public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
         return CommonResult.data(bizProjectService.checkName(checkNameParam));
+    }
+
+
+
+
+
+    /**
+     * 获取业务表-立项申请分页 【epcMp中台】
+     *
+     * @author mayike
+     * @date  2023/06/20 14:26
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("获取业务表-立项申请分页 【epcMp中台】")
+    @GetMapping("/openApi/epcMp/projectPage")
+    public CommonResult<Page<BizProjectVo>> projectPage(BizProjectPageParam bizProjectPageParam) {
+        return CommonResult.data(bizProjectService.epcMpPage(bizProjectPageParam));
     }
 }

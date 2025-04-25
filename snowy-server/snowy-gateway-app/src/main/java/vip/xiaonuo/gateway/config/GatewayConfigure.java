@@ -227,6 +227,7 @@ public class GatewayConfigure {
             /* 对外提供查询接口（投标智囊）*/
             "/api/webapp/openApi/**",
             "/api/bizapp/openApi/**",
+            "/api/flwapp/openApi/**",
 
     };
 

@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 
 /**
  * 业务表-立项申请Mapper接口
@@ -41,4 +42,7 @@ public interface BizProjectMapper extends BaseMapper<BizProject> {
      * @return
      */
     BizProject getDetail(String id);
+
+
+    Page<BizProjectVo> getEpcMpPageList(Page<BizProjectVo> page, @Param(Constants.WRAPPER) Wrapper<BizProject> queryWrapper);
 }
