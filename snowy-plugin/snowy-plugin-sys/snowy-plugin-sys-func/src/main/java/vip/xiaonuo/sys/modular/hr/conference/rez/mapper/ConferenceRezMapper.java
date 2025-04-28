@@ -13,7 +13,12 @@
 package vip.xiaonuo.sys.modular.hr.conference.rez.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezListParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceRezVo;
+
+import java.util.List;
 
 /**
  * 会议模块-预约会议Mapper接口
@@ -22,4 +27,5 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
  * @date  2023/12/01 23:35
  **/
 public interface ConferenceRezMapper extends BaseMapper<ConferenceRez> {
+    List<ConferenceRezVo> limitList(@Param("param") ConferenceRezListParam conferenceRezListParam);
 }

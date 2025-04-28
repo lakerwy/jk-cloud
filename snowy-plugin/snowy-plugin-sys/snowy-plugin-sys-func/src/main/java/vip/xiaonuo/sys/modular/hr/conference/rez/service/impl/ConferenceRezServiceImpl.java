@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
@@ -110,6 +109,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private ApplicationEventPublisher eventPublisher;
     @Resource
     RuanLianApiService ruanLianApiService;
+    @Resource
+    ConferenceRezMapper conferenceRezMapper;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -786,5 +787,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         conferenceRez.setIsSendMsg(ConferenceRezEnum.IS_SEND_MSG.getValue());
         this.saveOrUpdate(conferenceRez);
+    }
+
+    @Override
+    public List<ConferenceRezVo> limitList(ConferenceRezListParam conferenceRezListParam) {
+        return conferenceRezMapper.limitList(conferenceRezListParam);
     }
 }

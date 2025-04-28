@@ -2,4 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper">
 
+    <select id="limitList" resultType="vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceRezVo">
+        SELECT ID id,
+               THEME theme,
+               BEGIN_TIME beginTime,
+               END_TIME endTime,
+               JSON_UNQUOTE(JSON_EXTRACT(EXT_JSON,'$.userName')) as userName,
+               JSON_UNQUOTE(JSON_EXTRACT(EXT_JSON,'$.roomName')) as roomName
+        FROM CONFERENCE_REZ
+        WHERE DELETE_FLAG = 'NOT_DELETE'
+        AND END_TIME > NOW()
+        AND JSON_UNQUOTE(JSON_EXTRACT(EXT_JSON,'$.roomId')) = #{param.roomId}
+        ORDER BY BEGIN_TIME ASC
+        LIMIT ${param.limit}
+    </select>
+
 </mapper>

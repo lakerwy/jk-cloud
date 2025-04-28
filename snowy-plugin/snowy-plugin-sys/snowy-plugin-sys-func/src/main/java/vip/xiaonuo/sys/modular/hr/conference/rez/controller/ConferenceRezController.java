@@ -31,10 +31,12 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceRezVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 会议模块-预约会议控制器
@@ -232,5 +234,20 @@ public class ConferenceRezController {
     public CommonResult<String> sendJoinMsg(@Valid ConferenceRezIdParam conferenceRezIdParam) throws Exception{
         conferenceRezService.sendJoinMsg(conferenceRezIdParam);
         return CommonResult.ok();
+    }
+
+
+    /**
+     * 获取会议模块-预约会议列表
+     *
+     * @author pzh
+     * @date  2025/04/28 14:30
+     */
+    @ApiOperationSupport(order = 30)
+    @ApiOperation("获取会议模块-预约会议列表")
+    //@SaCheckPermission("/sys/rez/list")
+    @GetMapping("/openApi/sys/rez/list")
+    public CommonResult<List<ConferenceRezVo>> list(@Valid ConferenceRezListParam conferenceRezListParam) {
+        return CommonResult.data(conferenceRezService.limitList(conferenceRezListParam));
     }
 }

@@ -20,6 +20,7 @@ import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataPara
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceRezVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
@@ -119,4 +120,9 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /**  发送参与人消息 */
     void sendJoinMsg(ConferenceRezIdParam conferenceRezIdParam) throws Exception;
+
+    /**
+     * 获取会议模块-预约会议列表
+     */
+    List<ConferenceRezVo> limitList(ConferenceRezListParam conferenceRezListParam);
 }
