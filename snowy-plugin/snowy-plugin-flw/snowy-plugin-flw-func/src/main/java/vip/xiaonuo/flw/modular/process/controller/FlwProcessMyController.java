@@ -189,8 +189,8 @@ public class FlwProcessMyController {
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
-//            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
-            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getInitiatorProcessAbstract());
             flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
             flwProcessMonitorPageParam.setStartOptDate(flwProcessMyPageParam.getStartOptDate());
             flwProcessMonitorPageParam.setEndOptDate(flwProcessMyPageParam.getEndOptDate());
@@ -230,8 +230,8 @@ public class FlwProcessMyController {
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
-//            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
-            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getInitiatorProcessAbstract());
             flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
             flwProcessMonitorPageParam.setStartOptDate(flwProcessMyPageParam.getStartOptDate());
             flwProcessMonitorPageParam.setEndOptDate(flwProcessMyPageParam.getEndOptDate());
