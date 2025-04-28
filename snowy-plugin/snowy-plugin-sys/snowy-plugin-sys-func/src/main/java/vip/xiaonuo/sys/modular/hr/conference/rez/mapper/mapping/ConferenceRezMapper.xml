@@ -14,7 +14,7 @@
         AND END_TIME > NOW()
         AND JSON_UNQUOTE(JSON_EXTRACT(EXT_JSON,'$.roomId')) = #{param.roomId}
         ORDER BY BEGIN_TIME ASC
-        LIMIT ${param.limit}
+        LIMIT #{param.limit}
     </select>
 
 </mapper>
