@@ -171,7 +171,6 @@ public class BranchRatingController {
      */
     @ApiOperationSupport(order = 8)
     @ApiOperation("分公司评级 - 获取当前公示年份和季度")
-    @CommonLog("分公司评级 - 获取当前公示年份和季度")
     @GetMapping("/biz/branchRating/getCurPublic")
     public CommonResult<BranchRatingPublic> getCurPublic() {
         return CommonResult.data(branchRatingPublicService.getCurPublic());

@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.company.param.*;
 import vip.xiaonuo.sys.modular.msg.service.SendMsgService;
@@ -51,6 +52,7 @@ public class SendMsgController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("发送站内信和钉钉提醒")
 //    @SaCheckPermission("/sys/company/sendMsg")
+    @CommonLog("发送站内信和钉钉提醒")
     @PostMapping("/sys/sendMsg")
     public CommonResult<String> sendMsg(@RequestBody @Valid SendMsgParam sendMsgParam) {
         sendMsgService.sendMsg(sendMsgParam);

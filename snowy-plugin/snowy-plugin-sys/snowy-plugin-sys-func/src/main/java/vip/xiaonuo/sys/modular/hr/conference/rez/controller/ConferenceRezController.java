@@ -246,6 +246,7 @@ public class ConferenceRezController {
     @ApiOperationSupport(order = 30)
     @ApiOperation("获取会议模块-预约会议列表")
     //@SaCheckPermission("/sys/rez/list")
+    @CommonLog("获取会议模块-预约会议列表")
     @GetMapping("/openApi/sys/rez/list")
     public CommonResult<List<ConferenceRezVo>> list(@Valid ConferenceRezListParam conferenceRezListParam) {
         return CommonResult.data(conferenceRezService.limitList(conferenceRezListParam));
