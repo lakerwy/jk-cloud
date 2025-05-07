@@ -84,4 +84,8 @@ public class HRegAddParam {
     @ApiModelProperty(value = "流程状态", position = 23)
     private String status;
 
+    /** 招待方式 */
+    @ApiModelProperty(value = "招待方式", position = 25)
+    private String type;
+
 }

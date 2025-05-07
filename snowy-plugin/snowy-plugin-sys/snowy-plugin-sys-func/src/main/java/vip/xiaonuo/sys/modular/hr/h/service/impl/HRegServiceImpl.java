@@ -81,6 +81,9 @@ public class HRegServiceImpl extends ServiceImpl<HRegMapper, HReg> implements HR
         if(ObjectUtil.isNotEmpty(hRegPageParam.getStatus())) {
             queryWrapper.lambda().eq(HReg::getStatus, hRegPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getType())){
+            queryWrapper.lambda().eq(HReg::getType,hRegPageParam.getType());
+        }
         if(ObjectUtil.isNotEmpty(hRegPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(HReg::getDescMemo,hRegPageParam.getSearchKey())
                     .or().like(HReg::getJoinJosn,hRegPageParam.getSearchKey()));
