@@ -337,7 +337,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
-                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+//                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
@@ -395,7 +395,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
-                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+//                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
