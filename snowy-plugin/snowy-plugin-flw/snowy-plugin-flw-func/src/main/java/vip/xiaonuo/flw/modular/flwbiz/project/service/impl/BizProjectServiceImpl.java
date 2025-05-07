@@ -247,7 +247,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         //缩小数据范围(流程状态+项目名称部分字段)
         String preName = MyUtil.getFirstStr(checkNameParam.getName());
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().select(BizProject::getId,BizProject::getName,BizProject::getProjectSn,BizProject::getStatus);
+        queryWrapper.lambda().select(BizProject::getId,BizProject::getName,BizProject::getSn,BizProject::getProjectSn,BizProject::getStatus);
         queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         queryWrapper.lambda().isNotNull(BizProject::getName);
         queryWrapper.lambda().ne(BizProject::getName,"");
