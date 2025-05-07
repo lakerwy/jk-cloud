@@ -97,7 +97,9 @@ public enum BizCommonEnum {
     HR_IC_MANAGE_APPLY("HR_IC_MANAGE_APPLY","HR_IC_MANAGE_APPLY","IcManageApplyServiceImpl"), //工商信息新增变更注销
 
     HR_H_REG("HR_H_REG","HR_H_REG","HRegServiceImpl"), //餐饮招待登记
-    BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl");   //工程款拨付审批
+    BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl"),   //工程款拨付审批
+
+    BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl");    // 分包合同结算审批
 
     String bizModel;
     String bizTable;
