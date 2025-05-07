@@ -45,6 +45,7 @@ public class DevSmsYunPianUtil {
             if(ObjectUtil.isEmpty(apiKey)) {
                 throw new CommonException("云片短信操作客户端未正确配置：apiKey为空");
             }
+            log.info("apiKey= " + apiKey + "  tpl_id= " + tpl_id + "  phone= " + mobile);
             //初始化clnt,使用单例方式
             client = new YunpianClient(apiKey).init();
             //发送短信API
