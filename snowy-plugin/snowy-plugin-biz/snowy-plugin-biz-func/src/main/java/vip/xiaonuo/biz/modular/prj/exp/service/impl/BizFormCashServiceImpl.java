@@ -329,8 +329,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
                 int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
                 int lastRow_commentList = firstRow_commentList + commentList_Size ;
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 10));
 
@@ -387,9 +386,8 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 int firstRow_commentList = lastRow_Item + 7 ;  // 模版行（行号-1）
                 int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
                 int lastRow_commentList = firstRow_commentList + commentList_Size ;
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 2)); //A + B 列
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 3, 5));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
 
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
