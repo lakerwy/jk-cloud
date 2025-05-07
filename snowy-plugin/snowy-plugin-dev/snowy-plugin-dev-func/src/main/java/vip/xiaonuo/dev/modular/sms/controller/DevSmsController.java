@@ -140,6 +140,38 @@ public class DevSmsController {
         return CommonResult.ok();
     }
 
+
+    /**
+     * 发送短信——云片(单一发送),若发送验证码，会有返回
+     *
+     * @author yong.ye
+     * @date 2023/6/27 15:47
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("发送云片短信,发送验证码，会有返回")
+    @CommonLog("发送云片短信,发送验证码，会有返回")
+    @PostMapping("/dev/sms/sendYunPianRetrun")
+    public CommonResult<String> sendYunPianRetrun(@RequestBody @Valid DevSmsSendYunPianParam devSmsSendYunPianParam) {
+        return CommonResult.data(devSmsService.sendYunPianRetrun(devSmsSendYunPianParam));
+    }
+
+
+    /**
+     * 获取短信验证码缓存
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取短信验证码缓存")
+    @GetMapping("/dev/sms/redis/getPagePhoneCode")
+    public CommonResult<Object> getPagePhoneCode(String phone) {
+        return CommonResult.data(devSmsService.getPagePhoneCode(phone));
+    }
+
+
+
+
     /**
      * 发送短信——云片(单一发送)
      *

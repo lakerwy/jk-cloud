@@ -15,7 +15,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class DevSmsSendYunPianParam {
 
-    /** ApiKey 用户唯一标识，在"账号设置"-"子帐号管理"中查看 */
+    /** ApiKey 用户唯一标识，在"账号设置"-"子帐号管理"中查看（非必填，可从配置库获取） */
     @ApiModelProperty(value = "用户唯一标识", position = 1)
     private String apiKey;
 

@@ -84,4 +84,16 @@ public interface DevSmsService extends IService<DevSms> {
     void sendYunPian(DevSmsSendYunPianParam devSmsSendYunPianParam);
 
 //    void sendUniPush();
+
+
+    /**
+     * 发送短信——云片（单一发送） - - 有默认特定逻辑
+     *
+     * @author yong.ye
+     * @date 2023/6/27 18:37
+     **/
+    String sendYunPianRetrun(DevSmsSendYunPianParam param);
+
+
+    Object getPagePhoneCode(String phone);
 }

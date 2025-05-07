@@ -1,5 +1,9 @@
 package vip.xiaonuo.flw.modular.flwbiz.project.util;
 
+import cn.hutool.core.util.ObjectUtil;
+
+import java.util.Random;
+
 /**
  * 对比工具类型
  */
@@ -55,4 +59,57 @@ public class MyUtil {
         }
         return null;
     }
+
+
+    /**
+     * 获取字符串前面部分
+     * @param s
+     * @param f1
+     * @param f2
+     * @return
+     */
+    public static String getRandomSubstring(String s,Float f1,Float f2) {
+        if(ObjectUtil.isEmpty(s)) return s;
+
+        Random random = new Random();
+        int length = s.length();
+
+        // 计算60%和80%对应的位置（向下取整）
+        int minLen = (int) Math.floor(length * f1);
+        int maxLen = (int) Math.floor(length * f2);
+
+        // 随机选择一个长度（从minLen到maxLen之间）
+        int subLength = random.nextInt(maxLen - minLen + 1) + minLen;
+
+        // 从字符串开头开始截取 特殊 处理 0
+        if(subLength < 1 || subLength > length){
+            return s;
+        }
+        return s.substring(0, subLength);
+    }
+
+
+
+    /**
+     * 获取字符串前面部分
+     * @param s
+     * @param f1 截取比例
+     * @return
+     */
+    public static String getRandomSubstring2(String s,Float f1) {
+        if(ObjectUtil.isEmpty(s)) return s;
+
+        Random random = new Random();
+        int length = s.length();
+
+        // 计算60%和80%对应的位置（向下取整）
+        int subLength = (int) Math.floor(length * f1);
+
+        // 从字符串开头开始截取 特殊 处理 0
+        if(subLength < 1 || subLength > length){
+            return s;
+        }
+        return s.substring(0, subLength);
+    }
+
 }

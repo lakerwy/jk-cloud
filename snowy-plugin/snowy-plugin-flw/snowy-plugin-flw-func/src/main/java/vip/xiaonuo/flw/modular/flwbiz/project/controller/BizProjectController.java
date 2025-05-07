@@ -29,11 +29,13 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectLikeVo;
 import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 业务表-立项申请控制器
@@ -138,6 +140,17 @@ public class BizProjectController {
         return CommonResult.data(bizProjectService.checkName(checkNameParam));
     }
 
+
+
+    /**
+     * 立项申请，相似性校验（去掉空格，特殊字符，大小写），取70%，模糊匹配
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("立项申请，相似性校验（去掉空格，特殊字符，大小写），取70%，模糊匹配")
+    @GetMapping("/flw/project/checkNameLike")
+    public CommonResult<List<BizProjectLikeVo>> checkNameLike(@Valid CheckNameParam checkNameParam) {
+        return CommonResult.data(bizProjectService.checkName2(checkNameParam));
+    }
 
 
 

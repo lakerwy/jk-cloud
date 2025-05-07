@@ -42,12 +42,16 @@ import vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
 import vip.xiaonuo.flw.modular.flwbiz.project.util.MyUtil;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectData;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectLikeVo;
 import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-立项申请Service接口实现类
@@ -233,6 +237,42 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         });
         return false;
     }
+
+
+
+
+    @Override
+    public List<BizProjectLikeVo> checkName2(CheckNameParam checkNameParam) {
+        List<BizProjectLikeVo> result = new ArrayList<>();
+        //缩小数据范围(流程状态+项目名称部分字段)
+        String preName = MyUtil.getFirstStr(checkNameParam.getName());
+        QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().select(BizProject::getId,BizProject::getName,BizProject::getProjectSn,BizProject::getStatus);
+        queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().isNotNull(BizProject::getName);
+        queryWrapper.lambda().ne(BizProject::getName,"");
+        if(ObjectUtil.isNotEmpty(preName)){
+            queryWrapper.lambda().like(BizProject::getName,preName);
+        }
+        queryWrapper.lambda().orderByAsc(BizProject::getName);
+        List<BizProject> oldList = this.list(queryWrapper);
+        if(CollUtil.isNotEmpty(oldList)) {
+            List<BizProjectData> checkList = BeanUtil.copyToList(oldList, BizProjectData.class);
+            checkList.forEach(x->x.setNewName(MyUtil.removeSpcChar(x.getName())));
+            //循环校验
+            String tmpName = MyUtil.removeSpcChar(checkNameParam.getName());
+            String tmpLikeName = MyUtil.getRandomSubstring2(tmpName,0.7f);
+            List<BizProjectData> tmpLikeList = new ArrayList<>();
+            if (ObjectUtil.isNotEmpty(checkNameParam.getId())){
+                tmpLikeList = checkList.stream().filter(x->!x.getId().equals(checkNameParam.getId()) && x.getNewName().contains(tmpLikeName)).collect(Collectors.toList());
+            }else{
+                tmpLikeList = checkList.stream().filter(x->x.getNewName().contains(tmpLikeName)).collect(Collectors.toList());
+            }
+            result = BeanUtil.copyToList(tmpLikeList, BizProjectLikeVo.class);
+        }
+        return result;
+    }
+
 
     @Override
     public Page<BizProjectVo> epcMpPage(BizProjectPageParam bizProjectPageParam) {

@@ -16,12 +16,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.PhoneUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -35,6 +39,7 @@ import vip.xiaonuo.dev.modular.sms.util.DevSmsTencentUtil;
 import vip.xiaonuo.dev.modular.sms.util.DevSmsYunPianUtil;
 
 import javax.annotation.Resource;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -45,6 +50,11 @@ import java.util.List;
  **/
 @Service
 public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> implements DevSmsService {
+
+    private static final String PAGE_VALID_CODE_CACHE_KEY = "page-validCode:";
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -122,6 +132,48 @@ public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> impleme
         devSms.setReceiptInfo(receiptInfo);
         this.save(devSms);
     }
+
+    @Override
+    public String sendYunPianRetrun(DevSmsSendYunPianParam param) {
+        validPhone(param.getPhoneNumbers());
+
+        String phoneValidCode = null;
+        if(ObjectUtil.isEmpty(param.getTemplateParam())){
+            // 生成手机验证码的值，随机6为数字
+            phoneValidCode = RandomUtil.randomNumbers(6);
+            String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode(phoneValidCode);
+            param.setTemplateParam(tpl_Value);
+        }
+
+        String receiptInfo = DevSmsYunPianUtil.sendSms(param.getApiKey(),
+                param.getPhoneNumbers(),
+                param.getTemplateCode(),
+                param.getTemplateParam());
+        DevSms devSms = new DevSms();
+        BeanUtil.copyProperties(param, devSms);
+        devSms.setEngine(DevSmsEngineTypeEnum.YUNPIAN.getValue());
+        devSms.setReceiptInfo(receiptInfo);
+        this.save(devSms);
+
+        try {
+            if(ObjectUtil.isNotEmpty(phoneValidCode)) {
+                JSONObject smsResult = JSONUtil.parseObj(receiptInfo);
+                Integer code = smsResult.getInt("code");
+                if (0 == code) {
+                    commonCacheOperator.put(PAGE_VALID_CODE_CACHE_KEY + param.getPhoneNumbers(), phoneValidCode, 24 * 60 * 60L);
+                }
+            }
+        }catch (Exception e){
+            log.error("短信发送："+e.getMessage() + " 发送结果："+ receiptInfo);
+        }
+        return phoneValidCode;
+    }
+
+    @Override
+    public Object getPagePhoneCode(String phone) {
+        return commonCacheOperator.get(PAGE_VALID_CODE_CACHE_KEY + phone);
+    }
+
 
     /**
      * 校验手机格式
