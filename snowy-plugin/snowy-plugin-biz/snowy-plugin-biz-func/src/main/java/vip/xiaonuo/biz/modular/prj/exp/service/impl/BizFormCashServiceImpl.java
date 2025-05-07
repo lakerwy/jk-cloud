@@ -329,15 +329,14 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
                 int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
                 int lastRow_commentList = firstRow_commentList + commentList_Size ;
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 10));
 
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
-//                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
@@ -387,15 +386,14 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 int firstRow_commentList = lastRow_Item + 7 ;  // 模版行（行号-1）
                 int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
                 int lastRow_commentList = firstRow_commentList + commentList_Size ;
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 1)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 2, 3));
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 2)); //A + B 列
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 3, 5));
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
 
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
-//                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
 
                 List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
                 int firstRow_cost = 3; //第4行
