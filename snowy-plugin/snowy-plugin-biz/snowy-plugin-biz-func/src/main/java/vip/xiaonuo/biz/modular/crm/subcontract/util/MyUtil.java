@@ -1,5 +1,12 @@
 package vip.xiaonuo.biz.modular.crm.subcontract.util;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+
+import java.util.Map;
+
 /**
  * 对比工具类型
  */
@@ -54,5 +61,48 @@ public class MyUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * 判断json中是否存在某个键值对
+     * @param json
+     * @param targetKey 目标key
+     * @param targetValue 目标value
+     * @return true-表示存在该键值对
+     */
+    public static boolean hasKeyValuePair(JSON json, String targetKey, Object targetValue) {
+        if (json instanceof JSONObject) {
+            JSONObject obj = (JSONObject) json;
+            // 检查当前对象
+            if (obj.containsKey(targetKey)  && obj.get(targetKey).equals(targetValue))  {
+                return true;
+            }
+            // 递归子节点
+            for (Map.Entry<String, Object> entry : obj.entrySet())  {
+                Object value = entry.getValue();
+                if (value instanceof JSON) {
+                    if (hasKeyValuePair((JSON) value, targetKey, targetValue)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (json instanceof JSONArray) {
+            JSONArray array = (JSONArray) json;
+            // 遍历数组元素
+            for (Object item : array) {
+                if (item instanceof JSON) {
+                    if (hasKeyValuePair((JSON) item, targetKey, targetValue)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        String jsonStr = "[{\"tableListG\":[{\"collectionNumber\":1,\"subcontractNumber\":\"FB2023020063\",\"subcontractName\":\"融通农业发展（广州）有限责任公司台山九围美丽渔场项目\",\"subcontractPartyB\":\"湖北建科国际工程有限公司岭南分公司\",\"subcontractMoney\":[275,343.75],\"filingDate\":\"2023-02-13 00:00:00\",\"moneyNature\":\"外部产值\",\"totalCostMoney\":1,\"costUnpaidMoney\":1}],\"thisApplyAmount\":1,\"payee\":\"1\",\"purchaser\":\"1\",\"bankName\":\"1\",\"dutyAttach\":\"202412206363964611\"}]";
+        JSON json = JSONUtil.parse(jsonStr);
+        System.out.println(MyUtil.hasKeyValuePair(json, "subcontractNumber", "FB2023020063"));
     }
 }
