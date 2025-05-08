@@ -116,4 +116,12 @@ public class SubcontractPageParam {
     @ApiModelProperty(value = "费用性质")
     private String expenseNature;
 
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态")
+    private String status;
+
+    /** 是否过滤结算分包合同 */
+    @ApiModelProperty(value = "是否过滤结算分包合同（1-是，0-否）")
+    private String isNotSettlement;
+
 }

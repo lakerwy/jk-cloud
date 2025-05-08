@@ -364,19 +364,10 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
             return settlementItemVoList;
         }
         // 获取已结算的分包合同编号（审批中和审批完成）
-        List<SubcontractSettlement> subcontractSettlementList = this.list(new LambdaQueryWrapper<SubcontractSettlement>().eq(SubcontractSettlement::getHetongId, param.getHetongId())
-                .in(SubcontractSettlement::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS)
-                .select(SubcontractSettlement::getId));
-        if(CollUtil.isNotEmpty(subcontractSettlementList)){
-            List<String> settlementIdList = subcontractSettlementList.stream().map(SubcontractSettlement::getId).collect(Collectors.toList());
-            List<SubcontractSettlementItem> settlementItemList = subcontractSettlementItemService.list(new LambdaQueryWrapper<SubcontractSettlementItem>()
-                    .in(SubcontractSettlementItem::getSubcontractSettlementId, settlementIdList)
-                    .select(SubcontractSettlementItem::getSubcontractNo));
-            if(CollUtil.isNotEmpty(settlementItemList)){
-                List<String> subcontractNoList = settlementItemList.stream().map(SubcontractSettlementItem::getSubcontractNo).collect(Collectors.toList());
-                // subcontractList过滤掉subcontractNoList
-                subcontractList = subcontractList.stream().filter(x->subcontractNoList.contains(x.getContractNo())).collect(Collectors.toList());
-            }
+        List<String> subcontractNoList = this.getSettlementSubcontractNo(param.getHetongId());
+        if(CollUtil.isNotEmpty(subcontractNoList)){
+            // subcontractList过滤掉subcontractNoList
+            subcontractList = subcontractList.stream().filter(x->subcontractNoList.contains(x.getContractNo())).collect(Collectors.toList());
         }
         if(CollUtil.isEmpty(subcontractList)){
             return settlementItemVoList;
@@ -410,5 +401,23 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
             settlementItemVoList.add(settlementItemVo);
         }
         return settlementItemVoList;
+    }
+
+    public List<String> getSettlementSubcontractNo(String hetongId){
+        List<String> subcontractNoList = CollUtil.newArrayList();
+        // 获取已结算的分包合同编号（审批中和审批完成）
+        List<SubcontractSettlement> subcontractSettlementList = this.list(new LambdaQueryWrapper<SubcontractSettlement>().eq(SubcontractSettlement::getHetongId,hetongId)
+                .in(SubcontractSettlement::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS)
+                .select(SubcontractSettlement::getId));
+        if(CollUtil.isNotEmpty(subcontractSettlementList)){
+            List<String> settlementIdList = subcontractSettlementList.stream().map(SubcontractSettlement::getId).collect(Collectors.toList());
+            List<SubcontractSettlementItem> settlementItemList = subcontractSettlementItemService.list(new LambdaQueryWrapper<SubcontractSettlementItem>()
+                    .in(SubcontractSettlementItem::getSubcontractSettlementId, settlementIdList)
+                    .select(SubcontractSettlementItem::getSubcontractNo));
+            if(CollUtil.isNotEmpty(settlementItemList)){
+                subcontractNoList = settlementItemList.stream().map(SubcontractSettlementItem::getSubcontractNo).collect(Collectors.toList());
+            }
+        }
+        return subcontractNoList;
     }
 }

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
+import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractSettlementService;
 import vip.xiaonuo.biz.modular.procure.config.ProcureProperties;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.util.MyUtil;
@@ -73,12 +74,19 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Resource
     ProcureProperties procureProperties;
 
+    @Resource
+    private SubcontractSettlementService subcontractSettlementService;
+
 
     @Override
     public Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getStatus())){
+            queryWrapper.eq("a.STATUS", subcontractPageParam.getStatus());
+        }else {
+            queryWrapper.in("a.STATUS", FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
             queryWrapper.and(q->q.like("a.SECOND_LEVEL", subcontractPageParam.getSearchKey()).or()
                     .like("a.OPT", subcontractPageParam.getSearchKey()).or()
@@ -89,7 +97,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
                     .like("a.MAIN_CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
                     .like("a.OWNER", subcontractPageParam.getSearchKey()).or()
                     .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey())
-                    .like("a.EXPENSE_NATURE",subcontractPageParam.getSearchKey()));
+                    .like("a.EXPENSE_NATURE", subcontractPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
             queryWrapper.like("a.OPT", subcontractPageParam.getOpt());
@@ -134,7 +142,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
             queryWrapper.eq("a.SUB_TYPE", subcontractPageParam.getSubType());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getExpenseNature())){
-            queryWrapper.eq("a.EXPENSE_NATURE",subcontractPageParam.getExpenseNature());
+            queryWrapper.eq("a.EXPENSE_NATURE", subcontractPageParam.getExpenseNature());
         }
         if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
@@ -142,6 +150,13 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
                     StrUtil.toUnderlineCase(subcontractPageParam.getSortField()));
         } else {
             queryWrapper.orderByDesc("a.REGISTER_DATE").orderByDesc("a.CONTRACT_NO");
+        }
+        // 获取结算的分包合同号
+        if("1".equals(subcontractPageParam.getIsNotSettlement())) {
+            List<String> settlementSubcontractNoList = subcontractSettlementService.getSettlementSubcontractNo(subcontractPageParam.getHetongId());
+            if (CollUtil.isNotEmpty(settlementSubcontractNoList)){
+                queryWrapper.notIn("a.CONTRACT_NO", settlementSubcontractNoList);
+            }
         }
         return subcontractMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

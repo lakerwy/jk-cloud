@@ -97,4 +97,13 @@ public interface SubcontractSettlementService extends IService<SubcontractSettle
      * @date  2025/05/07 14:18
      */
     List<SubcontractSettlementItemVo> notSettlementList(AllotmentHtIdParam param);
+
+
+    /**
+     * 获取结算分包合同号
+     *
+     * @author pzh
+     * @date  2025/05/07 14:18
+     */
+    List<String> getSettlementSubcontractNo(String hetongId);
 }
