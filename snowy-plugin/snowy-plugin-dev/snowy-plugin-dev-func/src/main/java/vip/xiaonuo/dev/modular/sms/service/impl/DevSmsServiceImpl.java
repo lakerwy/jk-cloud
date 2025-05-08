@@ -155,16 +155,13 @@ public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> impleme
         devSms.setReceiptInfo(receiptInfo);
         this.save(devSms);
 
-        try {
-            if(ObjectUtil.isNotEmpty(phoneValidCode)) {
-                JSONObject smsResult = JSONUtil.parseObj(receiptInfo);
-                Integer code = smsResult.getInt("code");
-                if (0 == code) {
-                    commonCacheOperator.put(PAGE_VALID_CODE_CACHE_KEY + param.getPhoneNumbers(), phoneValidCode, 24 * 60 * 60L);
-                }
-            }
-        }catch (Exception e){
-            log.error("短信发送："+e.getMessage() + " 发送结果："+ receiptInfo);
+        JSONObject smsResult = JSONUtil.parseObj(receiptInfo);
+        Integer code = smsResult.getInt("code");
+        if(0 != code){
+            throw new CommonException("短信发送失败，" + smsResult.getStr("detail"));
+        }
+        if (ObjectUtil.isNotEmpty(phoneValidCode) && 0 == code ) {
+            commonCacheOperator.put(PAGE_VALID_CODE_CACHE_KEY + param.getPhoneNumbers(), phoneValidCode, 24 * 60 * 60L);
         }
         return phoneValidCode;
     }
