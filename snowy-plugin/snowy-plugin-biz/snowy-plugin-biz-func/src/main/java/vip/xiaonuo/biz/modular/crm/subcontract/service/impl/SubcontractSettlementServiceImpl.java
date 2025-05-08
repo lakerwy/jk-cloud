@@ -265,6 +265,8 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
                 });
             }
         });
+        // 按分包合同编号排序
+        allotmentHisVoList.sort(Comparator.comparing(AllotmentHisVo::getSubcontractNo,Comparator.nullsLast(Comparator.naturalOrder())));
         return allotmentHisVoList;
     }
 
@@ -294,15 +296,13 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
                 (existing, newItem) -> {
                     // 合并逻辑：累加出纳拨付金额
                     BigDecimal oldPayCashier = existing.getPayCashier() == null ? BigDecimal.ZERO : existing.getPayCashier();
-                    BigDecimal newPayCashier = existing.getPayCashier() == null ? BigDecimal.ZERO : newItem.getPayCashier();
+                    BigDecimal newPayCashier = newItem.getPayCashier() == null ? BigDecimal.ZERO : newItem.getPayCashier();
                     existing.setPayCashier(oldPayCashier.add(newPayCashier));
                     return existing;
                 }
             );
         }
-        // 转换为List并按subcontractNumber排序
         List<AllotmentInfo> resultList = new ArrayList<>(resultMap.values());
-        resultList.sort(Comparator.comparing(AllotmentInfo::getSubcontractNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         return resultList;
     }
 
@@ -400,6 +400,8 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
             settlementItemVo.setSettlementAmountTotal(settlementAmountMap.get(subcontract.getContractNo()));
             settlementItemVoList.add(settlementItemVo);
         }
+        // 按分包合同编号排序
+        settlementItemVoList.sort(Comparator.comparing(SubcontractSettlementItemVo::getSubcontractNo,Comparator.nullsLast(Comparator.naturalOrder())));
         return settlementItemVoList;
     }
 
