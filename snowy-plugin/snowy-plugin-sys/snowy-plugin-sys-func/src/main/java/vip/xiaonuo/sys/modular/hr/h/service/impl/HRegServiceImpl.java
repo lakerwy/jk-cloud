@@ -92,7 +92,7 @@ public class HRegServiceImpl extends ServiceImpl<HRegMapper, HReg> implements HR
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(HReg::getDeptId, loginUserDataScope);
+            queryWrapper.lambda().in(HReg::getDataScopeId, loginUserDataScope);
         } else {
             queryWrapper.lambda().eq(HReg::getCreateUser, StpUtil.getLoginIdAsString());
         }
