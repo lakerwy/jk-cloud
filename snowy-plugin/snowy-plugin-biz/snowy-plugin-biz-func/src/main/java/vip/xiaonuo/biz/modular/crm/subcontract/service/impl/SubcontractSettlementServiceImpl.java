@@ -331,7 +331,7 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
             SubcontractSettlement settlement = settlementMap.get(settlementItem.getSubcontractSettlementId());
             allotmentVo.setSettlementAmountTotal(settlementItem.getSettlementAmountTotal());
             allotmentVo.setSubcontractSettlementSn(settlement.getSn());
-            allotmentVo.setAllotmentProcessInstanceId(settlement.getProcessInstanceId());
+            allotmentVo.setSubcontractSettlementProcessInstanceId(settlement.getProcessInstanceId());
             allotmentVo.setSubcontractStatus(dealStatus(settlement.getStatus()));
         }
         return settlementList;

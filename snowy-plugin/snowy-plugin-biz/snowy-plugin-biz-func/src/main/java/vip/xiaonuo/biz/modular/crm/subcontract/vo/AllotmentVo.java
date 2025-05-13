@@ -26,7 +26,7 @@ public class AllotmentVo extends AllotmentHisVo{
 
     /** 分包合同结算-流程实例id */
     @ApiModelProperty(value = "分包合同结算-流程实例id", position = 32)
-    private String allotmentProcessInstanceId;
+    private String subcontractSettlementProcessInstanceId;
 
     /** 结算金额 */
     @ApiModelProperty(value = "结算金额", position = 33)
