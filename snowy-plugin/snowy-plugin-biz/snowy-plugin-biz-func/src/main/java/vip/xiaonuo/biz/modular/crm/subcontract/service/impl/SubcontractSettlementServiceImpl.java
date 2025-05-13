@@ -210,18 +210,18 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
             return;
         }
         // 还在审批中的分包合同编号集合
-        List<String> subcontractNumberlist = CollUtil.newArrayList();
+        List<String> activeSubcontractNumberList = CollUtil.newArrayList();
         pisAllotmentList.forEach(pisAllotment -> {
             subcontractNumberList.forEach(subcontractNumber -> {
                 if(ObjectUtil.isNotEmpty(pisAllotment.getHJson()) ){
                     JSON json = JSONUtil.parse(pisAllotment.getHJson());
                     if(MyUtil.hasKeyValuePair(json, "subcontractNumber", subcontractNumber)){
-                        subcontractNumberlist.add(subcontractNumber);
+                        activeSubcontractNumberList.add(subcontractNumber);
                     }
                 }
             });
         });
-        if(CollUtil.isNotEmpty(subcontractNumberList)){
+        if(CollUtil.isNotEmpty(activeSubcontractNumberList)){
             throw new CommonException("主合同下有分包合同（{}），存在审批中的“生产院及子公司项目拨付”单据，请确认审核完成后再发起分包合同结算审批"
                     , CollUtil.join(subcontractNumberList, ","));
         }
