@@ -376,6 +376,9 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
         List<PisAllotment> pisAllotmentList = pisAllotmentService.list(new LambdaQueryWrapper<PisAllotment>()
                 .eq(PisAllotment::getHtId, param.getHetongId())
                 .eq(PisAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue()));
+        if(CollUtil.isEmpty(pisAllotmentList)){
+            return settlementItemVoList;
+        }
         // 已拨付的分包合同，获取拨付金额并累加
         Map<String, BigDecimal> settlementAmountMap = new HashMap<>();
         for(PisAllotment pisAllotment : pisAllotmentList){
