@@ -393,6 +393,8 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
                 });
             }
         }
+        // subcontractList过滤掉未拨付的分包合同
+        subcontractList = subcontractList.stream().filter(x-> settlementAmountMap.containsKey(x.getContractNo())).collect(Collectors.toList());
         for(Subcontract subcontract : subcontractList){
             SubcontractSettlementItemVo settlementItemVo = new SubcontractSettlementItemVo();
             settlementItemVo.setSubcontractId(subcontract.getId());
