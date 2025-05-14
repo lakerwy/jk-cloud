@@ -77,6 +77,14 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     @Override
     public Page<BizJzscMohurd> page(BizJzscMohurdPageParam bizJzscMohurdPageParam) {
         QueryWrapper<BizJzscMohurd> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizJzscMohurdPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizJzscMohurd::getName,bizJzscMohurdPageParam.getSearchKey())
+                    .or().like(BizJzscMohurd::getRegTypeName,bizJzscMohurdPageParam.getSearchKey())
+                    .or().like(BizJzscMohurd::getRegProfName,bizJzscMohurdPageParam.getSearchKey())
+                    .or().like(BizJzscMohurd::getCertRegNo,bizJzscMohurdPageParam.getSearchKey())
+                    .or().like(BizJzscMohurd::getQyName,bizJzscMohurdPageParam.getSearchKey())
+            );
+        }
         if(ObjectUtil.isNotEmpty(bizJzscMohurdPageParam.getRyName())) {
             queryWrapper.lambda().like(BizJzscMohurd::getRyName, bizJzscMohurdPageParam.getRyName());
         }
