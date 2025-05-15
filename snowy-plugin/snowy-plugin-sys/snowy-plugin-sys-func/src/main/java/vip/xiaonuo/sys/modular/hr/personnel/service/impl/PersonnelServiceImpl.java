@@ -28,10 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
+import vip.xiaonuo.sys.modular.hr.certManage.enums.PersonTypeEnum;
 import vip.xiaonuo.sys.modular.hr.certManage.param.CertManagePageParam;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
+import vip.xiaonuo.sys.modular.hr.honorAward.entity.HonorAward;
+import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
@@ -49,6 +51,11 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.OtherTechAchive;
+import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.OtherTechAchiveService;
+import vip.xiaonuo.sys.modular.hr.techAchive.service.PatentInfoService;
+import vip.xiaonuo.sys.modular.openApi.param.PersonnelSearchParam;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
@@ -104,6 +111,16 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Resource
     private CertManageService certManageService;
+
+    @Resource
+    private HonorAwardService honorAwardService;
+
+    @Resource
+    private PatentInfoService patentInfoService;
+
+    @Resource
+    private OtherTechAchiveService otherTechAchiveService;
+
 
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
@@ -682,6 +699,123 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         personnelDetailVo.setPersonnelCertList(certList);
         return personnelDetailVo;
+    }
+
+    @Override
+    public List<String> personnelSearch(PersonnelSearchParam param) {
+        List<String> idList = CollUtil.newArrayList();
+        // ===============学历筛选===============
+        boolean degreeFlag = false;
+        List<String> degreePersonnelIdList = CollUtil.newArrayList();
+        if(ObjectUtil.isNotEmpty(param.getDegree())){
+            degreeFlag = true;
+            degreePersonnelIdList = this.list(new LambdaQueryWrapper<Personnel>().and(q->
+                    q.like(Personnel::getFirstDegree, param.getDegree())
+                    .or().like(Personnel::getSecondDegree, param.getDegree())
+                    .or().like(Personnel::getThirdDegree, param.getDegree())
+                )
+                .select(Personnel::getId)).stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getId()))
+                .map(Personnel::getId).collect(Collectors.toList());
+        }
+        // ===============职称筛选===============
+        boolean titleFlag = false;
+        List<String> titlePersonnelIdList = CollUtil.newArrayList();
+        if(!ObjectUtil.isAllEmpty(param.getTitleLever(), param.getTitleProfession())){
+            titleFlag = true;
+            LambdaQueryWrapper<PersonnelFileTitle> titleQueryWrapper = new LambdaQueryWrapper<>();
+            // 仅查询人员ID
+            titleQueryWrapper.select(PersonnelFileTitle::getFileId);
+            // 职称等级
+            if(ObjectUtil.isNotEmpty(param.getTitleLever())){
+                titleQueryWrapper.eq(PersonnelFileTitle::getTitleLever, param.getTitleLever());
+            }
+            // 职称专业
+            if(ObjectUtil.isNotEmpty(param.getTitleProfession())){
+                titleQueryWrapper.eq(PersonnelFileTitle::getTitleProfession, param.getTitleProfession());
+            }
+            // 人员ID
+            titlePersonnelIdList = personnelFileTitleService.list(titleQueryWrapper)
+                    .stream().map(PersonnelFileTitle::getFileId).collect(Collectors.toList());
+        }
+
+        // ===============证书筛选===============
+        boolean certFlag = false;
+        List<String> certPersonnelIdList = CollUtil.newArrayList();
+        if(!ObjectUtil.isAllEmpty(param.getCertType(), param.getMajor())){
+            certFlag = true;
+            CertManagePageParam certManagePageParam = new CertManagePageParam();
+            certManagePageParam.setUserType(PersonTypeEnum.MASTER.getValue());
+            // 证书类别
+            if(ObjectUtil.isNotEmpty(param.getCertType())){
+                certManagePageParam.setCertType(param.getCertType());
+            }
+            // 工种/专业
+            if(ObjectUtil.isNotEmpty(param.getMajor())){
+                certManagePageParam.setMajor(param.getMajor());
+            }
+            Page<CertManageVo> page = certManageService.page(certManagePageParam);
+            // 人员ID
+            certPersonnelIdList = page.getRecords().stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getUserId()))
+                    .map(CertManageVo::getUserId).collect(Collectors.toList());
+        }
+
+        // ===============荣誉成果（项目成果|科技奖|数字化成果|专利信息|其他）===============
+        boolean honorFlag = false;
+        List<String> honorPersonnelIdList = CollUtil.newArrayList();
+        if(ObjectUtil.isNotEmpty(param.getHonorAward())){
+            honorFlag = true;
+            List<String> honorAwardPersonnelIdList = honorAwardService.list(new LambdaQueryWrapper<HonorAward>().like(HonorAward::getPrjName, param.getHonorAward())
+                            .select(HonorAward::getCompletedPersonnelId)).stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getCompletedPersonnelId()))
+                            .map(HonorAward::getCompletedPersonnelId).collect(Collectors.toList());
+            List<String> parentInfoFlagPersonnelIdList = patentInfoService.list(new LambdaQueryWrapper<PatentInfo>().like(PatentInfo::getName, param.getHonorAward())
+                    .select(PatentInfo::getInventorId)).stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getInventorId()))
+                    .map(PatentInfo::getInventorId).collect(Collectors.toList());
+            List<String> otherTechAchiveIdList = otherTechAchiveService.list(new LambdaQueryWrapper<OtherTechAchive>().like(OtherTechAchive::getName, param.getHonorAward())
+                    .select(OtherTechAchive::getCompletedPersonnelId)).stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getCompletedPersonnelId()))
+                    .map(OtherTechAchive::getCompletedPersonnelId).collect(Collectors.toList());
+            // 按逗号拆分id
+            honorAwardPersonnelIdList = honorAwardPersonnelIdList.stream()
+                    .filter(ObjectUtil::isNotEmpty)
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .collect(Collectors.toList());
+            parentInfoFlagPersonnelIdList = parentInfoFlagPersonnelIdList.stream()
+                    .filter(ObjectUtil::isNotEmpty)
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .collect(Collectors.toList());
+            otherTechAchiveIdList = otherTechAchiveIdList.stream()
+                    .filter(ObjectUtil::isNotEmpty)
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .collect(Collectors.toList());
+            // 求并集并去重
+            Set<String> set = new HashSet<>();
+            set.addAll(honorAwardPersonnelIdList);
+            set.addAll(parentInfoFlagPersonnelIdList);
+            set.addAll(otherTechAchiveIdList);
+            honorPersonnelIdList = new ArrayList<>(set);
+        }
+        // 最终结果求交集
+        if(degreeFlag){
+            idList = degreePersonnelIdList;
+        }else if(titleFlag){
+            idList = titlePersonnelIdList;
+        } else if(certFlag){
+            idList = certPersonnelIdList;
+        } else if(honorFlag){
+            idList = honorPersonnelIdList;
+        }
+        if(degreeFlag) {
+            idList.retainAll(degreePersonnelIdList);
+        }
+        if(titleFlag) {
+            idList.retainAll(titlePersonnelIdList);
+        }
+        if(certFlag) {
+            idList.retainAll(certPersonnelIdList);
+        }
+        if(honorFlag) {
+            idList.retainAll(honorPersonnelIdList);
+        }
+        return idList;
     }
 
 }

@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.*;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
+import vip.xiaonuo.sys.modular.openApi.param.PersonnelSearchParam;
 
 import java.util.List;
 import java.util.Map;
@@ -102,4 +103,6 @@ public interface PersonnelService extends IService<Personnel> {
     Page<PersonnelDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam);
 
     PersonnelDetailVo detail2(PersonnelIdParam personnelIdParam);
+
+    List<String> personnelSearch(PersonnelSearchParam param);
 }

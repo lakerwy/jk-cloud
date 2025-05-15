@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.openApi;
+package vip.xiaonuo.sys.modular.openApi.controller;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -54,11 +54,13 @@ import vip.xiaonuo.sys.modular.hr.zizhiCertificate.entity.ZizhiCertificate;
 import vip.xiaonuo.sys.modular.hr.zizhiCertificate.param.ZizhiCertificateIdParam;
 import vip.xiaonuo.sys.modular.hr.zizhiCertificate.param.ZizhiCertificatePageParam;
 import vip.xiaonuo.sys.modular.hr.zizhiCertificate.service.ZizhiCertificateService;
+import vip.xiaonuo.sys.modular.openApi.param.PersonnelSearchParam;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.SysOrgPageParam;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 建科云-web模块对外提供查询接口
@@ -475,4 +477,17 @@ public class JkCloudWebApiController {
         return CommonResult.data(zizhiCertificateService.detail(zizhiCertificateIdParam));
     }
 
+
+    /**
+     * 人员信息高级搜索
+     *
+     * @author pzh
+     * @date 2025/05/14 17:15
+     */
+    @ApiOperationSupport(order = 40)
+    @ApiOperation("人员信息高级搜索")
+    @GetMapping("/openApi/sys/personnel/search")
+    public CommonResult<List<String>> personnelSearch(PersonnelSearchParam param) {
+        return CommonResult.data(personnelService.personnelSearch(param));
+    }
 }
