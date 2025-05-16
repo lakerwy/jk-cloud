@@ -735,7 +735,8 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             }
             // 人员ID
             titlePersonnelIdList = personnelFileTitleService.list(titleQueryWrapper)
-                    .stream().map(PersonnelFileTitle::getFileId).collect(Collectors.toList());
+                    .stream().filter(x->ObjectUtil.isNotEmpty(x) && ObjectUtil.isNotEmpty(x.getFileId()))
+                    .map(PersonnelFileTitle::getFileId).collect(Collectors.toList());
         }
 
         // ===============证书筛选===============
