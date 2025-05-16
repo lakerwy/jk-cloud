@@ -314,7 +314,7 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
         // 获取分包结算信息
         List<SubcontractSettlement> subcontractSettlementList = this.list(new LambdaQueryWrapper<SubcontractSettlement>()
                 .eq(SubcontractSettlement::getHetongId, param.getHetongId())
-                .in(SubcontractSettlement::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS));
+                .in(SubcontractSettlement::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS.getValue()));
         // 未发起分包结算流程的情况
         if(CollUtil.isEmpty(subcontractSettlementList)){
             settlementList.forEach(x -> x.setSubcontractStatus(SubcontractSettlementEnum.NOT_START.getValue()));
