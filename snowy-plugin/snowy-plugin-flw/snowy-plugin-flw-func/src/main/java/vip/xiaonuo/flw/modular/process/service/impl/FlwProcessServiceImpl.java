@@ -1693,10 +1693,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         LineChart lineChart = getLineChart(boardDataList);
         //耗时明细 - 部门明细 [默认给全部]
         List<BoardDept> tmpBoardDeptList = getBoardDept(boardDataList);
-        tmpBoardDeptList.sort(Comparator.comparing(BoardDept::getFlwNums).reversed());
-        List<BoardDept> boardDeptList = tmpBoardDeptList;
-        if(ObjectUtil.isNotEmpty(flwBoardParam.getTopNums())){
-            boardDeptList = tmpBoardDeptList.size() > flwBoardParam.getTopNums() ? tmpBoardDeptList.subList(0,flwBoardParam.getTopNums()) : tmpBoardDeptList;
+        List<BoardDept> boardDeptList = new ArrayList<>();
+        if(CollUtil.isNotEmpty(tmpBoardDeptList)) {
+            tmpBoardDeptList.sort(Comparator.comparing(BoardDept::getFlwNums).reversed());
+            boardDeptList = tmpBoardDeptList;
+            if (ObjectUtil.isNotEmpty(flwBoardParam.getTopNums())) {
+                boardDeptList = tmpBoardDeptList.size() > flwBoardParam.getTopNums() ? tmpBoardDeptList.subList(0, flwBoardParam.getTopNums()) : tmpBoardDeptList;
+            }
         }
 
         //待办流程: 所有待办信息
@@ -1707,14 +1710,19 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(ObjectUtil.isNotEmpty(flwBoardParam.getTopNums())){
             topNums = flwBoardParam.getTopNums();
         }
+        List<BoardTodoNum> boardTodoNumList = new ArrayList<>();
         List<BoardTodoNum> tmpBoardTodoNumList = BeanUtil.copyToList(tmpFlwToDoEmp,BoardTodoNum.class);
-        tmpBoardTodoNumList.sort(Comparator.comparing(BoardTodoNum::getToDoNums).reversed());
-        List<BoardTodoNum> boardTodoNumList = tmpBoardTodoNumList.size() > topNums ? tmpBoardTodoNumList.subList(0,topNums) : tmpBoardTodoNumList;
+        if(CollUtil.isNotEmpty(tmpBoardTodoNumList)) {
+            tmpBoardTodoNumList.sort(Comparator.comparing(BoardTodoNum::getToDoNums).reversed());
+            boardTodoNumList = tmpBoardTodoNumList.size() > topNums ? tmpBoardTodoNumList.subList(0, topNums) : tmpBoardTodoNumList;
+        }
         //待办耗时排行前5
+        List<BoardTodoHour> boardTodoHourList = new ArrayList<>();
         List<BoardTodoHour> tmpBoardTodoHourList = BeanUtil.copyToList(tmpFlwToDoEmp, BoardTodoHour.class);
-        tmpBoardTodoHourList.sort(Comparator.comparing(BoardTodoHour::getDealHours).reversed());
-        List<BoardTodoHour> boardTodoHourList = tmpBoardTodoHourList.size() > topNums ? tmpBoardTodoHourList.subList(0,topNums) : tmpBoardTodoHourList;
-
+        if(CollUtil.isNotEmpty(tmpBoardTodoHourList)) {
+            tmpBoardTodoHourList.sort(Comparator.comparing(BoardTodoHour::getDealHours).reversed());
+            boardTodoHourList = tmpBoardTodoHourList.size() > topNums ? tmpBoardTodoHourList.subList(0, topNums) : tmpBoardTodoHourList;
+        }
         result.setLineChart(lineChart);
         result.setDeptList(boardDeptList);
         result.setTodoNumList(boardTodoNumList);
