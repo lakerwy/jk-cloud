@@ -328,6 +328,10 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
         Map<String, SubcontractSettlementItem> settlementItemMap = settlementItemList.stream().collect(Collectors.toMap(SubcontractSettlementItem::getSubcontractNo,v1->v1));
         for (AllotmentVo allotmentVo : settlementList) {
             SubcontractSettlementItem settlementItem = settlementItemMap.get(allotmentVo.getSubcontractNo());
+            if(ObjectUtil.isEmpty(settlementItem)){
+                allotmentVo.setSubcontractStatus(SubcontractSettlementEnum.NOT_START.getValue());
+                continue;
+            }
             SubcontractSettlement settlement = settlementMap.get(settlementItem.getSubcontractSettlementId());
             allotmentVo.setSettlementAmountTotal(settlementItem.getSettlementAmountTotal());
             allotmentVo.setSubcontractSettlementSn(settlement.getSn());
@@ -367,7 +371,7 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
         List<String> subcontractNoList = this.getSettlementSubcontractNo(param.getHetongId());
         if(CollUtil.isNotEmpty(subcontractNoList)){
             // subcontractList过滤掉subcontractNoList
-            subcontractList = subcontractList.stream().filter(x->subcontractNoList.contains(x.getContractNo())).collect(Collectors.toList());
+            subcontractList = subcontractList.stream().filter(x->!subcontractNoList.contains(x.getContractNo())).collect(Collectors.toList());
         }
         if(CollUtil.isEmpty(subcontractList)){
             return settlementItemVoList;
