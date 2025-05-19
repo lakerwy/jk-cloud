@@ -87,6 +87,16 @@ public class SubcontractSettlementServiceImpl extends ServiceImpl<SubcontractSet
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SubcontractSettlementAddParam subcontractSettlementAddParam) {
+        if(CollUtil.isNotEmpty(subcontractSettlementAddParam.getSubcontractSettlementItemList())){
+            List<String> subcontractNoList = subcontractSettlementAddParam.getSubcontractSettlementItemList().stream()
+                    .map(SubcontractSettlementItem::getSubcontractNo).collect(Collectors.toList());
+            // 获取已结算的分包合同编号（审批中和审批完成）
+            List<String> settlementedSubcontractNoList = this.getSettlementSubcontractNo(subcontractSettlementAddParam.getHetongId());
+            List<String> resultList = subcontractNoList.stream().filter(settlementedSubcontractNoList::contains).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(resultList)){
+                throw new CommonException("分包合同【{}】已被结算，请重新选择", CollUtil.join(resultList, ","));
+            }
+        }
         SubcontractSettlement subcontractSettlement = BeanUtil.toBean(subcontractSettlementAddParam, SubcontractSettlement.class);
         //走审批流程
         String processInstanceId = subcontractSettlementAddParam.getProcessInstanceId();
