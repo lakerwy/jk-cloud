@@ -731,7 +731,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             }
             // 职称专业
             if(ObjectUtil.isNotEmpty(param.getTitleProfession())){
-                titleQueryWrapper.eq(PersonnelFileTitle::getTitleProfession, param.getTitleProfession());
+                titleQueryWrapper.like(PersonnelFileTitle::getTitleProfession, param.getTitleProfession());
             }
             // 人员ID
             titlePersonnelIdList = personnelFileTitleService.list(titleQueryWrapper)
