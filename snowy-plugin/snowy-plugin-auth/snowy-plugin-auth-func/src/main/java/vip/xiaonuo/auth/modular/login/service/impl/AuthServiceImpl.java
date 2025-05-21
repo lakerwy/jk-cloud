@@ -75,6 +75,8 @@ public class AuthServiceImpl implements AuthService {
     /* 云片短信：验证码短信模板 */
     private static final String SNOWY_SMS_YUNPIAN_TPL_CODE_ID = "SNOWY_SMS_YUNPIAN_TPL_CODE_ID";
 
+    private static final String SNOWY_SYS_DEFAULT_PASSWORD_KEY = "SNOWY_SYS_DEFAULT_PASSWORD";
+
     @Resource(name = "loginUserApi")
     private SaBaseLoginUserApi loginUserApi;
 
@@ -235,11 +237,15 @@ public class AuthServiceImpl implements AuthService {
         AbstractMap.SimpleEntry<String, String> result = checkUser(authAccountPasswordLoginParam);
         String passwordHash = result.getKey();
         String device = result.getValue();
+        String defaultPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY));
         // 根据账号获取用户信息，根据B端或C端判断
         if(SaClientTypeEnum.B.getValue().equals(type)) {
             SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
             if(ObjectUtil.isEmpty(saBaseLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+            }
+            if(saBaseLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("为了您的账号安全，请重新设置密码！");
             }
             if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
@@ -255,6 +261,9 @@ public class AuthServiceImpl implements AuthService {
             SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByAccount(account);
             if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+            }
+            if(saBaseClientLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("为了您的账号安全，请重新设置密码！");
             }
             if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
