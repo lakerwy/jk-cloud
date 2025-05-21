@@ -240,7 +240,7 @@ public class AuthServiceImpl implements AuthService {
         String passwordHash = result.getKey();
         String device = result.getValue();
         String defaultPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY));
-        String isFilterPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_CHECK));
+        String isFilterPassWord = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_CHECK);
         // 根据账号获取用户信息，根据B端或C端判断
         if(SaClientTypeEnum.B.getValue().equals(type)) {
             SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
