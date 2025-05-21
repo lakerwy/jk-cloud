@@ -77,6 +77,8 @@ public class AuthServiceImpl implements AuthService {
 
     private static final String SNOWY_SYS_DEFAULT_PASSWORD_KEY = "SNOWY_SYS_DEFAULT_PASSWORD";
 
+    private static final String SNOWY_SYS_DEFAULT_PASSWORD_CHECK = "SNOWY_SYS_DEFAULT_PASSWORD_CHECK";
+
     @Resource(name = "loginUserApi")
     private SaBaseLoginUserApi loginUserApi;
 
@@ -238,14 +240,15 @@ public class AuthServiceImpl implements AuthService {
         String passwordHash = result.getKey();
         String device = result.getValue();
         String defaultPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY));
+        String isFilterPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_CHECK));
         // 根据账号获取用户信息，根据B端或C端判断
         if(SaClientTypeEnum.B.getValue().equals(type)) {
             SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
             if(ObjectUtil.isEmpty(saBaseLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
             }
-            if(saBaseLoginUser.getPassword().equals(defaultPassWord)){
-                throw new CommonException("为了您的账号安全，请重新设置密码！");
+            if("1".equals(isFilterPassWord) && saBaseLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("检查到您的密码强度较低，为了您账号安全，请重新设置密码！");
             }
             if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
@@ -262,8 +265,8 @@ public class AuthServiceImpl implements AuthService {
             if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
             }
-            if(saBaseClientLoginUser.getPassword().equals(defaultPassWord)){
-                throw new CommonException("为了您的账号安全，请重新设置密码！");
+            if("1".equals(isFilterPassWord) && saBaseClientLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("检查到您的密码强度较低，为了您账号安全，请重新设置密码！");
             }
             if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());

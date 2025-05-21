@@ -440,4 +440,22 @@ public class SysUserController {
     public CommonResult<SysUser> getUserInfo(@RequestBody @Valid List<SysUserFindParam> sysUserFindParams) {
         return CommonResult.data(sysUserService.getUserInfo(sysUserFindParams));
     }
+
+
+
+
+    /**
+     * 修改用户密码【系统管理员】
+     *
+     * @author xuyuxiang
+     * @date 2021/10/13 14:01
+     **/
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("修改用户密码【系统管理员】")
+    @CommonLog("修改用户密码【系统管理员】")
+    @PostMapping("/sys/user/setPassword")
+    public CommonResult<String> setPassword(@RequestBody @Valid SysUserUpdatePasswordParam param) {
+        sysUserService.setPassword(param);
+        return CommonResult.ok();
+    }
 }

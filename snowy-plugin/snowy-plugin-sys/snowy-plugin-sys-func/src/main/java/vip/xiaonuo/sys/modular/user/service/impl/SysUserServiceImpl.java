@@ -2225,4 +2225,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public List<SysUser> getDingUser() {
         return sysUserMapper.getDingUser();
     }
+
+    @Override
+    public void setPassword(SysUserUpdatePasswordParam param) {
+        SysUser sysUser = this.queryEntity(param.getId());
+        sysUser.setPassword(CommonCryptogramUtil.doHashValue(param.getNewPassword()));
+        this.updateById(sysUser);
+    }
 }

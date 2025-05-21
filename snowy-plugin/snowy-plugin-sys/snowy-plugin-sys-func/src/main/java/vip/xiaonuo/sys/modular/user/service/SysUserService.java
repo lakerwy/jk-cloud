@@ -551,4 +551,6 @@ public interface SysUserService extends IService<SysUser> {
      * 获取钉钉用户列表（SysUser+AuthThirdUser+Personnel）
      */
     List<SysUser> getDingUser();
+
+    void setPassword(SysUserUpdatePasswordParam param);
 }
