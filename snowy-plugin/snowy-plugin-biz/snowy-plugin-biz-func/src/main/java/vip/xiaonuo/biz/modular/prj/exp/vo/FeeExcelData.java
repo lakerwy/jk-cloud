@@ -135,7 +135,9 @@ public class FeeExcelData {
     @ApiModelProperty(value = "流程状态", position = 35)
     private String status;
 
-
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 45)
+    private String offsetType;
 
 
     /** 报销明细 - 集合 */

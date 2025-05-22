@@ -174,4 +174,17 @@ public class BizFormFee {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 35)
     private String status;
+
+
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 45)
+    private String offsetType;
+
+    /** 借支金额|投标费用金额 */
+    @ApiModelProperty(value = "借支金额|投标费用金额", position = 46)
+    private BigDecimal initAmount;
+
+    /** 餐饮招待登记表json 例如：[{"id":"1","SN":"S111","PROCESS_INSTANCE_ID":"12332"}，{"id":"1","SN":"S111","PROCESS_INSTANCE_ID":"12332"}] */
+    @ApiModelProperty(value = "餐饮招待登记表json 例如：[{\"id\":\"1\",\"SN\":\"S111\",\"PROCESS_INSTANCE_ID\":\"12332\"}，{\"id\":\"1\",\"SN\":\"S111\",\"PROCESS_INSTANCE_ID\":\"12332\"}]", position = 47)
+    private String hRegJson;
 }

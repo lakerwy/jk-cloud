@@ -65,4 +65,11 @@ public interface HRegService extends IService<HReg> {
      * @date  2025/05/06 16:11
      **/
     HReg queryEntity(String id);
+
+    /**
+     *
+     * @param hRegPageParam
+     * @return
+     */
+    Page<HReg> pageList(HRegPageParam hRegPageParam);
 }

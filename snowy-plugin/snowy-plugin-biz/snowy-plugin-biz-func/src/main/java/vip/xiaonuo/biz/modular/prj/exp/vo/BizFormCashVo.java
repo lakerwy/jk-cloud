@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 @Setter
 public class BizFormCashVo extends BizFormCash {
 
-    /** 借支余额 (借支金额 - （审批中+审批通过)费用报销、差旅报销、归还登记 ）*/
-    @ApiModelProperty(value = "借支余额(借支金额 - （审批中+审批通过)费用报销、差旅报销、归还登记 ）", position = 88)
+    /** 借支余额 (借支金额 - （审批通过)费用报销、差旅报销、归还登记 ）*/
+    @ApiModelProperty(value = "借支余额(借支金额 - （审批通过)费用报销、差旅报销、归还登记 ）", position = 88)
     private BigDecimal cashBalance;
 
     /** 归还金额（审批通过合计） */

@@ -116,4 +116,20 @@ public class HRegController {
     public CommonResult<HReg> detail(@Valid HRegIdParam hRegIdParam) {
         return CommonResult.data(hRegService.detail(hRegIdParam));
     }
+
+
+
+
+    /**
+     * 获取招待事项登记分页（无权限控制）
+     *
+     * @author yy
+     * @date  2025/05/06 16:11
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取招待事项登记分页（无权限控制）")
+    @GetMapping("/sys/hr/hReg/pageList")
+    public CommonResult<Page<HReg>> pageList(HRegPageParam hRegPageParam) {
+        return CommonResult.data(hRegService.pageList(hRegPageParam));
+    }
 }

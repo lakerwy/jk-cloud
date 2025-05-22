@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
+import vip.xiaonuo.biz.modular.bidFee.vo.BizBidFeeInfo;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -23,6 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 投标费用审批控制器
@@ -142,5 +144,17 @@ public class BidFeeController {
     @PostMapping("/biz/bidFee/genExcel")
     public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
         bidFeeService.genExcel(excelParam,response);
+    }
+
+
+
+    /**
+     * 根据投标费用单id，获取冲账记录信息
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据投标费用单id，获取冲账记录信息")
+    @GetMapping("/biz/bidFee/getExpList")
+    public CommonResult<List<BizBidFeeInfo>> getExpList(@Valid BidFeeIdParam bidFeeIdParam) {
+        return CommonResult.data(bidFeeService.getExpList(bidFeeIdParam));
     }
 }

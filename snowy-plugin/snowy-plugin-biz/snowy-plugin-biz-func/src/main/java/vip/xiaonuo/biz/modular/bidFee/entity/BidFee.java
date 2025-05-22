@@ -173,4 +173,17 @@ public class BidFee {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 37)
     private String extJson;
+
+
+
+
+    /** *本单据已冲账金额合计（元） */
+    @ApiModelProperty(value = "*本单据已冲账金额合计（元）", position = 100)
+    @TableField(exist = false)
+    private BigDecimal expAmount;
+
+    /** *本单据未冲账金额合计（元） */
+    @ApiModelProperty(value = "*本单据未冲账金额合计（元）", position = 101)
+    @TableField(exist = false)
+    private BigDecimal noExpAmount;
 }

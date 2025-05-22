@@ -17,4 +17,7 @@ public class ExpCheckParam {
     @ApiModelProperty(value = "借支单(BIZ_FORM_CASH.SN)", position = 5)
     private String cashSn;
 
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 6)
+    private String offsetType;
 }

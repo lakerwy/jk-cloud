@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.bidFee.entity.BidFee;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
+import vip.xiaonuo.biz.modular.bidFee.vo.BizBidFeeInfo;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -78,4 +79,11 @@ public interface BidFeeService extends IService<BidFee> {
      * @param excelParam
      */
     void genExcel(ExcelParam excelParam, HttpServletResponse response);
+
+    /**
+     *
+     * @param bidFeeIdParam
+     * @return
+     */
+    List<BizBidFeeInfo> getExpList(BidFeeIdParam bidFeeIdParam);
 }

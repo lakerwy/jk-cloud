@@ -99,6 +99,8 @@ public enum BizCommonEnum {
     HR_H_REG("HR_H_REG","HR_H_REG","HRegServiceImpl"), //餐饮招待登记
     BIZ_PRJ_FEE_ALLOTMENT("BIZ_PRJ_FEE_ALLOTMENT","BIZ_PRJ_FEE_ALLOTMENT","PrjFeeAllotmentServiceImpl"),   //工程款拨付审批
 
+    BIZ_PRJ_MOU("BIZ_PRJ_MOU","BIZ_PRJ_MOU","BizPrjMouServiceImpl"),   //项目承接备忘录
+
     BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl");    // 分包合同结算审批
 
     String bizModel;

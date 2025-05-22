@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.exp.param.*;
+import vip.xiaonuo.biz.modular.prj.exp.vo.BizBidFeeVo;
 import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashTotal;
 import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashVo;
 import vip.xiaonuo.biz.modular.prj.exp.vo.LjNoBackVo;
@@ -166,6 +167,20 @@ public class BizFormCashController {
     @GetMapping("/biz/prj/exp/cash/select")
     public CommonResult<List<BizFormCashVo>> select(@Valid CashSelectParam selectParam) {
         return CommonResult.data(bizFormCashService.select(selectParam));
+    }
+
+
+    /**
+     * 获取费用报销（二期）- 投标费用单（冲账余额不为0）
+     *
+     * @author yong.ye
+     * @date  2025/02/24 15:12
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("获取费用报销（二期）- 投标费用单（冲账余额不为0）")
+    @GetMapping("/biz/prj/exp/bidFee/select")
+    public CommonResult<List<BizBidFeeVo>> selectBidFee(@Valid BidFeeSelectParam selectParam) {
+        return CommonResult.data(bizFormCashService.selectBidFee(selectParam));
     }
 
 

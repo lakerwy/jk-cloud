@@ -276,6 +276,9 @@ public class BizFormTravelServiceImpl extends ServiceImpl<BizFormTravelMapper, B
         if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getVerifyCashSn())){
             queryWrapper.lambda().eq(BizFormTravel::getVerifyCashSn,bizFormTravelPageParam.getVerifyCashSn());
         }
+        if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getOffsetType())){
+            queryWrapper.lambda().eq(BizFormTravel::getOffsetType,bizFormTravelPageParam.getOffsetType());
+        }
         if(ObjectUtil.isNotEmpty(bizFormTravelPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizFormTravel::getSn, bizFormTravelPageParam.getSearchKey())
                     .or().like(BizFormTravel::getCompany, bizFormTravelPageParam.getSearchKey())

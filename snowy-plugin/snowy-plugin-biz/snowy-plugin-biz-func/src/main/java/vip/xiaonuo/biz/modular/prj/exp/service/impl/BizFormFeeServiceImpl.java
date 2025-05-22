@@ -401,23 +401,23 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
     public void check(ExpCheckParam checkParam) {
         //有选择借支单 校验
         if(ObjectUtil.isNotEmpty(checkParam.getCashId())){
+            if(ObjectUtil.isEmpty(checkParam.getOffsetType())){
+                throw new CommonException("冲账类型必填！");
+            }
             List<BizFormFee> feeList = this.list(new LambdaQueryWrapper<BizFormFee>()
+                    .eq(BizFormFee::getOffsetType,checkParam.getOffsetType())
                     .in(BizFormFee::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue())
                     .and(q->q.eq(BizFormFee::getCashId,checkParam.getCashId()).or().eq(BizFormFee::getVerifyCashId,checkParam.getCashId())));
             if(CollUtil.isNotEmpty(feeList)){
-                throw new CommonException("借支单{}还存在审核中的费用报销单，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
+                throw new CommonException("{}单据{}还存在审核中的费用报销单，请等待审核完成后再使用{}单据{}，或使用其余冲账单据。",checkParam.getOffsetType(),checkParam.getCashSn(),checkParam.getOffsetType(),checkParam.getCashSn());
             }
             List<BizFormTravel> travelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>()
+                    .eq(BizFormTravel::getOffsetType,checkParam.getOffsetType())
                     .in(BizFormTravel::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue())
                     .and(q->q.eq(BizFormTravel::getCashId,checkParam.getCashId()).or().eq(BizFormTravel::getVerifyCashId,checkParam.getCashId())));
             if(CollUtil.isNotEmpty(travelList)){
-                throw new CommonException("借支单{}还存在审核中的差旅报销单，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
+                throw new CommonException("{}单据{}还存在审核中的差旅报销单，请等待审核完成后再使用{}单据{}，或使用其余冲账单据。",checkParam.getOffsetType(),checkParam.getCashSn(),checkParam.getOffsetType(),checkParam.getCashSn());
             }
-//            List<BizFormBack> backList = bizFormBackService.list(new LambdaQueryWrapper<BizFormBack>()
-//                    .eq(BizFormBack::getCashId,checkParam.getCashId()).in(BizFormBack::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue()));
-//            if(CollUtil.isNotEmpty(backList)){
-//                throw new CommonException("借支单{}还存在审核中的归还申请，请等待审核完成后再使用借支单{}，或使用其余借支单！",checkParam.getCashSn(),checkParam.getCashSn());
-//            }
         }
     }
 
@@ -463,6 +463,9 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         }
         if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getVerifyCashSn())){
             queryWrapper.lambda().eq(BizFormFee::getVerifyCashSn,bizFormFeePageParam.getVerifyCashSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getOffsetType())){
+            queryWrapper.lambda().eq(BizFormFee::getOffsetType,bizFormFeePageParam.getOffsetType());
         }
         if(ObjectUtil.isNotEmpty(bizFormFeePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizFormFee::getSn, bizFormFeePageParam.getSearchKey())

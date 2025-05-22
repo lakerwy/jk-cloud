@@ -24,11 +24,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.bidFee.entity.BidFee;
+import vip.xiaonuo.biz.modular.bidFee.service.BidFeeService;
 import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormBack;
 import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormFee;
 import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormTravel;
 import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormCashBackStatusEnum;
 import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormCashTypeEnum;
+import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormOffsetTypeEnum;
 import vip.xiaonuo.biz.modular.prj.exp.param.*;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormBackService;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormFeeService;
@@ -87,6 +90,9 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
     @Resource
     private BizFormBackService bizFormBackService;
+
+    @Resource
+    private BidFeeService bidFeeService;
 
     @Override
     public Page<BizFormCashVo> page(BizFormCashPageParam bizFormCashPageParam) {
@@ -429,6 +435,19 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         }
     }
 
+    @Override
+    public List<BizBidFeeVo> selectBidFee(BidFeeSelectParam selectParam) {
+        LambdaQueryWrapper<BidFee> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BidFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(selectParam.getSn())){
+            lambdaQueryWrapper.like(BidFee::getSn,selectParam.getSn());
+        }
+        List<BidFee> queryList = bidFeeService.list(lambdaQueryWrapper);
+        List<BizBidFeeVo> dataList = getBizBidFeeVoList(queryList);
+        List<BizBidFeeVo> result = dataList.stream().filter(x->BigDecimal.ZERO.compareTo(x.getCashBalance()) < 0 ).collect(Collectors.toList());
+        return result;
+    }
+
 
     /**
      * 审批通过的借支单
@@ -512,7 +531,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
 
 
     /**
-     * 补充 参数 信息
+     * 补充 参数 信息 （借支单）
      * @param dataList
      * @return
      */
@@ -522,13 +541,9 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         if(CollUtil.isNotEmpty(result)){
            result.forEach(item->{
                 //审批通过+审批中
-                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getVerifyCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
-                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getVerifyCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getOffsetType, BizFormOffsetTypeEnum.CASH.getValue()).eq(BizFormFee::getVerifyCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getOffsetType,BizFormOffsetTypeEnum.CASH.getValue()).eq(BizFormTravel::getVerifyCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
                 List<BizFormBack> tmpBackList = bizFormBackService.list(new LambdaQueryWrapper<BizFormBack>().eq(BizFormBack::getCashId,item.getId()).in(BizFormBack::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
-
-//                BigDecimal totalFee = tmpFeeList.stream().map(BizFormFee::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-//                BigDecimal totalTravel = tmpTravelList.stream().map(BizFormTravel::getOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
-//                BigDecimal totalBack = tmpBackList.stream().map(BizFormBack::getBackAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
 
                 //审批通过
                 BigDecimal totalPassFee = tmpFeeList.stream().filter(obj->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(obj.getStatus())).map(BizFormFee::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
@@ -564,4 +579,36 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         }
         return result;
     }
+
+
+
+
+    /**
+     * 补充 参数 信息 (招标费用单)
+     * @param dataList
+     * @return
+     */
+
+    private List<BizBidFeeVo> getBizBidFeeVoList(List<BidFee> dataList) {
+        if(CollUtil.isEmpty(dataList)) return null;
+        List<BizBidFeeVo> result = BeanUtil.copyToList(dataList, BizBidFeeVo.class);
+        if(CollUtil.isNotEmpty(result)){
+            result.forEach(item->{
+                //审批通过
+                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getOffsetType, BizFormOffsetTypeEnum.BID_FEE.getValue()).eq(BizFormFee::getVerifyCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue()));
+                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getOffsetType,BizFormOffsetTypeEnum.BID_FEE.getValue()).eq(BizFormTravel::getVerifyCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue()));
+
+                //审批通过
+                BigDecimal totalPassFee = tmpFeeList.stream().map(BizFormFee::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+                BigDecimal totalPassTravel = tmpTravelList.stream().map(BizFormTravel::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+
+                item.setAdvanceAmount(item.getPayAmount());
+                item.setBackAmount(totalPassFee.add(totalPassTravel));
+                item.setCashBalance(item.getAdvanceAmount().subtract(totalPassFee).subtract(totalPassTravel));
+                item.setNoBackAmount(item.getAdvanceAmount().subtract(item.getBackAmount()));
+            });
+        }
+        return result;
+    }
+
 }

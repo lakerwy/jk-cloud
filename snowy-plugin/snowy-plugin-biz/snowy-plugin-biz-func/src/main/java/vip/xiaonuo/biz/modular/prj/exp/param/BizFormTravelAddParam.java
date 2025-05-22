@@ -162,4 +162,13 @@ public class BizFormTravelAddParam {
     /** 成本一览表 - 集合 */
     @ApiModelProperty(value = "成本一览表 - 集合", position = 67)
     private List<BizFormTravelCostEditParam> costList;
+
+
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 45)
+    private String offsetType;
+
+    /** 借支金额|投标费用金额 */
+    @ApiModelProperty(value = "借支金额|投标费用金额", position = 46)
+    private BigDecimal initAmount;
 }

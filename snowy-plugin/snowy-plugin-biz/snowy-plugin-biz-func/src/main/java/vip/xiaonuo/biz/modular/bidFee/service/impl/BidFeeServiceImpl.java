@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
@@ -17,6 +18,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +28,13 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.bidFee.param.*;
 import vip.xiaonuo.biz.modular.bidFee.vo.BidFeeExcelData;
 import vip.xiaonuo.biz.modular.bidFee.vo.BizProjectVo;
+import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormFee;
+import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormTravel;
+import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormOffsetTypeEnum;
+import vip.xiaonuo.biz.modular.prj.exp.service.BizFormFeeService;
+import vip.xiaonuo.biz.modular.bidFee.vo.BizBidFeeExpInfo;
+import vip.xiaonuo.biz.modular.bidFee.vo.BizBidFeeInfo;
+import vip.xiaonuo.biz.modular.prj.exp.service.BizFormTravelService;
 import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
 import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCell;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
@@ -53,6 +62,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -99,6 +109,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
 
     public static final String DICT_LABEL_BID_MANAGER = "投标专员";
 
+    @Resource
+    private BizFormFeeService bizFormFeeService;
+
+    @Resource
+    private BizFormTravelService bizFormTravelService;
+
     @Override
     public Page<BidFee> page(BidFeePageParam bidFeePageParam) {
         QueryWrapper<BidFee> queryWrapper = new QueryWrapper<>();
@@ -139,7 +155,18 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         } else {
             queryWrapper.lambda().eq(BidFee::getCreateUser, StpUtil.getLoginIdAsString());
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BidFee> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        if(CollUtil.isNotEmpty(page.getRecords())){
+            List<BizBidFeeInfo> bizBidFeeInfoList = getBizBidFeeInfoList(page.getRecords());
+            page.getRecords().forEach(item->{
+                BizBidFeeInfo tmpObj = bizBidFeeInfoList.stream().filter(x->item.getId().equals(x.getId())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(tmpObj)){
+                    item.setExpAmount(tmpObj.getExpAmount());
+                    item.setNoExpAmount(tmpObj.getNoExpAmount());
+                }
+            });
+        }
+        return page;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -342,6 +369,12 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         }
     }
 
+    @Override
+    public List<BizBidFeeInfo> getExpList(BidFeeIdParam bidFeeIdParam) {
+        BidFee bidFee = this.queryEntity(bidFeeIdParam.getId());
+        return getBizBidFeeInfoList(CollectionUtil.newArrayList(bidFee));
+    }
+
     // 获取并设置评论列表
     private void setCommentList(BidFeeExcelData excelData) {
         if(CollUtil.isNotEmpty(excelData.getCommentList())){
@@ -439,5 +472,48 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         excelData.setManager(map.get("部门负责人"));
         // 发起人
         excelData.setInitor(map.get("发起申请"));
+    }
+
+
+
+
+
+
+    /**
+     * 补充 参数 信息 (招标费用单 - 冲账记录)
+     * @param dataList
+     * @return
+     */
+
+    private List<BizBidFeeInfo> getBizBidFeeInfoList(List<BidFee> dataList) {
+        if(CollUtil.isEmpty(dataList)) return null;
+        List<BizBidFeeInfo> result = BeanUtil.copyToList(dataList, BizBidFeeInfo.class);
+        if(CollUtil.isNotEmpty(result)){
+            result.forEach(item->{
+                //审批通过+审批中
+                List<BizFormFee> tmpFeeList = bizFormFeeService.list(new LambdaQueryWrapper<BizFormFee>().eq(BizFormFee::getOffsetType, BizFormOffsetTypeEnum.BID_FEE.getValue()).eq(BizFormFee::getVerifyCashId,item.getId()).in(BizFormFee::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                List<BizFormTravel> tmpTravelList = bizFormTravelService.list(new LambdaQueryWrapper<BizFormTravel>().eq(BizFormTravel::getOffsetType,BizFormOffsetTypeEnum.BID_FEE.getValue()).eq(BizFormTravel::getVerifyCashId,item.getId()).in(BizFormTravel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+                //统计
+                BigDecimal totalFee = tmpFeeList.stream().map(BizFormFee::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+                BigDecimal totalTravel = tmpTravelList.stream().map(BizFormTravel::getVerifyOffsetAmount).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add);
+
+                item.setExpAmount(totalFee.add(totalTravel));
+                item.setNoExpAmount(item.getPayAmount().subtract(item.getExpAmount()));
+
+                List<BizBidFeeExpInfo> expList = new ArrayList<>();
+                if(CollUtil.isNotEmpty(tmpFeeList)) {
+                    List<BizBidFeeExpInfo> feeExpList = BeanUtil.copyToList(tmpFeeList, BizBidFeeExpInfo.class);
+                    feeExpList.forEach(x->x.setOffsetType("费用报销单"));
+                    expList.addAll(feeExpList);
+                }
+                if(CollUtil.isNotEmpty(tmpTravelList)){
+                    List<BizBidFeeExpInfo> travelExpList = BeanUtil.copyToList(tmpFeeList, BizBidFeeExpInfo.class);
+                    travelExpList.forEach(x->x.setOffsetType("差旅费用报销单"));
+                    expList.addAll(travelExpList);
+                }
+                item.setExpList(expList);
+            });
+        }
+        return result;
     }
 }

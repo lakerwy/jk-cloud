@@ -93,4 +93,8 @@ public class BizFormTravelPageParam {
     @ApiModelProperty(value = "核定借支单ID")
     private String verifyCashId;
 
+
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 45)
+    private String offsetType;
 }

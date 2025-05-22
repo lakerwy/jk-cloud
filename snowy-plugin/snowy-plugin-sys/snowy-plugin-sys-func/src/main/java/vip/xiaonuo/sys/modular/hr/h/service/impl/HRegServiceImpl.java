@@ -175,4 +175,54 @@ public class HRegServiceImpl extends ServiceImpl<HRegMapper, HReg> implements HR
         }
         return hReg;
     }
+
+    @Override
+    public Page<HReg> pageList(HRegPageParam hRegPageParam) {
+        QueryWrapper<HReg> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(HReg::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getDeptId())) {
+            queryWrapper.lambda().eq(HReg::getDeptId, hRegPageParam.getDeptId());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getDeptName())) {
+            queryWrapper.lambda().like(HReg::getDeptName, hRegPageParam.getDeptName());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getOptId())) {
+            queryWrapper.lambda().eq(HReg::getOptId, hRegPageParam.getOptId());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getOptName())) {
+            queryWrapper.lambda().like(HReg::getOptName, hRegPageParam.getOptName());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getStartOptTime()) && ObjectUtil.isNotEmpty(hRegPageParam.getEndOptTime())) {
+            queryWrapper.lambda().between(HReg::getOptTime, hRegPageParam.getStartOptTime(), hRegPageParam.getEndOptTime());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getStartHDate()) && ObjectUtil.isNotEmpty(hRegPageParam.getEndHDate())) {
+            queryWrapper.lambda().between(HReg::getHDate, hRegPageParam.getStartHDate(), hRegPageParam.getEndHDate());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getDescMemo())) {
+            queryWrapper.lambda().like(HReg::getDescMemo, hRegPageParam.getDescMemo());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getJoinJosn())) {
+            queryWrapper.lambda().like(HReg::getJoinJosn, hRegPageParam.getJoinJosn());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getSn())) {
+            queryWrapper.lambda().like(HReg::getSn, hRegPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getStatus())) {
+            queryWrapper.lambda().eq(HReg::getStatus, hRegPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getType())){
+            queryWrapper.lambda().eq(HReg::getType,hRegPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(hRegPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(HReg::getSn,hRegPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isAllNotEmpty(hRegPageParam.getSortField(), hRegPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(hRegPageParam.getSortOrder());
+            queryWrapper.orderBy(true, hRegPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(hRegPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(HReg::getSn);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
 }

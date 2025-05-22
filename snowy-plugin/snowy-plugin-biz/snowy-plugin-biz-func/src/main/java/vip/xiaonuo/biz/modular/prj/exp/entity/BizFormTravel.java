@@ -190,4 +190,14 @@ public class BizFormTravel {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 39)
     private String status;
+
+
+    /** 冲账类型 */
+    @ApiModelProperty(value = "冲账类型", position = 45)
+    private String offsetType;
+
+    /** 借支金额|投标费用金额 */
+    @ApiModelProperty(value = "借支金额|投标费用金额", position = 46)
+    private BigDecimal initAmount;
+
 }

@@ -247,11 +247,11 @@ public class AuthServiceImpl implements AuthService {
             if(ObjectUtil.isEmpty(saBaseLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
             }
-            if("1".equals(isFilterPassWord) && saBaseLoginUser.getPassword().equals(defaultPassWord)){
-                throw new CommonException("检查到您的密码强度较低，为了您账号安全，请重新设置密码！");
-            }
             if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+            }
+            if("1".equals(isFilterPassWord) && saBaseLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("您的密码强度较低，为了账号安全，请重新设置密码！");
             }
             saBaseLoginUser.setClientId(authAccountPasswordLoginParam.getClientId());
             saBaseLoginUser.setPlatform(authAccountPasswordLoginParam.getPlatform());
@@ -265,11 +265,11 @@ public class AuthServiceImpl implements AuthService {
             if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
             }
-            if("1".equals(isFilterPassWord) && saBaseClientLoginUser.getPassword().equals(defaultPassWord)){
-                throw new CommonException("检查到您的密码强度较低，为了您账号安全，请重新设置密码！");
-            }
             if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+            }
+            if("1".equals(isFilterPassWord) && saBaseClientLoginUser.getPassword().equals(defaultPassWord)){
+                throw new CommonException("您的密码强度较低，为了账号安全，请重新设置密码！");
             }
             // 执行C端登录
             return execLoginC(saBaseClientLoginUser, device);

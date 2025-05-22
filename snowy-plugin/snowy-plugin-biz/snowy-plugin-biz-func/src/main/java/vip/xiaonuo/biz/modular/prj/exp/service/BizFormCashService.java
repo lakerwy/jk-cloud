@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormCash;
 import vip.xiaonuo.biz.modular.prj.exp.param.*;
+import vip.xiaonuo.biz.modular.prj.exp.vo.BizBidFeeVo;
 import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashTotal;
 import vip.xiaonuo.biz.modular.prj.exp.vo.BizFormCashVo;
 import vip.xiaonuo.biz.modular.prj.exp.vo.LjNoBackVo;
@@ -109,4 +110,11 @@ public interface BizFormCashService extends IService<BizFormCash> {
      * @param response
      */
     void genExcel(ExcelParam excelParam, HttpServletResponse response);
+
+    /**
+     *
+     * @param selectParam
+     * @return
+     */
+    List<BizBidFeeVo> selectBidFee(BidFeeSelectParam selectParam);
 }
