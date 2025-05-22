@@ -90,7 +90,7 @@ public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> impleme
         } else {
             queryWrapper.lambda().orderByDesc(DevLog::getCreateTime);
         }
-        queryWrapper.lambda().notIn(DevLog::getReqUrl,blackList);
+        queryWrapper.lambda().and(q  -> q.notIn(DevLog::getReqUrl, blackList).or().isNull(DevLog::getReqUrl));
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
