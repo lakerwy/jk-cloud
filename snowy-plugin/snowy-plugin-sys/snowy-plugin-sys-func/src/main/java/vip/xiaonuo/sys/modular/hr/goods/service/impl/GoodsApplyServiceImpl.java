@@ -3,7 +3,6 @@ package vip.xiaonuo.sys.modular.hr.goods.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -35,9 +34,6 @@ import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyIdParam;
 import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyPageParam;
 import vip.xiaonuo.sys.modular.hr.goods.service.GoodsApplyService;
 import vip.xiaonuo.sys.modular.hr.goods.service.GoodsItemService;
-import vip.xiaonuo.sys.modular.hr.sub.entity.SubGz;
-import vip.xiaonuo.sys.modular.hr.sub.entity.SubGzItem;
-import vip.xiaonuo.sys.modular.hr.sub.enums.SubGzItemTypeEnum;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -127,6 +123,8 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
                 List<String> backList = itemList.stream().filter(x->item.getId().equals(x.getGoodsApplyId()) && GoodsTypeEnum.GOODS_BACK.getValue().equals(x.getType())).map(x->x.getGoodName()).collect(Collectors.toList());
                 item.setGoodsApplyStr(StrUtil.join("，",applyList));
                 item.setGoodsBackStr(StrUtil.join("，",backList));
+                item.setGoodsApplyJson(null);
+                item.setGoodsBackJson(null);
             });
         }
         return result;
