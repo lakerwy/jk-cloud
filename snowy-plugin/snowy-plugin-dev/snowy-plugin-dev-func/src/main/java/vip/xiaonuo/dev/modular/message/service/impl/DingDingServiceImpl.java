@@ -2,6 +2,7 @@ package vip.xiaonuo.dev.modular.message.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -20,20 +21,31 @@ import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.AuthThirdApi;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.consts.WebsiteConstant;
 import vip.xiaonuo.common.pojo.RabbitMsg;
-import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.common.util.CommonIpAddressUtil;
+import vip.xiaonuo.common.util.CommonServletUtil;
+import vip.xiaonuo.common.util.CommonUaUtil;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.api.SysUserApi;
+import vip.xiaonuo.ten.api.TenApi;
+import vip.xiaonuo.util.modular.log.entity.DevLog;
+import vip.xiaonuo.util.modular.log.enums.DevLogCategoryEnum;
+import vip.xiaonuo.util.modular.log.enums.DevLogExeStatusEnum;
+import vip.xiaonuo.util.modular.log.service.DevLogService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -51,6 +63,10 @@ public class DingDingServiceImpl implements IDingDingService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Resource
+    DevLogService devLogService;
+
+    private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
 
     public static Executor sendExecs = Executors.newFixedThreadPool(20);
 
@@ -99,8 +115,8 @@ public class DingDingServiceImpl implements IDingDingService {
             return null;
         }
         OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
-
-        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        String serviceUrl = "https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2";
+        DingTalkClient client = new DefaultDingTalkClient(serviceUrl);
         OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
         // yourAgentId
         request.setAgentId(dingTalkProperties.getAgentId());
@@ -131,12 +147,38 @@ public class DingDingServiceImpl implements IDingDingService {
         OapiGettokenResponse oapiGettokenResponse = this.getToken();
         String accessToken = oapiGettokenResponse.getAccessToken();
         try {
-            return client.execute(request, accessToken);
+            OapiMessageCorpconversationAsyncsendV2Response response = client.execute(request, accessToken);
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(5000);
+                    saveDevLog(serviceUrl, request, response);
+                } catch (Exception e){
+                    log.error("钉钉消息提醒日志记录异常", e);
+                }
+            });
+            return response;
         } catch (ApiException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    // 记录Dev日志
+    private void saveDevLog(String serviceUrl, OapiMessageCorpconversationAsyncsendV2Request request, OapiMessageCorpconversationAsyncsendV2Response response) {
+        DevLog devLog = new DevLog();
+        devLog.setTenantId(tenApi.getCurrentTenId());
+        devLog.setCategory(DevLogCategoryEnum.OPERATE.getValue());
+        devLog.setName("钉钉消息提醒");
+        devLog.setExeStatus(DevLogExeStatusEnum.SUCCESS.getValue());
+        devLog.setReqUrl(serviceUrl);
+        devLog.setParamJson(JSONUtil.toJsonStr(request));
+        devLog.setResultJson(JSONUtil.toJsonStr(response));
+        devLog.setOpTime(DateTime.now());
+        devLog.setOpUser(StpLoginUserUtil.getLoginUser() != null ? StpLoginUserUtil.getLoginUser().getName():null);
+        devLog.setModelTag("钉钉消息提醒");
+        devLogService.save(devLog);
+    }
+
 
     /**
      *
