@@ -101,6 +101,7 @@ public enum BizCommonEnum {
 
     BIZ_PRJ_MOU("BIZ_PRJ_MOU","BIZ_PRJ_MOU","BizPrjMouServiceImpl"),   //项目承接备忘录
 
+    HR_GOODS_APPLY("HR_GOODS_APPLY","HR_GOODS_APPLY","GoodsApplyServiceImpl"), //物资领用申请-审批
     BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl");    // 分包合同结算审批
 
     String bizModel;
