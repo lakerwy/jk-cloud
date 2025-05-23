@@ -118,7 +118,18 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
         } else {
             queryWrapper.lambda().orderByDesc(GoodsApply::getSn);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<GoodsApply> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        if(CollUtil.isNotEmpty(result.getRecords())){
+            List<String> ids = result.getRecords().stream().map(GoodsApply::getId).collect(Collectors.toList());
+            List<GoodsItem> itemList = goodsItemService.list(new LambdaQueryWrapper<GoodsItem>().in(GoodsItem::getGoodsApplyId,ids));
+            result.getRecords().forEach(item->{
+                List<String> applyList = itemList.stream().filter(x->item.getId().equals(x.getGoodsApplyId()) && GoodsTypeEnum.GOODS_APPLY.getValue().equals(x.getType())).map(x->x.getGoodName()).collect(Collectors.toList());
+                List<String> backList = itemList.stream().filter(x->item.getId().equals(x.getGoodsApplyId()) && GoodsTypeEnum.GOODS_BACK.getValue().equals(x.getType())).map(x->x.getGoodName()).collect(Collectors.toList());
+                item.setGoodsApplyStr(StrUtil.join("，",applyList));
+                item.setGoodsBackStr(StrUtil.join("，",backList));
+            });
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)

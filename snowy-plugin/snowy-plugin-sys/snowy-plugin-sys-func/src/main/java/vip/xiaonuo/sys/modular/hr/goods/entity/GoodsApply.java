@@ -141,10 +141,21 @@ public class GoodsApply {
     private String status;
 
     /** 物资清单JSON */
-    @ApiModelProperty(value = "物资清单JSON", position = 28)
+    @ApiModelProperty(value = "物资清单JSON", position = 200)
     private String goodsApplyJson;
 
     /** 物资退回清单JSON */
-    @ApiModelProperty(value = "物资退回清单JSON", position = 29)
+    @ApiModelProperty(value = "物资退回清单JSON", position = 200)
     private String goodsBackJson;
+
+
+    /** 申领物资名称 */
+    @ApiModelProperty(value = "申领物资名称", position = 100)
+    @TableField(exist = false)
+    private String goodsApplyStr;
+
+    /** 退回物资名称 */
+    @ApiModelProperty(value = "退回物资名称", position = 100)
+    @TableField(exist = false)
+    private String goodsBackStr;
 }
