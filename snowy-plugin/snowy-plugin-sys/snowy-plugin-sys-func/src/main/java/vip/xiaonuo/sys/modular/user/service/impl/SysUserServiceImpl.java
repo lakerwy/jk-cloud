@@ -2232,4 +2232,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser.setPassword(CommonCryptogramUtil.doHashValue(param.getNewPassword()));
         this.updateById(sysUser);
     }
+
+    @Override
+    public Boolean checkPwd() {
+        String userId = StpLoginUserUtil.getLoginUser().getId();
+        SysUser sysUser = this.queryEntity(userId);
+        String defaultPassWord = CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY));
+        if(defaultPassWord.equals(sysUser.getPassword())){
+            return true;
+        }
+        return false;
+    }
 }

@@ -412,4 +412,19 @@ public class SysUserCenterController {
     public CommonResult<Boolean> checkSecondPwd(@RequestBody @Valid SysUserSecondPassword secondPassword) {
         return CommonResult.data(sysUserService.checkSecondPwd(secondPassword));
     }
+
+
+
+    /**
+     * check当前登录用户密码强弱（温馨提示修改密码）  返回结果true代表密码强度弱，需要提醒用户修改
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("check当前登录用户密码强弱【返回结果true代表密码强度弱，需要提醒用户修改】")
+    @PostMapping("/sys/userCenter/checkPwd")
+    public CommonResult<Boolean> checkPwd() {
+        return CommonResult.data(sysUserService.checkPwd());
+    }
 }

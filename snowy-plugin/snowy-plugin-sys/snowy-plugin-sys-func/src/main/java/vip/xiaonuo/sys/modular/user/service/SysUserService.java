@@ -553,4 +553,6 @@ public interface SysUserService extends IService<SysUser> {
     List<SysUser> getDingUser();
 
     void setPassword(SysUserUpdatePasswordParam param);
+
+    Boolean checkPwd();
 }
