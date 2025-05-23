@@ -150,7 +150,6 @@ public class DingDingServiceImpl implements IDingDingService {
             OapiMessageCorpconversationAsyncsendV2Response response = client.execute(request, accessToken);
             CompletableFuture.runAsync(() -> {
                 try {
-                    Thread.sleep(5000);
                     saveDevLog(serviceUrl, request, response);
                 } catch (Exception e){
                     log.error("钉钉消息提醒日志记录异常", e);
