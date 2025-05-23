@@ -144,7 +144,6 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             goodsApply.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             goodsApply.setModelId(modelId);
             goodsApply.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
-            goodsApply.setOptTime(new Date());
             FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
@@ -153,6 +152,8 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
         }else{
             goodsApply.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+
+        goodsApply.setOptTime(new Date());
         goodsApply.setGoodsApplyJson(JSONUtil.toJsonStr(goodsApplyAddParam.getGoodsApplyList()));
         goodsApply.setGoodsBackJson(JSONUtil.toJsonStr(goodsApplyAddParam.getGoodsBackList()));
         this.save(goodsApply);
@@ -194,6 +195,7 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
                 goodsApplyEditParam.setId(id);
             }
         }
+
         GoodsApply goodsApply = this.queryEntity(goodsApplyEditParam.getId());
         BeanUtil.copyProperties(goodsApplyEditParam, goodsApply);
         goodsApply.setGoodsApplyJson(JSONUtil.toJsonStr(goodsApplyEditParam.getGoodsApplyList()));
