@@ -507,7 +507,7 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
                     expList.addAll(feeExpList);
                 }
                 if(CollUtil.isNotEmpty(tmpTravelList)){
-                    List<BizBidFeeExpInfo> travelExpList = BeanUtil.copyToList(tmpFeeList, BizBidFeeExpInfo.class);
+                    List<BizBidFeeExpInfo> travelExpList = BeanUtil.copyToList(tmpTravelList, BizBidFeeExpInfo.class);
                     travelExpList.forEach(x->x.setOffsetType("差旅费用报销单"));
                     expList.addAll(travelExpList);
                 }
