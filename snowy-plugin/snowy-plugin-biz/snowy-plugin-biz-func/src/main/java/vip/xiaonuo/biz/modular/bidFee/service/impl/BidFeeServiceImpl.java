@@ -122,7 +122,8 @@ public class BidFeeServiceImpl extends ServiceImpl<BidFeeMapper, BidFee> impleme
         if(ObjectUtil.isNotEmpty(bidFeePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BidFee::getApplyUnit,bidFeePageParam.getSearchKey())
                     .or().like(BidFee::getLeader,bidFeePageParam.getSearchKey())
-                    .or().like(BidFee::getDept,bidFeePageParam.getSearchKey()));
+                    .or().like(BidFee::getDept,bidFeePageParam.getSearchKey())
+                    .or().like(BidFee::getSn,bidFeePageParam.getSearchKey()));
         }
         // 资金支付类型
         if(ObjectUtil.isNotEmpty(bidFeePageParam.getPaymentType())){
