@@ -167,4 +167,20 @@ public class BizProjectController {
     public CommonResult<Page<BizProjectVo>> projectPage(BizProjectPageParam bizProjectPageParam) {
         return CommonResult.data(bizProjectService.epcMpPage(bizProjectPageParam));
     }
+
+
+
+
+    /**
+     * 获取业务表-立项申请分页(无数据权限控制)
+     *
+     * @author mayike
+     * @date  2023/06/20 14:26
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("获取业务表-立项申请分页(无数据权限控制)")
+    @GetMapping("/flw/project/pageList")
+    public CommonResult<Page<BizProject>> pageList(BizProjectPageParam bizProjectPageParam) {
+        return CommonResult.data(bizProjectService.pageList(bizProjectPageParam));
+    }
 }

@@ -78,4 +78,7 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "项目类型")
     private String type;
 
+    /** 状态 */
+    @ApiModelProperty(value = "状态")
+    private String status;
 }

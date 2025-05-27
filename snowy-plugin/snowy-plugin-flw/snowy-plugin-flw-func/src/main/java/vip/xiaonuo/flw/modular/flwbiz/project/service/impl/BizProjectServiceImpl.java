@@ -311,4 +311,41 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         return bizProjectMapper.getEpcMpPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
+    @Override
+    public Page<BizProject> pageList(BizProjectPageParam bizProjectPageParam) {
+        QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizProject::getDeleteFlag,"NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())) {
+            queryWrapper.lambda().like(BizProject::getSn, bizProjectPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())) {
+            queryWrapper.lambda().like(BizProject::getName, bizProjectPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
+            queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizProject::getName,bizProjectPageParam.getSearchKey())
+                    .or().like(BizProject::getSn,bizProjectPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
+            queryWrapper.lambda().eq(BizProject::getIsHead,bizProjectPageParam.getIsHead());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getType())){
+            queryWrapper.lambda().eq(BizProject::getType,bizProjectPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStatus())) {
+            queryWrapper.lambda().eq(BizProject::getStatus,bizProjectPageParam.getStatus());
+        }else {
+            queryWrapper.lambda().in(BizProject::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(), FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
+        if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizProjectPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(BizProject::getSn);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
 }

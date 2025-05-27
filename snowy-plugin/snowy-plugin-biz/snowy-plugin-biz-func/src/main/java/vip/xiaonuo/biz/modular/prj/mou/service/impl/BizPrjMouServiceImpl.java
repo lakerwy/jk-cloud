@@ -7,11 +7,16 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.prj.mou.param.*;
+import vip.xiaonuo.biz.modular.prj.mou.vo.BizPrjMouVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -22,42 +27,40 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.mou.entity.BizPrjMou;
 import vip.xiaonuo.biz.modular.prj.mou.mapper.BizPrjMouMapper;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouAddParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouEditParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouIdParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouPageParam;
 import vip.xiaonuo.biz.modular.prj.mou.service.BizPrjMouService;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * 项目承接备忘录Service接口实现类
  *
  * @author yy
- * @date  2025/05/13 09:14
+ * @date  2025/05/27 10:06
  **/
-@Service
+
 @DS("slave_1")
+@Service
 public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou> implements BizPrjMouService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Resource
+    private HetongService hetongService;
+
     @Override
     public Page<BizPrjMou> page(BizPrjMouPageParam bizPrjMouPageParam) {
         QueryWrapper<BizPrjMou> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(BizPrjMou::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getPrjId())) {
             queryWrapper.lambda().eq(BizPrjMou::getPrjId, bizPrjMouPageParam.getPrjId());
         }
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getPrjName())) {
             queryWrapper.lambda().like(BizPrjMou::getPrjName, bizPrjMouPageParam.getPrjName());
-        }
-        if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getStartApplyDate()) && ObjectUtil.isNotEmpty(bizPrjMouPageParam.getEndApplyDate())) {
-            queryWrapper.lambda().between(BizPrjMou::getApplyDate, bizPrjMouPageParam.getStartApplyDate(), bizPrjMouPageParam.getEndApplyDate());
         }
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getPrjMemo())) {
             queryWrapper.lambda().like(BizPrjMou::getPrjMemo, bizPrjMouPageParam.getPrjMemo());
@@ -65,14 +68,8 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getDevUnit())) {
             queryWrapper.lambda().like(BizPrjMou::getDevUnit, bizPrjMouPageParam.getDevUnit());
         }
-        if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getPartnerUnit())) {
-            queryWrapper.lambda().like(BizPrjMou::getPartnerUnit, bizPrjMouPageParam.getPartnerUnit());
-        }
-        if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getDeptId())) {
-            queryWrapper.lambda().eq(BizPrjMou::getDeptId, bizPrjMouPageParam.getDeptId());
-        }
-        if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getDeptName())) {
-            queryWrapper.lambda().like(BizPrjMou::getDeptName, bizPrjMouPageParam.getDeptName());
+        if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getPartnerType())) {
+            queryWrapper.lambda().eq(BizPrjMou::getPartnerType, bizPrjMouPageParam.getPartnerType());
         }
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getSn())) {
             queryWrapper.lambda().like(BizPrjMou::getSn, bizPrjMouPageParam.getSn());
@@ -81,19 +78,17 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
             queryWrapper.lambda().eq(BizPrjMou::getStatus, bizPrjMouPageParam.getStatus());
         }
         if(ObjectUtil.isNotEmpty(bizPrjMouPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(BizPrjMou::getPrjName,bizPrjMouPageParam.getSearchKey())
-                    .or().like(BizPrjMou::getDeptName,bizPrjMouPageParam.getSearchKey())
+            queryWrapper.lambda().and(q->q.like(BizPrjMou::getSn,bizPrjMouPageParam.getSearchKey())
+                    .or().like(BizPrjMou::getPrjName,bizPrjMouPageParam.getSearchKey())
                     .or().like(BizPrjMou::getDevUnit,bizPrjMouPageParam.getSearchKey())
-                    .or().like(BizPrjMou::getPrjMemo,bizPrjMouPageParam.getSearchKey())
-                    .or().like(BizPrjMou::getPartnerUnit,bizPrjMouPageParam.getSearchKey())
-                    .or().like(BizPrjMou::getSn,bizPrjMouPageParam.getSearchKey()));
+                    .or().like(BizPrjMou::getPartnerUnit,bizPrjMouPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizPrjMouPageParam.getSortField(), bizPrjMouPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjMouPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjMouPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizPrjMouPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizPrjMou::getId);
+            queryWrapper.lambda().orderByDesc(BizPrjMou::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -120,6 +115,7 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
         }else{
             bizPrjMou.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+        bizPrjMou.setApplyDate(new Date());
 
         this.save(bizPrjMou);
     }
@@ -163,5 +159,27 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
             throw new CommonException("项目承接备忘录不存在，id值为：{}", id);
         }
         return bizPrjMou;
+    }
+
+    @Override
+    public List<BizPrjMouVo> getListById(MouParam param) {
+        if(ObjectUtil.isAllEmpty(param.getBizProjectId(),param.getHetongId())){
+            throw new CommonException("参数缺失");
+        }
+        String prjId = param.getBizProjectId();
+        if(ObjectUtil.isEmpty(prjId)){
+            Hetong hetong = hetongService.getById(param.getHetongId());
+            if(ObjectUtil.isNotEmpty(hetong)) prjId = hetong.getBizProjectId();
+        }
+
+        List<BizPrjMouVo> result = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(prjId)){
+            LambdaQueryWrapper<BizPrjMou> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(BizPrjMou::getPrjId,prjId);
+            queryWrapper.in(BizPrjMou::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            List<BizPrjMou> tmpList = this.list(queryWrapper);
+            result = BeanUtil.copyToList(tmpList, BizPrjMouVo.class);
+        }
+        return result;
     }
 }

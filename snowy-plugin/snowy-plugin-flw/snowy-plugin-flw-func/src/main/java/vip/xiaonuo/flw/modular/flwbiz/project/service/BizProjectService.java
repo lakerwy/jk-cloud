@@ -92,4 +92,6 @@ public interface BizProjectService extends IService<BizProject> {
     List<BizProjectLikeVo> checkName2(CheckNameParam checkNameParam);
 
     Page<BizProjectVo> epcMpPage(BizProjectPageParam bizProjectPageParam);
+
+    Page<BizProject> pageList(BizProjectPageParam bizProjectPageParam);
 }

@@ -10,7 +10,7 @@ import java.util.Date;
  * 项目承接备忘录查询参数
  *
  * @author yy
- * @date  2025/05/13 09:14
+ * @date  2025/05/27 10:06
  **/
 @Getter
 @Setter
@@ -36,21 +36,13 @@ public class BizPrjMouPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 项目Id */
-    @ApiModelProperty(value = "项目Id")
+    /** （立项）项目Id */
+    @ApiModelProperty(value = "（立项）项目Id")
     private String prjId;
 
-    /** 项目名称 */
-    @ApiModelProperty(value = "项目名称")
+    /** （立项）项目名称 */
+    @ApiModelProperty(value = "（立项）项目名称")
     private String prjName;
-
-    /** 申请日期开始 */
-    @ApiModelProperty(value = "申请日期开始")
-    private String startApplyDate;
-
-    /** 申请日期结束 */
-    @ApiModelProperty(value = "申请日期结束")
-    private String endApplyDate;
 
     /** 项目概要 */
     @ApiModelProperty(value = "项目概要")
@@ -60,17 +52,9 @@ public class BizPrjMouPageParam {
     @ApiModelProperty(value = "建设单位")
     private String devUnit;
 
-    /** 分公司/合作单位 */
-    @ApiModelProperty(value = "分公司/合作单位")
-    private String partnerUnit;
-
-    /** 经办部门Id */
-    @ApiModelProperty(value = "经办部门Id")
-    private String deptId;
-
-    /** 经办部门 */
-    @ApiModelProperty(value = "经办部门")
-    private String deptName;
+    /** 分公司/合作单位类别 */
+    @ApiModelProperty(value = "分公司/合作单位类别")
+    private String partnerType;
 
     /** SN */
     @ApiModelProperty(value = "SN")

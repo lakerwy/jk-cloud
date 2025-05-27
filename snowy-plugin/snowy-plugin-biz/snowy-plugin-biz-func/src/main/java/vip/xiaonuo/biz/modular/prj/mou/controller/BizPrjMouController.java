@@ -11,25 +11,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.mou.param.*;
+import vip.xiaonuo.biz.modular.prj.mou.vo.BizPrjMouVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.prj.mou.entity.BizPrjMou;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouAddParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouEditParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouIdParam;
-import vip.xiaonuo.biz.modular.prj.mou.param.BizPrjMouPageParam;
 import vip.xiaonuo.biz.modular.prj.mou.service.BizPrjMouService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 项目承接备忘录控制器
  *
  * @author yy
- * @date  2025/05/13 09:14
+ * @date  2025/05/27 10:06
  */
 @Api(tags = "项目承接备忘录控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
@@ -44,7 +43,7 @@ public class BizPrjMouController {
      * 获取项目承接备忘录分页
      *
      * @author yy
-     * @date  2025/05/13 09:14
+     * @date  2025/05/27 10:06
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取项目承接备忘录分页")
@@ -58,7 +57,7 @@ public class BizPrjMouController {
      * 添加项目承接备忘录
      *
      * @author yy
-     * @date  2025/05/13 09:14
+     * @date  2025/05/27 10:06
      */
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加项目承接备忘录")
@@ -74,7 +73,7 @@ public class BizPrjMouController {
      * 编辑项目承接备忘录
      *
      * @author yy
-     * @date  2025/05/13 09:14
+     * @date  2025/05/27 10:06
      */
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑项目承接备忘录")
@@ -90,7 +89,7 @@ public class BizPrjMouController {
      * 删除项目承接备忘录
      *
      * @author yy
-     * @date  2025/05/13 09:14
+     * @date  2025/05/27 10:06
      */
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除项目承接备忘录")
@@ -107,7 +106,7 @@ public class BizPrjMouController {
      * 获取项目承接备忘录详情
      *
      * @author yy
-     * @date  2025/05/13 09:14
+     * @date  2025/05/27 10:06
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取项目承接备忘录详情")
@@ -116,4 +115,21 @@ public class BizPrjMouController {
     public CommonResult<BizPrjMou> detail(@Valid BizPrjMouIdParam bizPrjMouIdParam) {
         return CommonResult.data(bizPrjMouService.detail(bizPrjMouIdParam));
     }
+
+
+
+
+    /**
+     * 获取项目承接备忘录 （根据项目id|合同id获取项目承接备忘录信息）
+     *
+     * @author yy
+     * @date  2025/05/27 10:06
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取项目承接备忘录详情（根据项目id|合同id获取项目承接备忘录信息）")
+    @GetMapping("/biz/prj/mou/getListById")
+    public CommonResult<List<BizPrjMouVo>> getListById(@Valid MouParam param) {
+        return CommonResult.data(bizPrjMouService.getListById(param));
+    }
+
 }
