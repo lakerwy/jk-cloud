@@ -110,7 +110,6 @@ public class BizPrjMouController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取项目承接备忘录详情")
-//    @SaCheckPermission("/biz/prj/mou/detail")
     @GetMapping("/biz/prj/mou/detail")
     public CommonResult<BizPrjMou> detail(@Valid BizPrjMouIdParam bizPrjMouIdParam) {
         return CommonResult.data(bizPrjMouService.detail(bizPrjMouIdParam));
