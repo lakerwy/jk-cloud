@@ -99,7 +99,7 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
             queryWrapper.orderBy(true, bizEmpAssListPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizEmpAssListPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(BizEmpAssList::getYear).orderByDesc(BizEmpAssList::getSeason).orderByAsc(BizEmpAssList::getUserId);
+            queryWrapper.lambda().orderByDesc(BizEmpAssList::getYear).orderByDesc(BizEmpAssList::getSeason).orderByAsc(BizEmpAssList::getUserName);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

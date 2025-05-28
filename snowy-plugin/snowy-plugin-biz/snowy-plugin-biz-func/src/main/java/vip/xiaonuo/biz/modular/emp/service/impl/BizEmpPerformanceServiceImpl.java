@@ -35,6 +35,7 @@ import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssListVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
+import vip.xiaonuo.biz.modular.prj.exp.vo.ExpMonthTotal;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -300,6 +301,9 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             }
             newResult.add(performanceVo);
         }
+        newResult.sort(Comparator.comparing(BizEmpPerformanceVo::getYear,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(BizEmpPerformanceVo::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(BizEmpPerformanceVo::getUserName,Comparator.nullsLast(Comparator.naturalOrder())));
         pageVo.setCurrent(result.getCurrent());
         pageVo.setSize(result.getSize());
         pageVo.setPages(result.getPages());
