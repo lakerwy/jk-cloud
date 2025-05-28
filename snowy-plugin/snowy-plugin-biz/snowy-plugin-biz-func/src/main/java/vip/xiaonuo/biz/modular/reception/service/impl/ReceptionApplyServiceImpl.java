@@ -59,9 +59,7 @@ public class ReceptionApplyServiceImpl extends ServiceImpl<ReceptionApplyMapper,
             queryWrapper.lambda().in(ReceptionApply::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         }
         if(ObjectUtil.isNotEmpty(receptionApplyPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(ReceptionApply::getApplicant, receptionApplyPageParam.getSearchKey())
-                    .or().like(ReceptionApply::getVisitUnit, receptionApplyPageParam.getSearchKey())
-                    .or().like(ReceptionApply::getReasons, receptionApplyPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(ReceptionApply::getVisitUnit, receptionApplyPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(receptionApplyPageParam.getSortField(), receptionApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(receptionApplyPageParam.getSortOrder());

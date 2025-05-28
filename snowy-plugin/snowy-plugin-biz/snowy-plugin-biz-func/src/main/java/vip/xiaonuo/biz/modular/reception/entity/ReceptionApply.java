@@ -174,6 +174,7 @@ public class ReceptionApply {
 
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 36)
+    @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 
     /** 流程状态 */
