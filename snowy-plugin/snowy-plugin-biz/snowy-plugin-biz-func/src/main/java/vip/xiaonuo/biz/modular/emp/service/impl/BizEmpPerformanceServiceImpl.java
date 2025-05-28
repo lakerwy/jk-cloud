@@ -243,6 +243,7 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         } else {
             queryWrapper.lambda().eq(BizEmpAssList::getUserId, StpUtil.getLoginIdAsString());
         }
+        queryWrapper.lambda().orderByDesc(BizEmpAssList::getYear).orderByAsc(BizEmpAssList::getFirstOrgName).orderByAsc(BizEmpAssList::getUserName);
         IPage<BizEmpAssListVo> result = bizEmpAssListMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
 
 
@@ -301,9 +302,6 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             }
             newResult.add(performanceVo);
         }
-        newResult.sort(Comparator.comparing(BizEmpPerformanceVo::getYear,Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(BizEmpPerformanceVo::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(BizEmpPerformanceVo::getUserName,Comparator.nullsLast(Comparator.naturalOrder())));
         pageVo.setCurrent(result.getCurrent());
         pageVo.setSize(result.getSize());
         pageVo.setPages(result.getPages());
