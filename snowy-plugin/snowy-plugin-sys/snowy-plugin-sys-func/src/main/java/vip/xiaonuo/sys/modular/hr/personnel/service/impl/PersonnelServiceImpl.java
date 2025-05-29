@@ -863,10 +863,8 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 vo.setMaritalStatus(socialResume.getMaritalStatus());
                 vo.setAddress(socialResume.getAddress());
                 // 处理学历
-                socialResume.setEduJson("[{\"timedOut\":\"2013 年 9 月-2016 年 6 月\",\"schoolName\":\"云南财经大学\",\"specialized\":\"法律硕士（法学）民商法方向\",\"degree\":\"硕士\",\"schoolAtegory\":\"一本\",\"isMap\":\"是\"},{\"timedOut\":\"2008 年 9 月-2012 年 6 月\",\"schoolName\":\"中南财经政法大学武汉学院（现名为：武汉学院）\",\"specialized\":\"法学\",\"degree\":\"本科\",\"schoolAtegory\":\"其他\",\"isMap\":\"是\"}]\n");
                 dealDegree(socialResume.getEduJson(), vo);
                 // 处理工作经历
-                socialResume.setWorkJson("[{\"timeRange\":\"2017.12-2024.2\",\"professionalTitle\":\"广州越秀产业投资基金管理股份有限公司\",\"duty\":\"高级经理\",\"leaveReason\":\"个人职业发展\",\"certifier\":\"陈瑞烨 15355438596\"},{\"timeRange\":\"2009.9-2013.6\",\"professionalTitle\":\"恒大地产集团珠三角房地产开发有限公司\",\"duty\":\"投资人员\",\"leaveReason\":\"个人职业发展\",\"certifier\":\"吕江 17704011241\"}]");
                 dealWorkExperience(socialResume.getWorkJson(), vo);
                 list.add(vo);
             }
