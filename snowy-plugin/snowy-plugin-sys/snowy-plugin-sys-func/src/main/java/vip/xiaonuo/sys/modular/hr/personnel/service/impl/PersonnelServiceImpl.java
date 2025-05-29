@@ -840,6 +840,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         List<SocialResume> socialResumeList = socialResumeService.getApprovedResumeList(name);
         // 获取校招简历
         List<SchoolResume> schoolResumeList = schoolResumeService.getApprovedResumeList(name);
+        // 没有数据则抛出异常
+        if(CollUtil.isEmpty(socialResumeList) && CollUtil.isEmpty(schoolResumeList)){
+            throw new CommonException("查询不到对应的人员面试入职流程，请检查流程是否还未通过或流程未发起！");
+        }
         // 数据映射
         mapValue(list, socialResumeList, schoolResumeList);
         return list;
