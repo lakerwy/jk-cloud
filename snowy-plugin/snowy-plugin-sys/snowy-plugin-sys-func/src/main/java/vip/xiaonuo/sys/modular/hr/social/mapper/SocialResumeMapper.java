@@ -13,7 +13,10 @@
 package vip.xiaonuo.sys.modular.hr.social.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.social.entity.SocialResume;
+
+import java.util.List;
 
 /**
  * 社招 - （应聘者）简历库信息Mapper接口
@@ -22,4 +25,5 @@ import vip.xiaonuo.sys.modular.hr.social.entity.SocialResume;
  * @date  2024/07/01 09:35
  **/
 public interface SocialResumeMapper extends BaseMapper<SocialResume> {
+    List<SocialResume> getApprovedResumeList(@Param("name") String name);
 }

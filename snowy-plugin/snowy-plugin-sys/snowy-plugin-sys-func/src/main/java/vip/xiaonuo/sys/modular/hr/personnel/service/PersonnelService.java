@@ -105,4 +105,6 @@ public interface PersonnelService extends IService<Personnel> {
     PersonnelDetailVo detail2(PersonnelIdParam personnelIdParam);
 
     List<String> personnelSearch(PersonnelSearchParam param);
+
+    List<PersonnelResumeVo> resumeList(PersonnelResumeParam personnelResumeParam);
 }

@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -51,6 +52,10 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
+import vip.xiaonuo.sys.modular.hr.school.entity.SchoolResume;
+import vip.xiaonuo.sys.modular.hr.school.service.SchoolResumeService;
+import vip.xiaonuo.sys.modular.hr.social.entity.SocialResume;
+import vip.xiaonuo.sys.modular.hr.social.service.SocialResumeService;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.OtherTechAchive;
 import vip.xiaonuo.sys.modular.hr.techAchive.entity.PatentInfo;
 import vip.xiaonuo.sys.modular.hr.techAchive.service.OtherTechAchiveService;
@@ -120,6 +125,13 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Resource
     private OtherTechAchiveService otherTechAchiveService;
+
+    @Resource
+    private SocialResumeService socialResumeService;
+
+    @Resource
+    private SchoolResumeService schoolResumeService;
+
 
 
     @Override
@@ -817,6 +829,123 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             idList.retainAll(honorPersonnelIdList);
         }
         return idList;
+    }
+
+    @Override
+    public List<PersonnelResumeVo> resumeList(PersonnelResumeParam personnelResumeParam) {
+        List<PersonnelResumeVo> list = CollUtil.newArrayList();
+        // 姓名
+        String name = personnelResumeParam.getName();
+        // 获取社招简历
+        List<SocialResume> socialResumeList = socialResumeService.getApprovedResumeList(name);
+        // 获取校招简历
+        List<SchoolResume> schoolResumeList = schoolResumeService.getApprovedResumeList(name);
+        // 数据映射
+        mapValue(list, socialResumeList, schoolResumeList);
+        return list;
+    }
+
+    private void mapValue(List<PersonnelResumeVo> list, List<SocialResume> socialResumeList, List<SchoolResume> schoolResumeList) {
+        if(CollUtil.isNotEmpty(socialResumeList)){
+            for (SocialResume socialResume : socialResumeList) {
+                PersonnelResumeVo vo = new PersonnelResumeVo();
+                vo.setResumeSource("社招");
+                vo.setInterviewSn(socialResume.getInterviewSn());
+                vo.setName(socialResume.getName());
+                vo.setSex(socialResume.getSex());
+                vo.setIdNumber(socialResume.getIdNumber());
+                vo.setAge(socialResume.getAge());
+                vo.setPoliticsStatus(socialResume.getPoliticalStatus());
+                vo.setOrigo(socialResume.getNativePlace());
+                vo.setCensus(socialResume.getPlacement());
+                vo.setPhone(socialResume.getPhone());
+                vo.setEmail(socialResume.getEmail());
+                vo.setMaritalStatus(socialResume.getMaritalStatus());
+                vo.setAddress(socialResume.getAddress());
+                // 处理学历
+                socialResume.setEduJson("[{\"timedOut\":\"2013 年 9 月-2016 年 6 月\",\"schoolName\":\"云南财经大学\",\"specialized\":\"法律硕士（法学）民商法方向\",\"degree\":\"硕士\",\"schoolAtegory\":\"一本\",\"isMap\":\"是\"},{\"timedOut\":\"2008 年 9 月-2012 年 6 月\",\"schoolName\":\"中南财经政法大学武汉学院（现名为：武汉学院）\",\"specialized\":\"法学\",\"degree\":\"本科\",\"schoolAtegory\":\"其他\",\"isMap\":\"是\"}]\n");
+                dealDegree(socialResume.getEduJson(), vo);
+                // 处理工作经历
+                socialResume.setWorkJson("[{\"timeRange\":\"2017.12-2024.2\",\"professionalTitle\":\"广州越秀产业投资基金管理股份有限公司\",\"duty\":\"高级经理\",\"leaveReason\":\"个人职业发展\",\"certifier\":\"陈瑞烨 15355438596\"},{\"timeRange\":\"2009.9-2013.6\",\"professionalTitle\":\"恒大地产集团珠三角房地产开发有限公司\",\"duty\":\"投资人员\",\"leaveReason\":\"个人职业发展\",\"certifier\":\"吕江 17704011241\"}]");
+                dealWorkExperience(socialResume.getWorkJson(), vo);
+                list.add(vo);
+            }
+        }
+        if(CollUtil.isNotEmpty(schoolResumeList)){
+            for (SchoolResume schoolResume : schoolResumeList) {
+                PersonnelResumeVo vo = new PersonnelResumeVo();
+                vo.setResumeSource("校招");
+                vo.setInterviewSn(schoolResume.getInterviewSn());
+                vo.setName(schoolResume.getName());
+                vo.setSex(schoolResume.getSex());
+                vo.setIdNumber(schoolResume.getIdNumber());
+                vo.setAge(schoolResume.getAge());
+                vo.setPoliticsStatus(schoolResume.getPoliticalStatus());
+                vo.setOrigo(schoolResume.getNativePlace());
+                vo.setCensus(schoolResume.getPlacement());
+                vo.setPhone(schoolResume.getPhone());
+                vo.setEmail(schoolResume.getEmail());
+                vo.setMaritalStatus(schoolResume.getMaritalStatus());
+                vo.setAddress(schoolResume.getAddress());
+                // 处理学历
+                dealDegree(schoolResume.getEduJson(), vo);
+                // 处理工作经历
+                dealWorkExperience(schoolResume.getWorkJson(), vo);
+                list.add(vo);
+            }
+        }
+    }
+
+    // 处理学历
+    private void dealDegree(String eduJson, PersonnelResumeVo vo) {
+        if(ObjectUtil.isNotEmpty(eduJson)){
+            List<ResumeEdu> eduList = JSONUtil.toList(eduJson, ResumeEdu.class);
+            if(CollUtil.isNotEmpty(eduList)){
+                // 取第一条，视为最高学历
+                ResumeEdu highestEDegree = eduList.get(0);
+                vo.setHighestEducation(highestEDegree.getDegree());
+                vo.setGraduateSchool(highestEDegree.getSchoolName());
+                vo.setMajor(highestEDegree.getSpecialized());
+                // 将集合倒置后，按顺序依次为第一、第二、第三学历
+                Collections.reverse(eduList);
+                ResumeEdu firstDegree = eduList.get(0);
+                vo.setFirstDegree(firstDegree.getDegree());
+                vo.setFirstGraduateSchool(firstDegree.getSchoolName());
+                vo.setFirstMajor(firstDegree.getSpecialized());
+                if(eduList.size() > 1){
+                    ResumeEdu secondDegree = eduList.get(1);
+                    vo.setSecondDegree(secondDegree.getDegree());
+                    vo.setSecondGraduateSchool(secondDegree.getSchoolName());
+                    vo.setSecondMajor(secondDegree.getSpecialized());
+                }
+                if(eduList.size() > 2){
+                    ResumeEdu thirdDegree = eduList.get(2);
+                    vo.setThirdDegree(thirdDegree.getDegree());
+                    vo.setThirdGraduateSchool(thirdDegree.getSchoolName());
+                    vo.setThirdMajor(thirdDegree.getSpecialized());
+                }
+            }
+        }
+    }
+
+    // 处理工作经历
+    private void dealWorkExperience(String workJson, PersonnelResumeVo vo) {
+        if(ObjectUtil.isNotEmpty(workJson)){
+            List<ResumeWork> resumeWorkList = JSONUtil.toList(workJson, ResumeWork.class);
+            if(CollUtil.isNotEmpty(resumeWorkList)){
+                String workExperience = resumeWorkList.stream()
+                    .map(resumeWork -> {
+                        List<String> values = new ArrayList<>();
+                        if (ObjectUtil.isNotEmpty(resumeWork.getTimeRange())) values.add(resumeWork.getTimeRange());
+                        if (ObjectUtil.isNotEmpty(resumeWork.getProfessionalTitle())) values.add(resumeWork.getProfessionalTitle());
+                        if (ObjectUtil.isNotEmpty(resumeWork.getDuty())) values.add(resumeWork.getDuty());
+                        return String.join(" ",  values);
+                    })
+                    .filter(ObjectUtil::isNotEmpty)
+                    .collect(Collectors.joining("\n"));
+                vo.setWorkExperience(workExperience);
+            }
+        }
     }
 
 }

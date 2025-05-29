@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.social.mapper.SocialResumeMapper">
 
+    <select id="getApprovedResumeList" resultType="vip.xiaonuo.sys.modular.hr.social.entity.SocialResume">
+        SELECT
+            a.*,
+            b.SN interviewSn
+        FROM
+            HR_SOCIAL_RESUME a
+                INNER JOIN HR_SOCIAL_INTERVIEW b ON a.ID = b.HR_SOCIAL_RESUME_ID
+        WHERE
+            a.DELETE_FLAG = 'NOT_DELETE'
+            AND b.DELETE_FLAG = 'NOT_DELETE'
+            AND b.STATUS = '1'
+            AND a.NAME = #{name}
+    </select>
+
 </mapper>

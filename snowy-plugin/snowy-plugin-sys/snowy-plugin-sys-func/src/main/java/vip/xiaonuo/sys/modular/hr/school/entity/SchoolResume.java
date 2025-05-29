@@ -229,4 +229,9 @@ public class SchoolResume {
     /** 审批时间 */
     @ApiModelProperty(value = "审批时间", position = 100)
     private Date auditTime;
+
+    /** 校招-入职流程流水号SN */
+    @ApiModelProperty(value = "校招-入职流程流水号SN", position = 105)
+    @TableField(exist = false)
+    private String interviewSn;
 }
