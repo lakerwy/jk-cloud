@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.crm.parameters.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -24,7 +25,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.BizCrmRecPlan;
 import vip.xiaonuo.biz.modular.crm.parameters.param.*;
+import vip.xiaonuo.biz.modular.crm.parameters.service.BizCrmRecPlanService;
 import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -38,6 +41,7 @@ import vip.xiaonuo.common.util.CommonSnUtil;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-CRM-合同参数Service接口实现类
@@ -51,6 +55,10 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
 
     @Resource
     private ParametersMapper parametersMapper;
+
+    @Resource
+    private BizCrmRecPlanService bizCrmRecPlanService;
+
     @Override
     public Page<Parameters> page(ParametersPageParam parametersPageParam) {
         QueryWrapper<Parameters> queryWrapper = new QueryWrapper<>();
@@ -145,6 +153,14 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         parameters.setOpt(StpLoginUserUtil.getLoginUser().getName());
         parameters.setOptDate(new Date());
         this.save(parameters);
+        if(CollUtil.isNotEmpty(parametersAddParam.getRecPlanList())){
+            List<BizCrmRecPlan> items = BeanUtil.copyToList(parametersAddParam.getRecPlanList(), BizCrmRecPlan.class);
+            items.forEach(x->{
+                x.setParametersId(parameters.getId());
+                x.setHetongId(parameters.getProjectId());
+            });
+            bizCrmRecPlanService.saveBatch(items);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -153,6 +169,34 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         Parameters parameters = this.queryEntity(parametersEditParam.getId());
         BeanUtil.copyProperties(parametersEditParam, parameters);
         this.updateById(parameters);
+        if(CollUtil.isNotEmpty(parametersEditParam.getRecPlanList())){
+            //本次传入的数据
+            List<BizCrmRecPlan> itemList = BeanUtil.copyToList(parametersEditParam.getRecPlanList(), BizCrmRecPlan.class);
+            itemList.forEach(x->{
+                x.setId(parameters.getId());
+                x.setHetongId(parameters.getProjectId());
+            });
+            //获取历史数据
+            List<BizCrmRecPlan> oldList = bizCrmRecPlanService.list(new QueryWrapper<BizCrmRecPlan>().lambda()
+                    .eq(BizCrmRecPlan::getParametersId,parameters.getId()));
+            List<String> oldIds = oldList.stream().map(BizCrmRecPlan::getId).collect(Collectors.toList());
+            //待新增的
+            List<BizCrmRecPlan> addList = itemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizCrmRecPlan> updateList = itemList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(BizCrmRecPlan::getId).collect(Collectors.toList());
+            List<BizCrmRecPlan> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizCrmRecPlanService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizCrmRecPlanService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizCrmRecPlanService.removeByIds(removeList);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

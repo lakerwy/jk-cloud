@@ -164,4 +164,13 @@ public class Parameters {
     @ApiModelProperty(value = "更新人", position = 30)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 税率（%） */
+    @ApiModelProperty(value = "税率（%）", position = 40)
+    private BigDecimal taxRate;
+
+    /** 收费标准及付费方式合同原文 */
+    @ApiModelProperty(value = "收费标准及付费方式合同原文", position = 41)
+    private String recPayText;
+
 }
