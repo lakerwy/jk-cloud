@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.prj.por.mapper.PorOemMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo" >
+        select a.*,
+               b.PROJECT_NAME as contractName,
+               b.CONTRACT_NO as contractNo,
+               b.CONTRACT_TYPE as contractType,
+               b.CONTRACT_AMOUNT as contractAmount,
+               b.SUM_AMOUNT as contractSumAmount,
+               b.SECOND_LEVEL as contractSecondLevel,
+               c.TYPE as bizPrjType,
+               c.LOCATION as bizPrjLocation,
+               c.HEAD as bizPrjHead
+        from BIZ_POR_OEM a
+                left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
+                left join BIZ_PROJECT c on b.BIZ_PROJECT_ID = c.ID
+             ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo" parameterType="String">
+        select a.*,
+               b.PROJECT_NAME as contractName,
+               b.CONTRACT_NO as contractNo,
+               b.CONTRACT_TYPE as contractType,
+               b.CONTRACT_AMOUNT as contractAmount,
+               b.SUM_AMOUNT as contractSumAmount,
+               b.SECOND_LEVEL as contractSecondLevel,
+               c.TYPE as bizPrjType,
+               c.LOCATION as bizPrjLocation,
+               c.HEAD as bizPrjHead
+        from BIZ_POR_OEM a
+                left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
+                left join BIZ_PROJECT c on b.BIZ_PROJECT_ID = c.ID
+        where a.ID = ${id}
+    </select>
+
+
+</mapper>

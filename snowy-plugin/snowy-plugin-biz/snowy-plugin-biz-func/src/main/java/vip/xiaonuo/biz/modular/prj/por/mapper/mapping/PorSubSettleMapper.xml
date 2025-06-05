@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.prj.por.mapper.PorSubSettleMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorSubSettleVo" >
+        select a.*,
+               b.PROJECT_NAME as subContractName,
+               b.CONTRACT_NO as subContractNo,
+               b.COUNTERPARTY as subContractCounterparty,
+               b.SECOND_LEVEL as subContractSecondLevel,
+               b.SUB_TYPE as subContractType,
+               b.EXPENSE_NATURE as subContractExpenseNature,
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+        from BIZ_POR_SUB_SETTLE a
+                 left join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorSubSettleVo" parameterType="String">
+        select a.*,
+               b.PROJECT_NAME as subContractName,
+               b.CONTRACT_NO as subContractNo,
+               b.COUNTERPARTY as subContractCounterparty,
+               b.SECOND_LEVEL as subContractSecondLevel,
+               b.SUB_TYPE as subContractType,
+               b.EXPENSE_NATURE as subContractExpenseNature,
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+        from BIZ_POR_SUB_SETTLE a
+                 left join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
+        where a.ID = ${id}
+    </select>
+
+</mapper>

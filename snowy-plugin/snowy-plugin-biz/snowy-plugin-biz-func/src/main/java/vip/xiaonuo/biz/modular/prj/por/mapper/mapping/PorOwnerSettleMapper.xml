@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.prj.por.mapper.PorOwnerSettleMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorOwnerSettleVo" >
+        select a.*,
+               b.PROJECT_NAME as contractName,
+               b.CONTRACT_NO as contractNo,
+               b.CONTRACT_TYPE as contractType,
+               b.CONTRACT_AMOUNT as contractAmount,
+               b.SUM_AMOUNT as contractSumAmount,
+               b.SECOND_LEVEL as contractSecondLevel,
+               b.COUNTERPARTY as contractCounterparty
+        from BIZ_POR_OWNER_SETTLE a
+                 left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorOwnerSettleVo" parameterType="String">
+        select a.*,
+               b.PROJECT_NAME as contractName,
+               b.CONTRACT_NO as contractNo,
+               b.CONTRACT_TYPE as contractType,
+               b.CONTRACT_AMOUNT as contractAmount,
+               b.SUM_AMOUNT as contractSumAmount,
+               b.SECOND_LEVEL as contractSecondLevel,
+               b.COUNTERPARTY as contractCounterparty
+        from BIZ_POR_OWNER_SETTLE a
+                 left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
+        where a.ID = ${id}
+    </select>
+
+
+</mapper>
