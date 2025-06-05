@@ -31,6 +31,7 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +73,11 @@ public class PrjValueAllocationServiceImpl extends ServiceImpl<PrjValueAllocatio
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(PrjValueAllocationAddParam prjValueAllocationAddParam) {
+        // 校验
+        if(CollUtil.isNotEmpty(prjValueAllocationAddParam.getPrjValueAllocationItemList())){
+            List<PrjValueAllocationItem> items = BeanUtil.copyToList(prjValueAllocationAddParam.getPrjValueAllocationItemList(), PrjValueAllocationItem.class);
+            this.check(items);
+        }
         PrjValueAllocation prjValueAllocation = BeanUtil.toBean(prjValueAllocationAddParam, PrjValueAllocation.class);
         //走审批流程
         String processInstanceId = prjValueAllocationAddParam.getProcessInstanceId();
@@ -101,9 +107,48 @@ public class PrjValueAllocationServiceImpl extends ServiceImpl<PrjValueAllocatio
         this.save(prjValueAllocation);
     }
 
+    private void check(List<PrjValueAllocationItem> items) {
+        for(PrjValueAllocationItem item : items){
+            if(item.getAllocationRate() == null && item.getAllocationAmount() == null) {
+                throw new CommonException("产值划分比例、产值划分金额二者至少填写一项");
+            }
+            if(item.getFeeRate() == null && item.getFeeAmount() == null) {
+                throw new CommonException("费用比例、费用金额二者至少填写一项");
+            }
+        }
+        // 按单位类型分组
+        Map<String, Map<String, Long>> unitTypeToNameCount = items.stream().collect(
+            Collectors.groupingBy(
+                PrjValueAllocationItem::getUnitType,
+                Collectors.groupingBy(PrjValueAllocationItem::getUnitName, Collectors.counting())
+            )
+        );
+        unitTypeToNameCount.forEach((unitType,  nameMap) -> {
+            nameMap.forEach((unitName,  count) -> {
+//                if (count > 1) {
+//                    throw new CommonException("单位名称不可重复");
+//                }
+                // 对当前单位类型+单位名称组合，检查费用类型是否重复
+                Map<String, Long> feeTypeCount = items.stream()
+                        .filter(obj -> unitType.equals(obj.getUnitType()) && unitName.equals(obj.getUnitName()))
+                        .collect(Collectors.groupingBy(PrjValueAllocationItem::getFeeType, Collectors.counting()));
+                feeTypeCount.forEach((feeType, feeCount) -> {
+                    if (feeCount > 1) {
+                        throw new CommonException("同一单位费用类型不可重复");
+                    }
+                });
+            });
+        });
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PrjValueAllocationEditParam prjValueAllocationEditParam) {
+        // 校验
+        if(CollUtil.isNotEmpty(prjValueAllocationEditParam.getPrjValueAllocationItemList())){
+            List<PrjValueAllocationItem> items = BeanUtil.copyToList(prjValueAllocationEditParam.getPrjValueAllocationItemList(), PrjValueAllocationItem.class);
+            this.check(items);
+        }
         String id = prjValueAllocationEditParam.getId();
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(prjValueAllocationEditParam.getProcessInstanceId())){
             JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(prjValueAllocationEditParam.getProcessInstanceId());
