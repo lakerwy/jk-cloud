@@ -58,42 +58,46 @@ public class BizCrmRecPlan {
     @ApiModelProperty(value = "备注", position = 9)
     private String memo;
 
+    /** 回款情况 */
+    @ApiModelProperty(value = "回款情况", position = 10)
+    private String recStatus;
+
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 10)
+    @ApiModelProperty(value = "附件", position = 15)
     private String attach;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 11)
+    @ApiModelProperty(value = "创建时间", position = 16)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 12)
+    @ApiModelProperty(value = "创建用户", position = 17)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 13)
+    @ApiModelProperty(value = "修改时间", position = 18)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 14)
+    @ApiModelProperty(value = "修改用户", position = 19)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 租户id */
-    @ApiModelProperty(value = "租户id", position = 15)
+    @ApiModelProperty(value = "租户id", position = 20)
     private String tenantId;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 16)
+    @ApiModelProperty(value = "删除标志", position = 21)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 17)
+    @ApiModelProperty(value = "数据权限控制字段", position = 22)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }

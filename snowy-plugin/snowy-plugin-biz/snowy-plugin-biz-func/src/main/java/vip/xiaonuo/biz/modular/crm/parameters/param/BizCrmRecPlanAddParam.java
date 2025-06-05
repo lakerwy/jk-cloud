@@ -54,8 +54,12 @@ public class BizCrmRecPlanAddParam {
     @ApiModelProperty(value = "备注", position = 10)
     private String memo;
 
+    /** 回款情况 */
+    @ApiModelProperty(value = "回款情况", position = 11)
+    private String recStatus;
+
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 11)
+    @ApiModelProperty(value = "附件", position = 15)
     private String attach;
 
 }
