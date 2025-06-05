@@ -189,6 +189,7 @@ public class PersonnelController {
      */
     @ApiOperationSupport(order = 15)
     @ApiOperation("获取简历信息")
+    @CommonLog("获取简历信息")
     @GetMapping("/sys/personnel/resumeList")
     public CommonResult<List<PersonnelResumeVo>> resumeList(@Valid PersonnelResumeParam personnelResumeParam) {
         return CommonResult.data(personnelService.resumeList(personnelResumeParam));

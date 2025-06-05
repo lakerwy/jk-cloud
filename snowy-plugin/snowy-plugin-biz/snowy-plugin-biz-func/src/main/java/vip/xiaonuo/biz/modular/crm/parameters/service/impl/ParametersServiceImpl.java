@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -352,11 +353,17 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
 
     @Override
     public ParametersInfoVo detailById(ParametersIdParam parametersIdParam) {
-        return parametersMapper.getDetailById(parametersIdParam.getId());
+        ParametersInfoVo parametersInfoVo = parametersMapper.getDetailById(parametersIdParam.getId());
+        List<BizCrmRecPlan> recPlanList = bizCrmRecPlanService.list(new LambdaQueryWrapper<BizCrmRecPlan>().eq(BizCrmRecPlan::getParametersId, parametersIdParam.getId()));
+        parametersInfoVo.setRecPlanList(recPlanList);
+        return parametersInfoVo;
     }
 
     @Override
     public ParametersInfoVo detailByHetongId(ParametersHetongIdParam parametersHetongIdParam) {
-        return parametersMapper.getDetailByHetongId(parametersHetongIdParam.getHetongId());
+        ParametersInfoVo parametersInfoVo = parametersMapper.getDetailByHetongId(parametersHetongIdParam.getHetongId());
+        List<BizCrmRecPlan> recPlanList = bizCrmRecPlanService.list(new LambdaQueryWrapper<BizCrmRecPlan>().eq(BizCrmRecPlan::getHetongId, parametersHetongIdParam.getHetongId()));
+        parametersInfoVo.setRecPlanList(recPlanList);
+        return parametersInfoVo;
     }
 }
