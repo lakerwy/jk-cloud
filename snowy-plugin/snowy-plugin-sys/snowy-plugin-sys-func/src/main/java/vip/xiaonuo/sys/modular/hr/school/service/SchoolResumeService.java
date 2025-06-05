@@ -94,4 +94,10 @@ public interface SchoolResumeService extends IService<SchoolResume> {
      * @param resumeStatusParam
      */
     void status(ResumeStatusParam resumeStatusParam);
+
+    /**
+     * 获取入职流程已通过的简历
+     * @param name
+     */
+    List<SchoolResume> getApprovedResumeList(String name);
 }

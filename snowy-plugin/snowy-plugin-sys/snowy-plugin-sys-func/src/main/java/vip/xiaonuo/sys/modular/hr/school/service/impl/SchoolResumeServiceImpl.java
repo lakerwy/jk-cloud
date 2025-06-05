@@ -47,6 +47,8 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     private SchoolInterviewService schoolInterviewService;
     @Resource
     private SchoolDeptService schoolDeptService;
+    @Resource
+    private SchoolResumeMapper schoolResumeMapper;
 
     @Override
     public Page<SchoolResumeVo> page(SchoolResumePageParam schoolResumePageParam) {
@@ -303,4 +305,10 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         }
         return newResume;
     }
+
+    @Override
+    public List<SchoolResume> getApprovedResumeList(String name) {
+        return schoolResumeMapper.getApprovedResumeList(name);
+    }
+
 }

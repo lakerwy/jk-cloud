@@ -25,7 +25,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
-import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonEmailUtil;
@@ -65,7 +64,8 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
     private DevSmsApi devSmsApi;
     @Resource
     private DevEmailApi devEmailApi;
-
+    @Resource
+    private SocialResumeMapper socialResumeMapper;
 
     /* 云片短信：入职短信模板 */
     private static final String YUN_PIAN_TPL_CODE_ID = "5970264";
@@ -328,5 +328,11 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
             }
         }
         return tmpShortUrl;
+    }
+
+
+    @Override
+    public List<SocialResume> getApprovedResumeList(String name) {
+        return socialResumeMapper.getApprovedResumeList(name);
     }
 }

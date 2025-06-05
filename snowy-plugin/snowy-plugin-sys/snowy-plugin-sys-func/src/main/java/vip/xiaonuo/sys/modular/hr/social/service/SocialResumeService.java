@@ -107,4 +107,10 @@ public interface SocialResumeService extends IService<SocialResume> {
      * @param idParamList
      */
     void sendEmail(List<SocialResumeIdParam> idParamList);
+
+    /**
+     * 获取入职流程已通过的简历
+     * @param name
+     */
+    List<SocialResume> getApprovedResumeList(String name);
 }

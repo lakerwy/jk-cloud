@@ -13,13 +13,10 @@
 package vip.xiaonuo.sys.modular.hr.social.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -225,4 +222,9 @@ public class SocialResume {
     /** 学籍查询报告 STUDENTREPORT*/
     @ApiModelProperty(value = "学籍查询报告", position = 32)
     private String studentReport;
+
+    /** 社招-入职流程流水号SN */
+    @ApiModelProperty(value = "社招-入职流程流水号SN", position = 35)
+    @TableField(exist = false)
+    private String interviewSn;
 }

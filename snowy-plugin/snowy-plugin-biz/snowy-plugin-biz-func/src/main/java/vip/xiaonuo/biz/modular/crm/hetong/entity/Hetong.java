@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.crm.hetong.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -275,4 +278,19 @@ public class Hetong {
     /** 申请人单位 */
     @ApiModelProperty(value = "申请人单位", position = 70)
     private String htMainType;
+
+    /** 合同类型 */
+    @ApiModelProperty(value = "合同类型", position = 80)
+    private String contractType;
+
+    /** 质量保证金 */
+    @ApiModelProperty(value = "质量保证金", position = 81)
+    private BigDecimal qualityBondAmount;
+
+    /** 合同生效日期 */
+    @ApiModelProperty(value = "合同生效日期（格式：yyyy-MM-dd）", position = 82)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date effectiveDate;
+
 }

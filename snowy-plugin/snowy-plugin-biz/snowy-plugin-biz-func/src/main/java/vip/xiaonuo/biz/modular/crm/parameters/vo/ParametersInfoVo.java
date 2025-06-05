@@ -216,4 +216,16 @@ public class ParametersInfoVo {
     @ApiModelProperty(value = "项目负责人", position = 44)
     private String mainProjectLeader;
 
+    /** 合同类型 */
+    @ApiModelProperty(value = "合同类型", position = 45)
+    private String contractType;
+
+    /** 税率（%） */
+    @ApiModelProperty(value = "税率（%）", position = 50)
+    private BigDecimal taxRate;
+
+    /** 收费标准及付费方式合同原文 */
+    @ApiModelProperty(value = "收费标准及付费方式合同原文", position = 51)
+    private String recPayText;
+
 }

@@ -21,6 +21,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-CRM-合同参数编辑参数
@@ -141,5 +142,17 @@ public class ParametersEditParam {
     /** 压力等级（历史表Parameters.PressurRate） */
     @ApiModelProperty(value = "压力等级（历史表Parameters.PressurRate）", position = 25)
     private String pressurRate;
+
+    /** 税率（%） */
+    @ApiModelProperty(value = "税率（%）", position = 40)
+    private BigDecimal taxRate;
+
+    /** 收费标准及付费方式合同原文 */
+    @ApiModelProperty(value = "收费标准及付费方式合同原文", position = 41)
+    private String recPayText;
+
+    /** 合同收款计划 */
+    @ApiModelProperty(value = "合同收款计划", position = 45)
+    private List<BizCrmRecPlanEditParam> recPlanList;
 
 }

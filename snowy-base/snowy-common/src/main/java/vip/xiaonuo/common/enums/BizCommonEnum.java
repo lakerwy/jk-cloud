@@ -102,7 +102,11 @@ public enum BizCommonEnum {
     BIZ_PRJ_MOU("BIZ_PRJ_MOU","BIZ_PRJ_MOU","BizPrjMouServiceImpl"),   //项目承接备忘录
 
     HR_GOODS_APPLY("HR_GOODS_APPLY","HR_GOODS_APPLY","GoodsApplyServiceImpl"), //物资领用申请-审批
-    BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl");    // 分包合同结算审批
+    BIZ_RECEPTION_APPLY("BIZ_RECEPTION_APPLY","BIZ_RECEPTION_APPLY","ReceptionApplyServiceImpl"), //接待申请
+    BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl"),    // 分包合同结算审批
+    BIZ_PRJ_VALUE_ALLOCATION("BIZ_PRJ_VALUE_ALLOCATION","BIZ_PRJ_VALUE_ALLOCATION","PrjValueAllocationServiceImpl"),    // 项目产值划分
+
+    ;
 
     String bizModel;
     String bizTable;
