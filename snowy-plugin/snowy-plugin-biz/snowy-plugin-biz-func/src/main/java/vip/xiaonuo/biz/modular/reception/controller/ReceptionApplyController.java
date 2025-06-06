@@ -48,7 +48,7 @@ public class ReceptionApplyController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取接待申请分页")
-    // @SaCheckPermission("/biz/reception/page")
+    @SaCheckPermission("/biz/reception/page")
     @GetMapping("/biz/reception/page")
     public CommonResult<Page<ReceptionApply>> page(ReceptionApplyPageParam receptionApplyPageParam) {
         return CommonResult.data(receptionApplyService.page(receptionApplyPageParam));

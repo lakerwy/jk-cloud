@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.reception.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -12,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -67,6 +69,13 @@ public class ReceptionApplyServiceImpl extends ServiceImpl<ReceptionApplyMapper,
                     StrUtil.toUnderlineCase(receptionApplyPageParam.getSortField()));
         } else {
             queryWrapper.lambda().orderByDesc(ReceptionApply::getCreateTime);
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(ReceptionApply::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(ReceptionApply::getCreateUser, StpUtil.getLoginIdAsString());
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
