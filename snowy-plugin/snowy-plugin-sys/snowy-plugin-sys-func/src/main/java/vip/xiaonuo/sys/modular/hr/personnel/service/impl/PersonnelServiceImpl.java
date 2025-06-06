@@ -903,28 +903,40 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if(ObjectUtil.isNotEmpty(eduJson)){
             List<ResumeEdu> eduList = JSONUtil.toList(eduJson, ResumeEdu.class);
             if(CollUtil.isNotEmpty(eduList)){
-                // 取第一条，视为最高学历
-                ResumeEdu highestEDegree = eduList.get(0);
-                vo.setHighestEducation(highestEDegree.getDegree());
-                vo.setGraduateSchool(highestEDegree.getSchoolName());
-                vo.setMajor(highestEDegree.getSpecialized());
-                // 将集合倒置后，按顺序依次为第一、第二、第三学历
-                Collections.reverse(eduList);
-                ResumeEdu firstDegree = eduList.get(0);
-                vo.setFirstDegree(firstDegree.getDegree());
-                vo.setFirstGraduateSchool(firstDegree.getSchoolName());
-                vo.setFirstMajor(firstDegree.getSpecialized());
-                if(eduList.size() > 1){
-                    ResumeEdu secondDegree = eduList.get(1);
-                    vo.setSecondDegree(secondDegree.getDegree());
-                    vo.setSecondGraduateSchool(secondDegree.getSchoolName());
-                    vo.setSecondMajor(secondDegree.getSpecialized());
-                }
-                if(eduList.size() > 2){
-                    ResumeEdu thirdDegree = eduList.get(2);
-                    vo.setThirdDegree(thirdDegree.getDegree());
-                    vo.setThirdGraduateSchool(thirdDegree.getSchoolName());
-                    vo.setThirdMajor(thirdDegree.getSpecialized());
+                Map<String, Integer> priorityMap = new HashMap<>();
+                priorityMap.put("博士", 4);
+                priorityMap.put("硕士", 3);
+                priorityMap.put("本科", 2);
+                priorityMap.put("大专", 1);
+                // 降序排列（博士>硕士>本科>大专）
+                List<ResumeEdu> sortedEduList = eduList.stream()
+                        .filter(x -> priorityMap.containsKey(x.getDegree()))  // 过滤无效学历
+                        .sorted(Comparator.comparingInt((ResumeEdu x)->priorityMap.get(x.getDegree())).reversed())
+                        .collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(sortedEduList)){
+                    // 最高学历
+                    ResumeEdu highestDegree = sortedEduList.get(0);
+                    vo.setHighestEducation(highestDegree.getDegree());
+                    vo.setGraduateSchool(highestDegree.getSchoolName());
+                    vo.setMajor(highestDegree.getSpecialized());
+                    // 将集合倒置后，按顺序依次为第一、第二、第三学历
+                    Collections.reverse(sortedEduList);
+                    ResumeEdu firstDegree = sortedEduList.get(0);
+                    vo.setFirstDegree(firstDegree.getDegree());
+                    vo.setFirstGraduateSchool(firstDegree.getSchoolName());
+                    vo.setFirstMajor(firstDegree.getSpecialized());
+                    if(sortedEduList.size() > 1){
+                        ResumeEdu secondDegree = sortedEduList.get(1);
+                        vo.setSecondDegree(secondDegree.getDegree());
+                        vo.setSecondGraduateSchool(secondDegree.getSchoolName());
+                        vo.setSecondMajor(secondDegree.getSpecialized());
+                    }
+                    if(sortedEduList.size() > 2){
+                        ResumeEdu thirdDegree = sortedEduList.get(2);
+                        vo.setThirdDegree(thirdDegree.getDegree());
+                        vo.setThirdGraduateSchool(thirdDegree.getSchoolName());
+                        vo.setThirdMajor(thirdDegree.getSpecialized());
+                    }
                 }
             }
         }

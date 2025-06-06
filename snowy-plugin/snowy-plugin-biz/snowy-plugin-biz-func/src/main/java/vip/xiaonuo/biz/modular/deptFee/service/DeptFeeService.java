@@ -70,7 +70,7 @@ public interface DeptFeeService extends IService<DeptFee> {
      * @author pzh
      * @date  2025/06/05 15:40
      **/
-    ImportResult importCheck(ImportParam importParam);
+//    ImportResult importCheck(ImportParam importParam);
 
     /**
      * 导入部门费用 - 确认导入
@@ -78,5 +78,13 @@ public interface DeptFeeService extends IService<DeptFee> {
      * @author pzh
      * @date  2025/06/05 15:40
      */
-    Boolean doImport(ImportParam importParam);
+//    Boolean doImport(ImportParam importParam);
+
+    /**
+     * 导入部门费用 - 导入
+     *
+     * @author pzh
+     * @date  2025/06/06 09:10
+     */
+    ImportResult doImport(ImportParam importParam);
 }

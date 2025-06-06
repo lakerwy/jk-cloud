@@ -108,21 +108,76 @@ public class DeptFeeServiceImpl extends ServiceImpl<DeptFeeMapper, DeptFee> impl
         return deptFee;
     }
 
-    @Override
-    public ImportResult importCheck(ImportParam importParam) {
-        List<DeptFeeImportParam> importData = importParam.getImportData();
-        checkData(importData);
-        ImportResult result = new ImportResult();
-        result.setTotal(importData.size());
-        List<DeptFeeImportParam> errList = importData.stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
-        result.setErrCount(errList.size());
-        result.setResultList(importData);
-        result.setSucCount(result.getTotal() - result.getErrCount());
-        return result;
-    }
+//    @Override
+//    public ImportResult importCheck(ImportParam importParam) {
+//        List<DeptFeeImportParam> importData = importParam.getImportData();
+//        checkData(importData);
+//        ImportResult result = new ImportResult();
+//        result.setTotal(importData.size());
+//        List<DeptFeeImportParam> errList = importData.stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
+//        result.setErrCount(errList.size());
+//        result.setResultList(importData);
+//        result.setSucCount(result.getTotal() - result.getErrCount());
+//        return result;
+//    }
+//
+//    private void checkData(List<DeptFeeImportParam> importData) {
+//        //校验格式与必填
+//        importData.forEach(item->{
+//            String errMsg = "";
+//            if(ObjectUtil.isEmpty(item.getDeptName())){
+//                errMsg += "部门名称必填；";
+//            }
+//            if(ObjectUtil.isEmpty(item.getYear())){
+//                errMsg += "年份必填；";
+//            }
+//            if(ObjectUtil.isEmpty(item.getSeason())){
+//                errMsg += "季度必填；";
+//            }
+//            if(item.getDeptFee() == null){
+//                errMsg += "部门费用必填；";
+//            }
+//            item.setErrorMsg(errMsg);
+//        });
+//        List<DeptFeeImportParam> checkRepeatData = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+//        importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
+//            List<DeptFeeImportParam> tmpList = checkRepeatData.stream().filter(obj -> item.getDeptName().equals(obj.getDeptName())
+//                            && item.getYear().equals(obj.getYear()) && item.getSeason().equals(obj.getSeason())).collect(Collectors.toList());
+//            if(tmpList.size() > 1){
+//                item.setErrorMsg("导入数据中，部门名称+年份季度同时唯一存在重复；");
+//            }
+//        });
+//        List<DeptFee> oldList = this.list();
+//        importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+//            List<DeptFee> tmpList = oldList.stream().filter(obj -> item.getDeptName().equals(obj.getDeptName())
+//                && item.getYear().equals(obj.getYear()) && item.getSeason().equals(obj.getSeason())).collect(Collectors.toList());
+//            if(tmpList.size() > 0){
+//                item.setErrorMsg(String.format("部门【%s】%s数据已存在；", item.getDeptName(), item.getYear()+"-Q"+item.getSeason()));
+//            }
+//        });
+//    }
+//
+//    @Transactional(rollbackFor = Exception.class)
+//    @Override
+//    public Boolean doImport(ImportParam importParam) {
+//        List<DeptFeeImportParam> importData = importParam.getImportData().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+//        if(CollUtil.isEmpty(importData)){
+//            throw new CommonException("无有效导入数据");
+//        }
+//        List<DeptFee> deptFeeList = BeanUtil.copyToList(importData, DeptFee.class);
+//        deptFeeList.forEach(x->x.setNote(DateUtil.now()+"：页面导入；"));
+//        this.saveBatch(deptFeeList);
+//        return true;
+//    }
 
-    private void checkData(List<DeptFeeImportParam> importData) {
-        //校验格式与必填
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public ImportResult doImport(ImportParam importParam) {
+        List<DeptFeeImportParam> importData = importParam.getImportData();
+        if(CollUtil.isEmpty(importData)){
+            throw new CommonException("无有效导入数据！");
+        }
+        // 校验格式与必填
         importData.forEach(item->{
             String errMsg = "";
             if(ObjectUtil.isEmpty(item.getDeptName())){
@@ -144,29 +199,27 @@ public class DeptFeeServiceImpl extends ServiceImpl<DeptFeeMapper, DeptFee> impl
             List<DeptFeeImportParam> tmpList = checkRepeatData.stream().filter(obj -> item.getDeptName().equals(obj.getDeptName())
                             && item.getYear().equals(obj.getYear()) && item.getSeason().equals(obj.getSeason())).collect(Collectors.toList());
             if(tmpList.size() > 1){
-                item.setErrorMsg("导入数据中，部门名称+年份季度同时唯一存在重复；");
+                item.setErrorMsg("导入数据中，部门名称+年份+季度同时唯一存在重复；");
             }
         });
         List<DeptFee> oldList = this.list();
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
             List<DeptFee> tmpList = oldList.stream().filter(obj -> item.getDeptName().equals(obj.getDeptName())
                 && item.getYear().equals(obj.getYear()) && item.getSeason().equals(obj.getSeason())).collect(Collectors.toList());
-            if(tmpList.size() > 0){
+            if(!tmpList.isEmpty()){
                 item.setErrorMsg(String.format("部门【%s】%s数据已存在；", item.getDeptName(), item.getYear()+"-Q"+item.getSeason()));
             }
         });
+        //  导入
+        ImportResult result = new ImportResult();
+        List<DeptFeeImportParam> correctData = importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        result.setTotal(importData.size());
+        result.setErrCount(result.getTotal() - correctData.size());
+        result.setSucCount(correctData.size());
+        result.setResultList(importData);
+        List<DeptFee> addList = BeanUtil.copyToList(correctData, DeptFee.class);
+        this.saveBatch(addList);
+        return result;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public Boolean doImport(ImportParam importParam) {
-        List<DeptFeeImportParam> importData = importParam.getImportData().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
-        if(CollUtil.isEmpty(importData)){
-            throw new CommonException("无有效导入数据");
-        }
-        List<DeptFee> deptFeeList = BeanUtil.copyToList(importData, DeptFee.class);
-        deptFeeList.forEach(x->x.setNote(DateUtil.now()+"：页面导入；"));
-        this.saveBatch(deptFeeList);
-        return true;
-    }
 }
