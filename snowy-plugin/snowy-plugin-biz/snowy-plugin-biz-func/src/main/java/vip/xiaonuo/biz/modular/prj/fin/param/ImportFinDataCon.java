@@ -1,0 +1,61 @@
+package vip.xiaonuo.biz.modular.prj.fin.param;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Getter
+@Setter
+public class ImportFinDataCon {
+
+    /** 合同编码 */
+    @ApiModelProperty(value = "合同编码", position = 3)
+    private String contractNo;
+
+    /** 拨付日期 */
+    @ApiModelProperty(value = "拨付日期", position = 4)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date bfDate;
+
+    /** 拨付金额 */
+    @ApiModelProperty(value = "拨付金额", position = 5)
+    private BigDecimal bfAmount;
+
+    /** 扣管理费 */
+    @ApiModelProperty(value = "扣管理费", position = 6)
+    private BigDecimal kkManage;
+
+    /** 扣税差 */
+    @ApiModelProperty(value = "扣税差", position = 7)
+    private BigDecimal kkTax;
+
+    /** 扣签字费 */
+    @ApiModelProperty(value = "扣签字费", position = 8)
+    private BigDecimal kkSign;
+
+    /** 扣派驻人员工资 */
+    @ApiModelProperty(value = "扣派驻人员工资", position = 9)
+    private BigDecimal kkGz;
+
+    /** 扣职工薪酬 */
+    @ApiModelProperty(value = "扣职工薪酬", position = 10)
+    private BigDecimal kkSalary;
+
+    /** 其他扣款金额 */
+    @ApiModelProperty(value = "其他扣款金额", position = 11)
+    private BigDecimal kkOther;
+
+    /** 其他扣款事项 */
+    @ApiModelProperty(value = "其他扣款事项", position = 12)
+    private String kkOtherContent;
+
+    /** 描述 */
+    @ApiModelProperty(value = "描述", position = 13)
+    private String content;
+}
