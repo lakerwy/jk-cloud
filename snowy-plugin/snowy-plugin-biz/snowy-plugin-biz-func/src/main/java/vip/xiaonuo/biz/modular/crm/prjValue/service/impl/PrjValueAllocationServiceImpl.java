@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.crm.prjValue.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -12,9 +13,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.prjValue.entity.PrjValueAllocationItem;
 import vip.xiaonuo.biz.modular.crm.prjValue.param.*;
 import vip.xiaonuo.biz.modular.crm.prjValue.service.PrjValueAllocationItemService;
+import vip.xiaonuo.biz.modular.reception.entity.ReceptionApply;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -66,6 +69,13 @@ public class PrjValueAllocationServiceImpl extends ServiceImpl<PrjValueAllocatio
                     StrUtil.toUnderlineCase(prjValueAllocationPageParam.getSortField()));
         } else {
             queryWrapper.lambda().orderByDesc(PrjValueAllocation::getCreateTime);
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(PrjValueAllocation::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(PrjValueAllocation::getCreateUser, StpUtil.getLoginIdAsString());
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

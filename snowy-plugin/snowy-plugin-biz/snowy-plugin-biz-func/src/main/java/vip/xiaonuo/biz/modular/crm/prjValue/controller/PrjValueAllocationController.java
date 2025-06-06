@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.crm.prjValue.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -47,7 +48,7 @@ public class PrjValueAllocationController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取项目产值划分分页")
-    // @SaCheckPermission("/biz/crm/prjValueAllocation/page")
+    @SaCheckPermission("/biz/crm/prjValueAllocation/page")
     @GetMapping("/biz/crm/prjValueAllocation/page")
     public CommonResult<Page<PrjValueAllocation>> page(PrjValueAllocationPageParam prjValueAllocationPageParam) {
         return CommonResult.data(prjValueAllocationService.page(prjValueAllocationPageParam));
