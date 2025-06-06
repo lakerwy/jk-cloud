@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.BizCrmRecPlan;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  *  合同参数同时携带合同信息实体
@@ -227,5 +229,9 @@ public class ParametersInfoVo {
     /** 收费标准及付费方式合同原文 */
     @ApiModelProperty(value = "收费标准及付费方式合同原文", position = 51)
     private String recPayText;
+
+    /** 合同收款计划 */
+    @ApiModelProperty(value = "合同收款计划", position = 55)
+    private List<BizCrmRecPlan> recPlanList;
 
 }
