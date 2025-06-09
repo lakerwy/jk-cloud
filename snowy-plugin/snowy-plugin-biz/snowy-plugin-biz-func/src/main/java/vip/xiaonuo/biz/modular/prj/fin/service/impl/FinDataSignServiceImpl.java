@@ -147,6 +147,7 @@ public class FinDataSignServiceImpl extends ServiceImpl<FinDataSignMapper, FinDa
                 BizOrg tmpBizOrg = bizOrgList.stream().filter(x ->item.getUnitName().equals(x.getName())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(tmpBizOrg)){
                     tmpFinData.setUnitId(tmpBizOrg.getId());
+                    tmpFinData.setMemo(tmpBizOrg.getCategory());
                 }else{
                     tmpFinData.setUnitName(null);
                     errorMsg += "转款单位不匹配；";
