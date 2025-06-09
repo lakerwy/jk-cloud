@@ -34,7 +34,7 @@ public class DelFlagParam {
     private String id;
 
     /** 标记-字段 delTask  delPerformance */
-    @ApiModelProperty(value = "标记-字段 ", required = true)
+    @ApiModelProperty(value = "标记-字段 delTask | delPerformance", required = true)
     @NotBlank(message = "标记-字段不能为空")
     private String delFlag;
 
