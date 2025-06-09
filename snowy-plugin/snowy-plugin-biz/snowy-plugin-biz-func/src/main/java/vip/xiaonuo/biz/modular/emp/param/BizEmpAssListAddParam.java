@@ -59,4 +59,11 @@ public class BizEmpAssListAddParam {
     @ApiModelProperty(value = "季度(如:1)", position = 13)
     private String season;
 
+    /**是否可删除目标:0 不可删除 1 可以删除*/
+    @ApiModelProperty(value = "是否可删除目标:0 不可删除 1 可以删除", position = 21)
+    private String delTask;
+
+    /**是否可删除目标:0 不可删除 1 可以删除*/
+    @ApiModelProperty(value = "是否可删除目标:0 不可删除 1 可以删除", position = 22)
+    private String delPerformance;
 }

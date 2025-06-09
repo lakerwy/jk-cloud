@@ -93,4 +93,6 @@ public interface BizEmpTaskFlwService extends IService<BizEmpTaskFlw> {
      * @return
      */
     BizEmpAssTotalVo total(EmpAssTotalParam empAssTotalParam);
+
+    void del(DelParam param);
 }

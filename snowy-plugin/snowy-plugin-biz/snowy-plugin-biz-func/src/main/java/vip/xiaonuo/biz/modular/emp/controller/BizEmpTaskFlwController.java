@@ -95,4 +95,20 @@ public class BizEmpTaskFlwController {
         return CommonResult.data(bizEmpTaskFlwService.total(empAssTotalParam));
     }
 
+
+    /**
+     * 删除目标|删除评分
+     *
+     * @author yong.ye
+     * @date  2023/09/26 10:40
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("删除目标|删除评分")
+    @CommonLog("删除目标|删除评分")
+    @PostMapping("/biz/emp/taskFlw/del")
+    public CommonResult<String> del(@RequestBody @Valid DelParam param) {
+        bizEmpTaskFlwService.del(param);
+        return CommonResult.ok();
+    }
+
 }

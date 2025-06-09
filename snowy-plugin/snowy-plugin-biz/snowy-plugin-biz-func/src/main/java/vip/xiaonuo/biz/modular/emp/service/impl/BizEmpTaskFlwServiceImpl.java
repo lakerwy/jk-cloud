@@ -28,6 +28,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.enums.DelFlagEnum;
 import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
@@ -274,5 +275,18 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         }
         bizEmpAssTotalVo.setEmpAssVoList(empAssVoList);
         return bizEmpAssTotalVo;
+    }
+
+    @Override
+    public void del(DelParam param) {
+        if(DelFlagEnum.DEL_TASK.getValue().equals(param.getDelFlag())){
+            this.removeById(param.getId());
+            bizEmpTaskService.remove(new QueryWrapper<BizEmpTask>().lambda().eq(BizEmpTask::getFlwId,param.getId()));
+            bizEmpPerformanceService.removeById(param.getEpId());
+        } else if (DelFlagEnum.DEL_PERFORMANCE.getValue().equals(param.getDelFlag())) {
+            bizEmpPerformanceService.removeById(param.getEpId());
+        }else{
+            throw new CommonException("参数异常");
+        }
     }
 }

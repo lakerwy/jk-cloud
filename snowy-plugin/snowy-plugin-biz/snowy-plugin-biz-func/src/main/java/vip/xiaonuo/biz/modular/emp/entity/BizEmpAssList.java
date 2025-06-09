@@ -96,4 +96,13 @@ public class BizEmpAssList {
     /**一级部门名称*/
     @ApiModelProperty(value = "一级部门名称", position = 16)
     private String firstOrgName;
+
+
+    /**是否可删除目标:0 不可删除 1 可以删除*/
+    @ApiModelProperty(value = "是否可删除目标:0 不可删除 1 可以删除", position = 21)
+    private String delTask;
+
+    /**是否可删除目标:0 不可删除 1 可以删除*/
+    @ApiModelProperty(value = "是否可删除目标:0 不可删除 1 可以删除", position = 22)
+    private String delPerformance;
 }

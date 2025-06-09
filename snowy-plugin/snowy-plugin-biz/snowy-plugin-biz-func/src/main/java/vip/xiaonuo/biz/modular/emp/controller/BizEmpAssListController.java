@@ -125,4 +125,21 @@ public class BizEmpAssListController {
     public CommonResult<BizEmpAssList> detail(@Valid BizEmpAssListIdParam bizEmpAssListIdParam) {
         return CommonResult.data(bizEmpAssListService.detail(bizEmpAssListIdParam));
     }
+
+
+
+    /**
+     * 设置 - 是否可删除目标|是否可删除评分
+     *
+     * @author yong.ye
+     * @date  2023/09/26 10:40
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("设置 - 是否可删除目标|是否可删除评分")
+    @CommonLog("设置 - 是否可删除目标|是否可删除评分")
+    @PostMapping("/biz/emp/list/delFlag")
+    public CommonResult<String> delFlag(@RequestBody @Valid DelFlagParam param) {
+        bizEmpAssListService.delFlag(param);
+        return CommonResult.ok();
+    }
 }

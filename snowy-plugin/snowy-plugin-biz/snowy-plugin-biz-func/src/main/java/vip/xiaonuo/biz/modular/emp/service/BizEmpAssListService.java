@@ -74,4 +74,6 @@ public interface BizEmpAssListService extends IService<BizEmpAssList> {
      * @date  2023/09/26 10:40
      **/
     BizEmpAssList queryEntity(String id);
+
+    void delFlag(DelFlagParam param);
 }

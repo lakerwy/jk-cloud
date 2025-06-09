@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
+import vip.xiaonuo.biz.modular.emp.enums.DelFlagEnum;
 import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
@@ -176,5 +177,18 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
             throw new CommonException("业务表-员工绩效考核-考核人员名单不存在，id值为：{}", id);
         }
         return bizEmpAssList;
+    }
+
+    @Override
+    public void delFlag(DelFlagParam param) {
+        BizEmpAssList bizEmpAssList = this.queryEntity(param.getId());
+        if(DelFlagEnum.DEL_TASK.getValue().equals(param.getDelFlag())){
+            bizEmpAssList.setDelTask(param.getDelFlagValue());
+        } else if (DelFlagEnum.DEL_PERFORMANCE.getValue().equals(param.getDelFlag())) {
+            bizEmpAssList.setDelPerformance(param.getDelFlagValue());
+        }else{
+            throw new CommonException("参数异常");
+        }
+        this.updateById(bizEmpAssList);
     }
 }
