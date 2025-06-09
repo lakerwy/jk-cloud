@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 项目承接备忘录添加参数
@@ -130,5 +131,9 @@ public class BizPrjMouAddParam {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 34)
     private String status;
+
+    /** 项目生产内部分工 */
+    @ApiModelProperty(value = "项目生产内部分工", position = 35)
+    private List<BizPrjMouItemEditParam> itemList;
 
 }

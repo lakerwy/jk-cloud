@@ -2,6 +2,7 @@ package vip.xiaonuo.biz.modular.prj.mou.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.prj.mou.entity.BizPrjMouItem;
 import vip.xiaonuo.biz.modular.prj.mou.param.*;
+import vip.xiaonuo.biz.modular.prj.mou.service.BizPrjMouItemService;
 import vip.xiaonuo.biz.modular.prj.mou.vo.BizPrjMouVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -35,6 +38,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 项目承接备忘录Service接口实现类
@@ -52,6 +56,9 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
 
     @Resource
     private HetongService hetongService;
+
+    @Resource
+    private BizPrjMouItemService bizPrjMouItemService;
 
     @Override
     public Page<BizPrjMou> page(BizPrjMouPageParam bizPrjMouPageParam) {
@@ -118,6 +125,15 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
         bizPrjMou.setApplyDate(new Date());
 
         this.save(bizPrjMou);
+
+        //处理分工
+        if(CollUtil.isNotEmpty(bizPrjMouAddParam.getItemList())){
+            List<BizPrjMouItem> itemList = BeanUtil.copyToList(bizPrjMouAddParam.getItemList(), BizPrjMouItem.class);
+            itemList.forEach(x->{
+                x.setBizPrjMouId(bizPrjMou.getId());
+            });
+            bizPrjMouItemService.saveBatch(itemList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -138,18 +154,55 @@ public class BizPrjMouServiceImpl extends ServiceImpl<BizPrjMouMapper, BizPrjMou
         BizPrjMou bizPrjMou = this.queryEntity(bizPrjMouEditParam.getId());
         BeanUtil.copyProperties(bizPrjMouEditParam, bizPrjMou);
         this.updateById(bizPrjMou);
+
+        //处理分工
+        if(CollUtil.isNotEmpty(bizPrjMouEditParam.getItemList())){
+            //本次传入的数据
+            List<BizPrjMouItem> itemList = BeanUtil.copyToList(bizPrjMouEditParam.getItemList(), BizPrjMouItem.class);
+            itemList.forEach(x->{
+                x.setBizPrjMouId(bizPrjMou.getId());
+            });
+            //获取历史数据
+            List<BizPrjMouItem> oldList = bizPrjMouItemService.list(
+                    new QueryWrapper<BizPrjMouItem>().lambda().eq(BizPrjMouItem::getBizPrjMouId,bizPrjMou.getId()));
+            List<String> oldIds = oldList.stream().map(x->x.getId()).collect(Collectors.toList());
+            //待新增的
+            List<BizPrjMouItem> addList = itemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizPrjMouItem> updateList = itemList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<BizPrjMouItem> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizPrjMouItemService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizPrjMouItemService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizPrjMouItemService.removeByIds(removeList);
+            }
+        }else{
+            bizPrjMouItemService.remove(new QueryWrapper<BizPrjMouItem>().lambda().eq(BizPrjMouItem::getBizPrjMouId,bizPrjMou.getId()));
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizPrjMouIdParam> bizPrjMouIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(bizPrjMouIdParamList, BizPrjMouIdParam::getId));
+        List<String> ids = CollStreamUtil.toList(bizPrjMouIdParamList, BizPrjMouIdParam::getId);
+        this.removeByIds(ids);
+        if(CollUtil.isNotEmpty(ids)){
+            bizPrjMouItemService.remove(new LambdaQueryWrapper<BizPrjMouItem>().in(BizPrjMouItem::getBizPrjMouId,ids));
+        }
     }
 
     @Override
     public BizPrjMou detail(BizPrjMouIdParam bizPrjMouIdParam) {
-        return this.queryEntity(bizPrjMouIdParam.getId());
+        BizPrjMou bizPrjMou = this.queryEntity(bizPrjMouIdParam.getId());
+        bizPrjMou.setItemList(bizPrjMouItemService.list(new LambdaQueryWrapper<BizPrjMouItem>().eq(BizPrjMouItem::getBizPrjMouId,bizPrjMou.getId())));
+        return bizPrjMou;
     }
 
     @Override

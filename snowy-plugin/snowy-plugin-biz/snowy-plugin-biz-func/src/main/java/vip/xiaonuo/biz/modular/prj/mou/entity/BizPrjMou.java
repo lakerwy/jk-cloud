@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 项目承接备忘录实体
@@ -170,4 +171,10 @@ public class BizPrjMou {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 34)
     private String status;
+
+
+    /** 项目生产内部分工 */
+    @ApiModelProperty(value = "项目生产内部分工", position = 35)
+    @TableField(exist = false)
+    private List<BizPrjMouItem> itemList;
 }
