@@ -45,6 +45,10 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
         if(ObjectUtil.isNotEmpty(porSignPageParam.getHetongId())) {
             queryWrapper.eq("a.HETONG_ID", porSignPageParam.getHetongId());
         }
+        if(ObjectUtil.isNotEmpty(porSignPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porSignPageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porSignPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porSignPageParam.getSortField(), porSignPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porSignPageParam.getSortOrder());
             queryWrapper.orderBy(true, porSignPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

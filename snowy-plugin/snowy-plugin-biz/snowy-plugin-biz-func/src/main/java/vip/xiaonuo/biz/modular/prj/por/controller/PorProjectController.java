@@ -117,4 +117,21 @@ public class PorProjectController {
     public CommonResult<PorProjectVo> detail(@Valid PorProjectIdParam porProjectIdParam) {
         return CommonResult.data(porProjectService.detail(porProjectIdParam));
     }
+
+
+
+
+    /**
+     * 获取项目产值台账 - 项目管理分页（含权限控制）
+     *
+     * @author yy
+     * @date  2025/06/03 09:39
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取项目产值台账 - 项目管理分页（含权限控制）")
+    @SaCheckPermission("/biz/prj/por/pageList")
+    @GetMapping("/biz/prj/por/pageList")
+    public CommonResult<Page<PorProjectVo>> pageList(PorProjectPageParam porProjectPageParam) {
+        return CommonResult.data(porProjectService.pageList(porProjectPageParam));
+    }
 }

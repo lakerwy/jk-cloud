@@ -66,4 +66,6 @@ public interface PorProjectService extends IService<PorProject> {
      * @date  2025/06/03 09:39
      **/
     PorProject queryEntity(String id);
+
+    Page<PorProjectVo> pageList(PorProjectPageParam porProjectPageParam);
 }

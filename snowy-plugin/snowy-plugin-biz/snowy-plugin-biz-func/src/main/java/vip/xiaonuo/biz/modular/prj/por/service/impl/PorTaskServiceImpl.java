@@ -54,6 +54,9 @@ public class PorTaskServiceImpl extends ServiceImpl<PorTaskMapper, PorTask> impl
         if(ObjectUtil.isNotEmpty(porTaskPageParam.getTaskLeaderName())) {
             queryWrapper.like("a.TASK_LEADER_NAME", porTaskPageParam.getTaskLeaderName());
         }
+        if(ObjectUtil.isNotEmpty(porTaskPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.TASK_NAME",porTaskPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porTaskPageParam.getSortField(), porTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porTaskPageParam.getSortOrder());
             queryWrapper.orderBy(true, porTaskPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

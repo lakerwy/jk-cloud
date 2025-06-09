@@ -45,6 +45,10 @@ public class PorRpmServiceImpl extends ServiceImpl<PorRpmMapper, PorRpm> impleme
         if(ObjectUtil.isNotEmpty(porRpmPageParam.getHetongId())) {
             queryWrapper.eq("a.HETONG_ID", porRpmPageParam.getHetongId());
         }
+        if(ObjectUtil.isNotEmpty(porRpmPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porRpmPageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porRpmPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porRpmPageParam.getSortField(), porRpmPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porRpmPageParam.getSortOrder());
             queryWrapper.orderBy(true, porRpmPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

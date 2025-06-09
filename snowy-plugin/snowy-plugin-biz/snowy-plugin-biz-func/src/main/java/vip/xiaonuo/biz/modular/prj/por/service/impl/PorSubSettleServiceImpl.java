@@ -2,6 +2,7 @@ package vip.xiaonuo.biz.modular.prj.por.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -57,6 +58,10 @@ public class PorSubSettleServiceImpl extends ServiceImpl<PorSubSettleMapper, Por
         if(ObjectUtil.isNotEmpty(porSubSettlePageParam.getSettleStatus())) {
             queryWrapper.eq("a.SETTLE_STATUS", porSubSettlePageParam.getSettleStatus());
         }
+        if(ObjectUtil.isNotEmpty(porSubSettlePageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porSubSettlePageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porSubSettlePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porSubSettlePageParam.getSortField(), porSubSettlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porSubSettlePageParam.getSortOrder());
             queryWrapper.orderBy(true, porSubSettlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -71,6 +76,7 @@ public class PorSubSettleServiceImpl extends ServiceImpl<PorSubSettleMapper, Por
     @Override
     public void add(PorSubSettleAddParam porSubSettleAddParam) {
         PorSubSettle porSubSettle = BeanUtil.toBean(porSubSettleAddParam, PorSubSettle.class);
+        porSubSettle.setSn("FB"+ DateUtil.current());
         this.save(porSubSettle);
     }
 

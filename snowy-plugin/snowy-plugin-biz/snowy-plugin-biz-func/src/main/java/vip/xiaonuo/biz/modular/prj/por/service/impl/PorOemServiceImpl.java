@@ -45,6 +45,10 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
         if(ObjectUtil.isNotEmpty(porOemPageParam.getHetongId())) {
             queryWrapper.eq("a.HETONG_ID", porOemPageParam.getHetongId());
         }
+        if(ObjectUtil.isNotEmpty(porOemPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porOemPageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porOemPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porOemPageParam.getSortField(), porOemPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porOemPageParam.getSortOrder());
             queryWrapper.orderBy(true, porOemPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

@@ -59,6 +59,10 @@ public class PorSiteFeeServiceImpl extends ServiceImpl<PorSiteFeeMapper, PorSite
         if(ObjectUtil.isNotEmpty(porSiteFeePageParam.getFeeOptName())) {
             queryWrapper.like("a.FEE_OPT_NAME", porSiteFeePageParam.getFeeOptName());
         }
+        if(ObjectUtil.isNotEmpty(porSiteFeePageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porSiteFeePageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porSiteFeePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porSiteFeePageParam.getSortField(), porSiteFeePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porSiteFeePageParam.getSortOrder());
             queryWrapper.orderBy(true, porSiteFeePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

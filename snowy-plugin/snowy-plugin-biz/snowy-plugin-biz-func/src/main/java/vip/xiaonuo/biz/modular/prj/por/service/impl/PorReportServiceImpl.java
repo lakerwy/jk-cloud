@@ -57,6 +57,10 @@ public class PorReportServiceImpl extends ServiceImpl<PorReportMapper, PorReport
         if(ObjectUtil.isNotEmpty(porReportPageParam.getReportOptName())) {
             queryWrapper.like("a.REPORT_OPT_NAME", porReportPageParam.getReportOptName());
         }
+        if(ObjectUtil.isNotEmpty(porReportPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.REPORT_WORK",porReportPageParam.getSearchKey())
+                    .or().like("a.REPORT_PLAN",porReportPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porReportPageParam.getSortField(), porReportPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porReportPageParam.getSortOrder());
             queryWrapper.orderBy(true, porReportPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

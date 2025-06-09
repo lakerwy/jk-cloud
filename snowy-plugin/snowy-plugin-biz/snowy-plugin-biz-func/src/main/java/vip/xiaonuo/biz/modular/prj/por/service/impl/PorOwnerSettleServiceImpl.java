@@ -2,13 +2,13 @@ package vip.xiaonuo.biz.modular.prj.por.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jdk.nashorn.internal.ir.annotations.Reference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOwnerSettleVo;
@@ -58,6 +58,10 @@ public class PorOwnerSettleServiceImpl extends ServiceImpl<PorOwnerSettleMapper,
         if(ObjectUtil.isNotEmpty(porOwnerSettlePageParam.getSettleStatus())) {
             queryWrapper.eq("a.SETTLE_STATUS", porOwnerSettlePageParam.getSettleStatus());
         }
+        if(ObjectUtil.isNotEmpty(porOwnerSettlePageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.PROJECT_NAME",porOwnerSettlePageParam.getSearchKey())
+                    .or().like("b.CONTRACT_NO",porOwnerSettlePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(porOwnerSettlePageParam.getSortField(), porOwnerSettlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(porOwnerSettlePageParam.getSortOrder());
             queryWrapper.orderBy(true, porOwnerSettlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -72,6 +76,7 @@ public class PorOwnerSettleServiceImpl extends ServiceImpl<PorOwnerSettleMapper,
     @Override
     public void add(PorOwnerSettleAddParam porOwnerSettleAddParam) {
         PorOwnerSettle porOwnerSettle = BeanUtil.toBean(porOwnerSettleAddParam, PorOwnerSettle.class);
+        porOwnerSettle.setSn("YZ"+ DateUtil.current());
         this.save(porOwnerSettle);
     }
 
