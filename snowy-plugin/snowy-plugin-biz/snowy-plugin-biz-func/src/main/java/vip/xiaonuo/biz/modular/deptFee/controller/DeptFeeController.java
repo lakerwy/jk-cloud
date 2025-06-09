@@ -114,19 +114,33 @@ public class DeptFeeController {
         return CommonResult.data(deptFeeService.detail(deptFeeIdParam));
     }
 
-    /**
-     * 导入部门费用 - 校验逻辑
-     *
-     * @author pzh
-     * @date  2025/06/05 15:40
-     */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("导入部门费用 - 校验逻辑")
-    @CommonLog("导入部门费用 - 校验逻辑")
-    @PostMapping("/biz/deptFee/importCheck")
-    public CommonResult<ImportResult> importCheck(@RequestBody @Valid ImportParam importParam) {
-        return CommonResult.data(deptFeeService.importCheck(importParam));
-    }
+//    /**
+//     * 导入部门费用 - 校验逻辑
+//     *
+//     * @author pzh
+//     * @date  2025/06/05 15:40
+//     */
+//    @ApiOperationSupport(order = 6)
+//    @ApiOperation("导入部门费用 - 校验逻辑")
+//    @CommonLog("导入部门费用 - 校验逻辑")
+//    @PostMapping("/biz/deptFee/importCheck")
+//    public CommonResult<ImportResult> importCheck(@RequestBody @Valid ImportParam importParam) {
+//        return CommonResult.data(deptFeeService.importCheck(importParam));
+//    }
+
+//    /**
+//     * 导入部门费用 - 确认导入
+//     *
+//     * @author pzh
+//     * @date  2025/06/05 15:40
+//     */
+//    @ApiOperationSupport(order = 7)
+//    @ApiOperation("导入部门费用 - 确认导入")
+//    @CommonLog("导入部门费用 - 确认导入")
+//    @PostMapping("/biz/deptFee/doImport")
+//    public CommonResult<Boolean> doImport(@RequestBody @Valid ImportParam importParam) {
+//        return CommonResult.data(deptFeeService.doImport(importParam));
+//    }
 
     /**
      * 导入部门费用 - 确认导入
@@ -134,11 +148,11 @@ public class DeptFeeController {
      * @author pzh
      * @date  2025/06/05 15:40
      */
-    @ApiOperationSupport(order = 7)
-    @ApiOperation("导入部门费用 - 确认导入")
-    @CommonLog("导入部门费用 - 确认导入")
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("导入部门费用（含校验）")
+    @CommonLog("导入部门费用（含校验）")
     @PostMapping("/biz/deptFee/doImport")
-    public CommonResult<Boolean> doImport(@RequestBody @Valid ImportParam importParam) {
+    public CommonResult<ImportResult> doImport(@RequestBody @Valid ImportParam importParam) {
         return CommonResult.data(deptFeeService.doImport(importParam));
     }
 
