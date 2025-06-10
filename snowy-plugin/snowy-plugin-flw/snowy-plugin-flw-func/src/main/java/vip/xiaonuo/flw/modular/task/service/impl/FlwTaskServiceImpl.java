@@ -308,17 +308,122 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             }
         }
 
+//        Page<FlwDoneTaskResult> defaultPage = CommonPageRequest.defaultPage();
+//        long current = defaultPage.getCurrent();
+//        long size = defaultPage.getSize();
+//        List<FlwDoneTaskResult> flwDoneTaskResultList = historicTaskInstanceQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
+//                .map(historicTaskInstance -> {
+//                    return getDoneTaskResult(historicTaskInstance);
+//                }).collect(Collectors.toList());
+//        defaultPage.setTotal(historicTaskInstanceQuery.count());
+//        defaultPage.setRecords(flwDoneTaskResultList);
+//        return defaultPage;
+
         Page<FlwDoneTaskResult> defaultPage = CommonPageRequest.defaultPage();
-        long current = defaultPage.getCurrent();
-        long size = defaultPage.getSize();
-        List<FlwDoneTaskResult> flwDoneTaskResultList = historicTaskInstanceQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
-                .map(historicTaskInstance -> {
-                    return getDoneTaskResult(historicTaskInstance);
-                }).collect(Collectors.toList());
-        defaultPage.setTotal(historicTaskInstanceQuery.count());
-        defaultPage.setRecords(flwDoneTaskResultList);
+        getDoneTaskResult(defaultPage, historicTaskInstanceQuery);
         return defaultPage;
 
+    }
+
+    private void getDoneTaskResult(Page<FlwDoneTaskResult> defaultPage, HistoricTaskInstanceQuery historicTaskInstanceQuery) {
+        //页面参数-分页
+        long current = defaultPage.getCurrent();
+        long size = defaultPage.getSize();
+        int fromIndex = Convert.toInt((current - 1) * size);
+        List<HistoricTaskInstance> historicTaskInstanceList = historicTaskInstanceQuery.listPage(fromIndex, Convert.toInt(size)).stream().collect(Collectors.toList());
+        defaultPage.setTotal(historicTaskInstanceQuery.count());
+        defaultPage.setRecords(getCurrentPageData(historicTaskInstanceList));
+    }
+
+    private List<FlwDoneTaskResult> getCurrentPageData(List<HistoricTaskInstance> historicTaskInstanceList) {
+        List<String> processInstanceIds = historicTaskInstanceList.stream().map(x->x.getProcessInstanceId()).collect(Collectors.toList());
+        if(CollUtil.isEmpty(processInstanceIds)) return null;
+        List<HistoricVariableInstance> historicVariableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceIdIn(processInstanceIds.toArray(new String[0])).list();
+        List<FlwDoneTaskResult> results = new ArrayList<>();
+        historicTaskInstanceList.forEach(historicTaskInstance -> {
+            FlwDoneTaskResult flwDoneTaskResult = new FlwDoneTaskResult();
+            flwDoneTaskResult.setId(historicTaskInstance.getId());
+            List<HistoricVariableInstance> variableInstanceList = historicVariableInstanceList.stream().filter(x -> historicTaskInstance.getProcessInstanceId().equals(x.getProcessInstanceId())).collect(Collectors.toList());
+            flwDoneTaskResult.setProcessInstanceId(historicTaskInstance.getProcessInstanceId());
+            flwDoneTaskResult.setSn(getVariableValue("initiatorProcessSn",variableInstanceList));
+            flwDoneTaskResult.setTitle(getVariableValue("initiatorProcessTitle",variableInstanceList));
+            flwDoneTaskResult.setAbstractTitle(getVariableValue("initiatorProcessAbstract",variableInstanceList));
+            String processDefinitionId = historicTaskInstance.getProcessDefinitionId();
+            flwDoneTaskResult.setProcessDefinitionId(processDefinitionId);
+            Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+            if (ObjectUtil.isNotEmpty(o)) {
+                flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
+            } else {
+                ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+                if (ObjectUtil.isNotEmpty(processDefinition)) {
+                    commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                    flwDoneTaskResult.setProcessDefinitionName(processDefinition.getName());
+                }
+            }
+            flwDoneTaskResult.setDoneActivityId(historicTaskInstance.getTaskDefinitionKey());
+            flwDoneTaskResult.setDoneActivityName(historicTaskInstance.getName());
+            flwDoneTaskResult.setDoneTime(DateUtil.formatDateTime(historicTaskInstance.getEndTime()));
+            flwDoneTaskResult.setInitiator(getVariableValue("initiator", variableInstanceList));
+            flwDoneTaskResult.setInitiatorName(getVariableValue("initiatorName", variableInstanceList));
+            flwDoneTaskResult.setInitiatorOrgId(getVariableValue("initiatorOrgId", variableInstanceList));
+            flwDoneTaskResult.setInitiatorOrgName(getVariableValue("initiatorOrgName", variableInstanceList));
+            flwDoneTaskResult.setInitiatorPositionId(getVariableValue("initiatorPositionId", variableInstanceList));
+            flwDoneTaskResult.setInitiatorPositionName(getVariableValue("initiatorPositionName", variableInstanceList));
+            flwDoneTaskResult.setInitiatorTime(getVariableValue("initiatorTime", variableInstanceList));
+            flwDoneTaskResult.setTenantId(historicTaskInstance.getTenantId());
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceId(flwDoneTaskResult.getProcessInstanceId()).singleResult();
+            if(ObjectUtil.isNotEmpty(historicProcessInstance)){
+                String state = historicProcessInstance.getState();
+                switch (state) {
+                    case "ACTIVE":
+                        flwDoneTaskResult.setStateCode(state);
+                        flwDoneTaskResult.setStateText("审批中");
+                        break;
+                    case "SUSPENDED":
+                        flwDoneTaskResult.setStateCode(state);
+                        flwDoneTaskResult.setStateText("已挂起");
+                        break;
+                    case "COMPLETED":
+                        flwDoneTaskResult.setStateCode(state);
+                        flwDoneTaskResult.setStateText("已完成");
+                        break;
+                    case "EXTERNALLY_TERMINATED":
+                        String deleteReason = historicProcessInstance.getDeleteReason();
+                        switch (deleteReason) {
+                            case "END":
+                                flwDoneTaskResult.setStateCode(deleteReason);
+                                flwDoneTaskResult.setStateText("已终止");
+                                break;
+                            case "REVOKE":
+                                flwDoneTaskResult.setStateCode(deleteReason);
+                                flwDoneTaskResult.setStateText("已撤回");
+                                break;
+                            case "REJECT":
+                                flwDoneTaskResult.setStateCode(deleteReason);
+                                flwDoneTaskResult.setStateText("已拒绝");
+                                break;
+                            default:
+                                throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+                        }
+                        break;
+                    case "INTERNALLY_TERMINATED":
+                        flwDoneTaskResult.setStateCode(state);
+                        flwDoneTaskResult.setStateText("内部终止");
+                        break;
+                    default:
+                        throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+                }
+            }
+            results.add(flwDoneTaskResult);
+        });
+        return results;
+    }
+
+    public String getVariableValue(String name,List<HistoricVariableInstance> variableInstanceList) {
+        if(CollUtil.isEmpty(variableInstanceList)) return "";
+        HistoricVariableInstance historicVariableInstance = variableInstanceList.stream().filter(x -> name.equals(x.getName())).findFirst().orElse(null);
+        return ObjectUtil.isNotEmpty(historicVariableInstance) && ObjectUtil.isNotEmpty(historicVariableInstance.getValue()) ? historicVariableInstance.getValue().toString() : "";
     }
 
     @NotNull
