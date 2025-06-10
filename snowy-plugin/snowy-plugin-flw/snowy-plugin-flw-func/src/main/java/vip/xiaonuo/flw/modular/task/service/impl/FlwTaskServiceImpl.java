@@ -339,6 +339,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         List<String> processInstanceIds = historicTaskInstanceList.stream().map(x->x.getProcessInstanceId()).collect(Collectors.toList());
         if(CollUtil.isEmpty(processInstanceIds)) return null;
         List<HistoricVariableInstance> historicVariableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceIdIn(processInstanceIds.toArray(new String[0])).list();
+        List<HistoricProcessInstance> historicProcessInstanceList = historyService.createHistoricProcessInstanceQuery().processInstanceIds(new HashSet<>(processInstanceIds)).list();
         List<FlwDoneTaskResult> results = new ArrayList<>();
         historicTaskInstanceList.forEach(historicTaskInstance -> {
             FlwDoneTaskResult flwDoneTaskResult = new FlwDoneTaskResult();
@@ -371,8 +372,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwDoneTaskResult.setInitiatorPositionName(getVariableValue("initiatorPositionName", variableInstanceList));
             flwDoneTaskResult.setInitiatorTime(getVariableValue("initiatorTime", variableInstanceList));
             flwDoneTaskResult.setTenantId(historicTaskInstance.getTenantId());
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                    .processInstanceId(flwDoneTaskResult.getProcessInstanceId()).singleResult();
+            HistoricProcessInstance historicProcessInstance = historicProcessInstanceList.stream().filter(x -> historicTaskInstance.getProcessInstanceId().equals(x.getId())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(historicProcessInstance)){
                 String state = historicProcessInstance.getState();
                 switch (state) {
