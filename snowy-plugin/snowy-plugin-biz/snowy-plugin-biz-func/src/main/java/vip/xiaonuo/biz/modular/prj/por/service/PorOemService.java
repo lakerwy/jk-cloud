@@ -3,10 +3,7 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemPageParam;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 
 import java.util.List;
@@ -66,4 +63,6 @@ public interface PorOemService extends IService<PorOem> {
      * @date  2025/06/03 09:56
      **/
     PorOem queryEntity(String id);
+
+    Object getListByHtId(ContractParam param);
 }

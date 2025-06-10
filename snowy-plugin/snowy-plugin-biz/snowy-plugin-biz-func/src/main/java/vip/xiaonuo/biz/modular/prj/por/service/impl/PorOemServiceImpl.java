@@ -10,16 +10,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
 import vip.xiaonuo.biz.modular.prj.por.mapper.PorOemMapper;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorOemService;
 
 import javax.annotation.Resource;
@@ -93,5 +90,10 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
             throw new CommonException("项目产值台账 - 项目管理 - 经营费管理不存在，id值为：{}", id);
         }
         return porOem;
+    }
+
+    @Override
+    public Object getListByHtId(ContractParam param) {
+        return null;
     }
 }

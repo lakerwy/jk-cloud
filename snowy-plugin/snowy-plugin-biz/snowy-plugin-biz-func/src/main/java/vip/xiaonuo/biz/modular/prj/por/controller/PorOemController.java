@@ -11,15 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOemPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorOemService;
 
 import javax.annotation.Resource;
@@ -116,5 +112,17 @@ public class PorOemController {
     @GetMapping("/biz/prj/por/oem/detail")
     public CommonResult<PorOemVo> detail(@Valid PorOemIdParam porOemIdParam) {
         return CommonResult.data(porOemService.detail(porOemIdParam));
+    }
+
+
+
+    /**
+     * 根据合同id,获取经营费拨付明细
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("根据合同id,获取经营费拨付明细")
+    @GetMapping("/biz/prj/por/oem/getListByHtId")
+    public CommonResult<Object> getListByHtId(@Valid ContractParam param) {
+        return CommonResult.data(porOemService.getListByHtId(param));
     }
 }
