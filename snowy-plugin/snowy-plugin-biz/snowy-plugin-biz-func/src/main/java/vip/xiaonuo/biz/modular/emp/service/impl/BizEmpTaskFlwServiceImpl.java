@@ -280,10 +280,19 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
     @Override
     public void del(DelParam param) {
         if(DelFlagEnum.DEL_TASK.getValue().equals(param.getDelFlag())){
+            if(ObjectUtil.isEmpty(param.getId())){
+                throw new CommonException("参数缺失");
+            }
             this.removeById(param.getId());
             bizEmpTaskService.remove(new QueryWrapper<BizEmpTask>().lambda().eq(BizEmpTask::getFlwId,param.getId()));
-            bizEmpPerformanceService.removeById(param.getEpId());
+
+            if(ObjectUtil.isNotEmpty(param.getEpId())) {
+                bizEmpPerformanceService.removeById(param.getEpId());
+            }
         } else if (DelFlagEnum.DEL_PERFORMANCE.getValue().equals(param.getDelFlag())) {
+            if(ObjectUtil.isEmpty(param.getEpId())){
+                throw new CommonException("参数缺失");
+            }
             bizEmpPerformanceService.removeById(param.getEpId());
         }else{
             throw new CommonException("参数异常");
