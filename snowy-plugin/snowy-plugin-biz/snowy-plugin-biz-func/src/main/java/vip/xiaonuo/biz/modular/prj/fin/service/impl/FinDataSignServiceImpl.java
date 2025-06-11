@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataSignPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -29,8 +30,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataSignMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataSignService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 转入签字费Service接口实现类
@@ -50,15 +53,20 @@ public class FinDataSignServiceImpl extends ServiceImpl<FinDataSignMapper, FinDa
 
     @Override
     public Page<FinDataSign> page(FinDataSignPageParam finDataSignPageParam) {
+        QueryWrapper<FinDataSign> queryWrapper = getFinDataSignQueryWrapper(finDataSignPageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataSign> getFinDataSignQueryWrapper(FinDataSignPageParam finDataSignPageParam) {
         QueryWrapper<FinDataSign> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataSignPageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataSign::getContractId,finDataSignPageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataSign::getContractId, finDataSignPageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataSignPageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataSign::getContractNo, finDataSignPageParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(finDataSignPageParam.getUnitId())){
-            queryWrapper.lambda().eq(FinDataSign::getUnitId,finDataSignPageParam.getUnitId());
+            queryWrapper.lambda().eq(FinDataSign::getUnitId, finDataSignPageParam.getUnitId());
         }
         if(ObjectUtil.isNotEmpty(finDataSignPageParam.getUnitName())) {
             queryWrapper.lambda().like(FinDataSign::getUnitName, finDataSignPageParam.getUnitName());
@@ -67,8 +75,8 @@ public class FinDataSignServiceImpl extends ServiceImpl<FinDataSignMapper, FinDa
             queryWrapper.lambda().between(FinDataSign::getZkDate, finDataSignPageParam.getStartZkDate(), finDataSignPageParam.getEndZkDate());
         }
         if(ObjectUtil.isNotEmpty(finDataSignPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataSign::getContractNo,finDataSignPageParam.getSearchKey())
-                    .or().like(FinDataSign::getUnitName,finDataSignPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataSign::getContractNo, finDataSignPageParam.getSearchKey())
+                    .or().like(FinDataSign::getUnitName, finDataSignPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataSignPageParam.getSortField(), finDataSignPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataSignPageParam.getSortOrder());
@@ -77,7 +85,7 @@ public class FinDataSignServiceImpl extends ServiceImpl<FinDataSignMapper, FinDa
         } else {
             queryWrapper.lambda().orderByDesc(FinDataSign::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -167,6 +175,15 @@ public class FinDataSignServiceImpl extends ServiceImpl<FinDataSignMapper, FinDa
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataSignPageTotal pageTotal(FinDataSignPageParam finDataSignPageParam) {
+        QueryWrapper<FinDataSign> queryWrapper = getFinDataSignQueryWrapper(finDataSignPageParam);
+        List<FinDataSign> dataList = this.list(queryWrapper);
+        FinDataSignPageTotal result = new FinDataSignPageTotal();
+        result.setZkAmount(dataList.stream().map(x->x.getZkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }

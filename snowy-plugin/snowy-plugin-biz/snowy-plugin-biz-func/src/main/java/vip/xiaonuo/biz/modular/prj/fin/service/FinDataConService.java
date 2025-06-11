@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataCon;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataConPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 
 import java.util.List;
@@ -65,4 +66,6 @@ public interface FinDataConService extends IService<FinDataCon> {
     FinDataCon queryEntity(String id);
 
     ImportResult doImport(ImportParam<ImportFinDataCon> importParam);
+
+    FinDataConPageTotal pageTotal(FinDataConPageParam finDataConPageParam);
 }

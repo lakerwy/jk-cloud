@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataSignPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -125,5 +126,17 @@ public class FinDataSignController {
     @PostMapping("/biz/prj/fin/sign/doImport")
     public CommonResult<ImportResult> doImport(@RequestBody @Valid ImportParam<ImportFinDataSign> importParam) {
         return CommonResult.data(finDataSignService.doImport(importParam));
+    }
+
+
+
+    /**
+     * 获取财务数据汇总台账 - 转入签字费 - 列表统计（所有满足条件的数据统计）
+     */
+    @ApiOperationSupport(order = 66)
+    @ApiOperation("获取财务数据汇总台账 - 转入签字费 - 列表统计（所有满足条件的数据统计）")
+    @GetMapping("/biz/prj/fin/sign/pageTotal")
+    public CommonResult<FinDataSignPageTotal> pageTotal(FinDataSignPageParam finDataSignPageParam) {
+        return CommonResult.data(finDataSignService.pageTotal(finDataSignPageParam));
     }
 }

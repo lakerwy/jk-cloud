@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataManagePageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -29,8 +30,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataManageMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataManageService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 转入管理费Service接口实现类
@@ -50,12 +53,17 @@ public class FinDataManageServiceImpl extends ServiceImpl<FinDataManageMapper, F
 
     @Override
     public Page<FinDataManage> page(FinDataManagePageParam finDataManagePageParam) {
+        QueryWrapper<FinDataManage> queryWrapper = getFinDataManageQueryWrapper(finDataManagePageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataManage> getFinDataManageQueryWrapper(FinDataManagePageParam finDataManagePageParam) {
         QueryWrapper<FinDataManage> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataManagePageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataManage::getContractId,finDataManagePageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataManage::getContractId, finDataManagePageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataManagePageParam.getUnitId())){
-            queryWrapper.lambda().eq(FinDataManage::getUnitId,finDataManagePageParam.getUnitId());
+            queryWrapper.lambda().eq(FinDataManage::getUnitId, finDataManagePageParam.getUnitId());
         }
         if(ObjectUtil.isNotEmpty(finDataManagePageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataManage::getContractNo, finDataManagePageParam.getContractNo());
@@ -70,9 +78,9 @@ public class FinDataManageServiceImpl extends ServiceImpl<FinDataManageMapper, F
             queryWrapper.lambda().like(FinDataManage::getFeeType, finDataManagePageParam.getFeeType());
         }
         if(ObjectUtil.isNotEmpty(finDataManagePageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataManage::getContractNo,finDataManagePageParam.getSearchKey())
-                    .or().like(FinDataManage::getUnitName,finDataManagePageParam.getSearchKey())
-                    .or().like(FinDataManage::getFeeType,finDataManagePageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataManage::getContractNo, finDataManagePageParam.getSearchKey())
+                    .or().like(FinDataManage::getUnitName, finDataManagePageParam.getSearchKey())
+                    .or().like(FinDataManage::getFeeType, finDataManagePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataManagePageParam.getSortField(), finDataManagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataManagePageParam.getSortOrder());
@@ -81,7 +89,7 @@ public class FinDataManageServiceImpl extends ServiceImpl<FinDataManageMapper, F
         } else {
             queryWrapper.lambda().orderByDesc(FinDataManage::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -171,6 +179,15 @@ public class FinDataManageServiceImpl extends ServiceImpl<FinDataManageMapper, F
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataManagePageTotal pageTotal(FinDataManagePageParam finDataManagePageParam) {
+        QueryWrapper<FinDataManage> queryWrapper = getFinDataManageQueryWrapper(finDataManagePageParam);
+        List<FinDataManage> dataList = this.list(queryWrapper);
+        FinDataManagePageTotal result = new FinDataManagePageTotal();
+        result.setZkAmount(dataList.stream().map(x->x.getZkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }

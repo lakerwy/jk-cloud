@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataInvoicePageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -29,8 +30,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataInvoiceMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataInvoiceService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 销售发票Service接口实现类
@@ -50,12 +53,17 @@ public class FinDataInvoiceServiceImpl extends ServiceImpl<FinDataInvoiceMapper,
 
     @Override
     public Page<FinDataInvoice> page(FinDataInvoicePageParam finDataInvoicePageParam) {
+        QueryWrapper<FinDataInvoice> queryWrapper = getFinDataInvoiceQueryWrapper(finDataInvoicePageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataInvoice> getFinDataInvoiceQueryWrapper(FinDataInvoicePageParam finDataInvoicePageParam) {
         QueryWrapper<FinDataInvoice> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataInvoicePageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataInvoice::getContractId,finDataInvoicePageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataInvoice::getContractId, finDataInvoicePageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataInvoicePageParam.getUnitId())){
-            queryWrapper.lambda().eq(FinDataInvoice::getUnitId,finDataInvoicePageParam.getUnitId());
+            queryWrapper.lambda().eq(FinDataInvoice::getUnitId, finDataInvoicePageParam.getUnitId());
         }
         if(ObjectUtil.isNotEmpty(finDataInvoicePageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataInvoice::getContractNo, finDataInvoicePageParam.getContractNo());
@@ -67,9 +75,9 @@ public class FinDataInvoiceServiceImpl extends ServiceImpl<FinDataInvoiceMapper,
             queryWrapper.lambda().between(FinDataInvoice::getKpDate, finDataInvoicePageParam.getStartKpDate(), finDataInvoicePageParam.getEndKpDate());
         }
         if(ObjectUtil.isNotEmpty(finDataInvoicePageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataInvoice::getContractNo,finDataInvoicePageParam.getSearchKey())
-                    .or().like(FinDataInvoice::getUnitName,finDataInvoicePageParam.getSearchKey())
-                    .or().like(FinDataInvoice::getContent,finDataInvoicePageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataInvoice::getContractNo, finDataInvoicePageParam.getSearchKey())
+                    .or().like(FinDataInvoice::getUnitName, finDataInvoicePageParam.getSearchKey())
+                    .or().like(FinDataInvoice::getContent, finDataInvoicePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataInvoicePageParam.getSortField(), finDataInvoicePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataInvoicePageParam.getSortOrder());
@@ -78,7 +86,7 @@ public class FinDataInvoiceServiceImpl extends ServiceImpl<FinDataInvoiceMapper,
         } else {
             queryWrapper.lambda().orderByDesc(FinDataInvoice::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -168,6 +176,15 @@ public class FinDataInvoiceServiceImpl extends ServiceImpl<FinDataInvoiceMapper,
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataInvoicePageTotal pageTotal(FinDataInvoicePageParam finDataInvoicePageParam) {
+        QueryWrapper<FinDataInvoice> queryWrapper = getFinDataInvoiceQueryWrapper(finDataInvoicePageParam);
+        List<FinDataInvoice> dataList = this.list(queryWrapper);
+        FinDataInvoicePageTotal result = new FinDataInvoicePageTotal();
+        result.setKpAmount(dataList.stream().map(x->x.getKpAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }

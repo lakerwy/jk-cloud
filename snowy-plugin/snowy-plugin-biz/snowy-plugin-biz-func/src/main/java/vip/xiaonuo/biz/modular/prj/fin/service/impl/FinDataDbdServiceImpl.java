@@ -17,6 +17,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataDbdPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -27,8 +28,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataDbdMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataDbdService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 拨付明细Service接口实现类
@@ -45,9 +48,14 @@ public class FinDataDbdServiceImpl extends ServiceImpl<FinDataDbdMapper, FinData
 
     @Override
     public Page<FinDataDbd> page(FinDataDbdPageParam finDataDbdPageParam) {
+        QueryWrapper<FinDataDbd> queryWrapper = getFinDataDbdQueryWrapper(finDataDbdPageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataDbd> getFinDataDbdQueryWrapper(FinDataDbdPageParam finDataDbdPageParam) {
         QueryWrapper<FinDataDbd> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataDbdPageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataDbd::getContractId,finDataDbdPageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataDbd::getContractId, finDataDbdPageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataDbdPageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataDbd::getContractNo, finDataDbdPageParam.getContractNo());
@@ -56,8 +64,8 @@ public class FinDataDbdServiceImpl extends ServiceImpl<FinDataDbdMapper, FinData
             queryWrapper.lambda().between(FinDataDbd::getBfDate, finDataDbdPageParam.getStartBfDate(), finDataDbdPageParam.getEndBfDate());
         }
         if(ObjectUtil.isNotEmpty(finDataDbdPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataDbd::getContractNo,finDataDbdPageParam.getSearchKey())
-                    .or().like(FinDataDbd::getKkOtherContent,finDataDbdPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataDbd::getContractNo, finDataDbdPageParam.getSearchKey())
+                    .or().like(FinDataDbd::getKkOtherContent, finDataDbdPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataDbdPageParam.getSortField(), finDataDbdPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataDbdPageParam.getSortOrder());
@@ -66,7 +74,7 @@ public class FinDataDbdServiceImpl extends ServiceImpl<FinDataDbdMapper, FinData
         } else {
             queryWrapper.lambda().orderByDesc(FinDataDbd::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -144,6 +152,22 @@ public class FinDataDbdServiceImpl extends ServiceImpl<FinDataDbdMapper, FinData
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataDbdPageTotal pageTotal(FinDataDbdPageParam finDataDbdPageParam) {
+        QueryWrapper<FinDataDbd> queryWrapper = getFinDataDbdQueryWrapper(finDataDbdPageParam);
+        List<FinDataDbd> dataList = this.list(queryWrapper);
+        FinDataDbdPageTotal result = new FinDataDbdPageTotal();
+        result.setBfAmount(dataList.stream().map(x->x.getBfAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkSum(dataList.stream().map(x->x.getKkSum()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkManage(dataList.stream().map(x->x.getKkManage()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkTax(dataList.stream().map(x->x.getKkTax()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkSign(dataList.stream().map(x->x.getKkSign()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkSignTax(dataList.stream().map(x->x.getKkSignTax()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkSalary(dataList.stream().map(x->x.getKkSalary()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkOther(dataList.stream().map(x->x.getKkOther()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }

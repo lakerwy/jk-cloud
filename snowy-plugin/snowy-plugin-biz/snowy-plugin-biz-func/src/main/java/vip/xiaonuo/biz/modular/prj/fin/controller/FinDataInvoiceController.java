@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataInvoicePageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -125,5 +126,17 @@ public class FinDataInvoiceController {
     @PostMapping("/biz/prj/fin/invoice/doImport")
     public CommonResult<ImportResult> doImport(@RequestBody @Valid ImportParam<ImportFinDataInvoice> importParam) {
         return CommonResult.data(finDataInvoiceService.doImport(importParam));
+    }
+
+
+
+    /**
+     * 获取财务数据汇总台账 - 销售发票 - 列表统计（所有满足条件的数据统计）
+     */
+    @ApiOperationSupport(order = 66)
+    @ApiOperation("获取财务数据汇总台账 - 销售发票 - 列表统计（所有满足条件的数据统计）")
+    @GetMapping("/biz/prj/fin/invoice/pageTotal")
+    public CommonResult<FinDataInvoicePageTotal> pageTotal(FinDataInvoicePageParam finDataInvoicePageParam) {
+        return CommonResult.data(finDataInvoiceService.pageTotal(finDataInvoicePageParam));
     }
 }

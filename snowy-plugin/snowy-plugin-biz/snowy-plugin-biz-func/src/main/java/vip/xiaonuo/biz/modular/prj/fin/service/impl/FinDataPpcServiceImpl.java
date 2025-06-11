@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataPpcPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -29,8 +30,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataPpcMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataPpcService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 项目回款Service接口实现类
@@ -50,12 +53,17 @@ public class FinDataPpcServiceImpl extends ServiceImpl<FinDataPpcMapper, FinData
 
     @Override
     public Page<FinDataPpc> page(FinDataPpcPageParam finDataPpcPageParam) {
+        QueryWrapper<FinDataPpc> queryWrapper = getFinDataPpcQueryWrapper(finDataPpcPageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataPpc> getFinDataPpcQueryWrapper(FinDataPpcPageParam finDataPpcPageParam) {
         QueryWrapper<FinDataPpc> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataPpcPageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataPpc::getContractId,finDataPpcPageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataPpc::getContractId, finDataPpcPageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataPpcPageParam.getUnitId())){
-            queryWrapper.lambda().eq(FinDataPpc::getUnitId,finDataPpcPageParam.getUnitId());
+            queryWrapper.lambda().eq(FinDataPpc::getUnitId, finDataPpcPageParam.getUnitId());
         }
         if(ObjectUtil.isNotEmpty(finDataPpcPageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataPpc::getContractNo, finDataPpcPageParam.getContractNo());
@@ -67,8 +75,8 @@ public class FinDataPpcServiceImpl extends ServiceImpl<FinDataPpcMapper, FinData
             queryWrapper.lambda().between(FinDataPpc::getHkDate, finDataPpcPageParam.getStartHkDate(), finDataPpcPageParam.getEndHkDate());
         }
         if(ObjectUtil.isNotEmpty(finDataPpcPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataPpc::getContractNo,finDataPpcPageParam.getSearchKey())
-                    .or().like(FinDataPpc::getUnitName,finDataPpcPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataPpc::getContractNo, finDataPpcPageParam.getSearchKey())
+                    .or().like(FinDataPpc::getUnitName, finDataPpcPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataPpcPageParam.getSortField(), finDataPpcPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataPpcPageParam.getSortOrder());
@@ -77,7 +85,7 @@ public class FinDataPpcServiceImpl extends ServiceImpl<FinDataPpcMapper, FinData
         } else {
             queryWrapper.lambda().orderByDesc(FinDataPpc::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -167,6 +175,15 @@ public class FinDataPpcServiceImpl extends ServiceImpl<FinDataPpcMapper, FinData
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataPpcPageTotal pageTotal(FinDataPpcPageParam finDataPpcPageParam) {
+        QueryWrapper<FinDataPpc> queryWrapper = getFinDataPpcQueryWrapper(finDataPpcPageParam);
+        List<FinDataPpc> dataList = this.list(queryWrapper);
+        FinDataPpcPageTotal result = new FinDataPpcPageTotal();
+        result.setHkAmount(dataList.stream().map(x->x.getHkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }

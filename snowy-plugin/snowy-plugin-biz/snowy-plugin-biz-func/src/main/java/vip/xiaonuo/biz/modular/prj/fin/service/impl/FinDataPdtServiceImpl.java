@@ -17,6 +17,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ErrorResult;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataPdtPageTotal;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -27,8 +28,10 @@ import vip.xiaonuo.biz.modular.prj.fin.mapper.FinDataPdtMapper;
 import vip.xiaonuo.biz.modular.prj.fin.service.FinDataPdtService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 财务数据汇总台账 - 生产院Service接口实现类
@@ -45,9 +48,14 @@ public class FinDataPdtServiceImpl extends ServiceImpl<FinDataPdtMapper, FinData
 
     @Override
     public Page<FinDataPdt> page(FinDataPdtPageParam finDataPdtPageParam) {
+        QueryWrapper<FinDataPdt> queryWrapper = getFinDataPdtQueryWrapper(finDataPdtPageParam);
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    private static QueryWrapper<FinDataPdt> getFinDataPdtQueryWrapper(FinDataPdtPageParam finDataPdtPageParam) {
         QueryWrapper<FinDataPdt> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(finDataPdtPageParam.getContractId())){
-            queryWrapper.lambda().eq(FinDataPdt::getContractId,finDataPdtPageParam.getContractId());
+            queryWrapper.lambda().eq(FinDataPdt::getContractId, finDataPdtPageParam.getContractId());
         }
         if(ObjectUtil.isNotEmpty(finDataPdtPageParam.getContractNo())) {
             queryWrapper.lambda().like(FinDataPdt::getContractNo, finDataPdtPageParam.getContractNo());
@@ -56,8 +64,8 @@ public class FinDataPdtServiceImpl extends ServiceImpl<FinDataPdtMapper, FinData
             queryWrapper.lambda().between(FinDataPdt::getBfDate, finDataPdtPageParam.getStartBfDate(), finDataPdtPageParam.getEndBfDate());
         }
         if(ObjectUtil.isNotEmpty(finDataPdtPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataPdt::getContractNo,finDataPdtPageParam.getSearchKey())
-                    .or().like(FinDataPdt::getKkOtherContent,finDataPdtPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataPdt::getContractNo, finDataPdtPageParam.getSearchKey())
+                    .or().like(FinDataPdt::getKkOtherContent, finDataPdtPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataPdtPageParam.getSortField(), finDataPdtPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataPdtPageParam.getSortOrder());
@@ -66,7 +74,7 @@ public class FinDataPdtServiceImpl extends ServiceImpl<FinDataPdtMapper, FinData
         } else {
             queryWrapper.lambda().orderByDesc(FinDataPdt::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return queryWrapper;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -144,6 +152,21 @@ public class FinDataPdtServiceImpl extends ServiceImpl<FinDataPdtMapper, FinData
         result.setErrCount((int) errList.stream().count());
         result.setSucCount((int) addList.stream().count());
         result.setResultList(errList);
+        return result;
+    }
+
+    @Override
+    public FinDataPdtPageTotal pageTotal(FinDataPdtPageParam finDataPdtPageParam) {
+        QueryWrapper<FinDataPdt> queryWrapper = getFinDataPdtQueryWrapper(finDataPdtPageParam);
+        List<FinDataPdt> dataList = this.list(queryWrapper);
+        FinDataPdtPageTotal result = new FinDataPdtPageTotal();
+        result.setBfOutput(dataList.stream().map(x->x.getBfOutput()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setBfExpense(dataList.stream().map(x->x.getBfExpense()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setBfSub(dataList.stream().map(x->x.getBfSub()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setBfLabor(dataList.stream().map(x->x.getBfLabor()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setBfOther(dataList.stream().map(x->x.getBfOther()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkTax(dataList.stream().map(x->x.getKkTax()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
+        result.setKkOther(dataList.stream().map(x->x.getKkOther()).filter(Objects::nonNull).reduce(BigDecimal.ZERO,BigDecimal::add));
         return result;
     }
 }
