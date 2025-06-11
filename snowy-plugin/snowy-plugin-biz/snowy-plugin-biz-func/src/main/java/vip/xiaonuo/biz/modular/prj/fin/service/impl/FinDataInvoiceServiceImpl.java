@@ -68,7 +68,8 @@ public class FinDataInvoiceServiceImpl extends ServiceImpl<FinDataInvoiceMapper,
         }
         if(ObjectUtil.isNotEmpty(finDataInvoicePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(FinDataInvoice::getContractNo,finDataInvoicePageParam.getSearchKey())
-                    .or().like(FinDataInvoice::getUnitName,finDataInvoicePageParam.getSearchKey()));
+                    .or().like(FinDataInvoice::getUnitName,finDataInvoicePageParam.getSearchKey())
+                    .or().like(FinDataInvoice::getContent,finDataInvoicePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataInvoicePageParam.getSortField(), finDataInvoicePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataInvoicePageParam.getSortOrder());

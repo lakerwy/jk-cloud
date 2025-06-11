@@ -56,7 +56,8 @@ public class FinDataPdtServiceImpl extends ServiceImpl<FinDataPdtMapper, FinData
             queryWrapper.lambda().between(FinDataPdt::getBfDate, finDataPdtPageParam.getStartBfDate(), finDataPdtPageParam.getEndBfDate());
         }
         if(ObjectUtil.isNotEmpty(finDataPdtPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataPdt::getContractNo,finDataPdtPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataPdt::getContractNo,finDataPdtPageParam.getSearchKey())
+                    .or().like(FinDataPdt::getKkOtherContent,finDataPdtPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataPdtPageParam.getSortField(), finDataPdtPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataPdtPageParam.getSortOrder());

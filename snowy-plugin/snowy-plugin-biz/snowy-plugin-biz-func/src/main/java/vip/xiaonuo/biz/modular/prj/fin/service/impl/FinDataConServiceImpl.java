@@ -56,7 +56,8 @@ public class FinDataConServiceImpl extends ServiceImpl<FinDataConMapper, FinData
             queryWrapper.lambda().between(FinDataCon::getBfDate, finDataConPageParam.getStartBfDate(), finDataConPageParam.getEndBfDate());
         }
         if(ObjectUtil.isNotEmpty(finDataConPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(FinDataCon::getContractNo,finDataConPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(FinDataCon::getContractNo,finDataConPageParam.getSearchKey())
+                    .or().like(FinDataCon::getKkOtherContent,finDataConPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataConPageParam.getSortField(), finDataConPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataConPageParam.getSortOrder());

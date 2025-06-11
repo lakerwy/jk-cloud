@@ -6,6 +6,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -124,7 +125,7 @@ public class GoodsApplyController {
     @ApiOperationSupport(order = 10)
     @ApiOperation("下载物资领用审批单（pdf）")
     @CommonLog("下载物资领用审批单（pdf）")
-    @PostMapping(value = "/sys/hr/goods/download")
+    @PostMapping(value = "/sys/hr/goods/download",produces = MediaType.APPLICATION_PDF_VALUE)
     public void download(@RequestBody @Valid DownLoadParam param , HttpServletResponse response){
         goodsApplyService.download(param, response);
     }

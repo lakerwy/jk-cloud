@@ -71,7 +71,8 @@ public class FinDataManageServiceImpl extends ServiceImpl<FinDataManageMapper, F
         }
         if(ObjectUtil.isNotEmpty(finDataManagePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(FinDataManage::getContractNo,finDataManagePageParam.getSearchKey())
-                    .or().like(FinDataManage::getUnitName,finDataManagePageParam.getSearchKey()));
+                    .or().like(FinDataManage::getUnitName,finDataManagePageParam.getSearchKey())
+                    .or().like(FinDataManage::getFeeType,finDataManagePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(finDataManagePageParam.getSortField(), finDataManagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(finDataManagePageParam.getSortOrder());
