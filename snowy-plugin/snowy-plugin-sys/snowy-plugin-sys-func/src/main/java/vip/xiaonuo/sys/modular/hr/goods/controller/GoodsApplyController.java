@@ -15,13 +15,11 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.goods.entity.GoodsApply;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyAddParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyEditParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyIdParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyPageParam;
+import vip.xiaonuo.sys.modular.hr.goods.param.*;
 import vip.xiaonuo.sys.modular.hr.goods.service.GoodsApplyService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
@@ -116,4 +114,19 @@ public class GoodsApplyController {
     public CommonResult<GoodsApply> detail(@Valid GoodsApplyIdParam goodsApplyIdParam) {
         return CommonResult.data(goodsApplyService.detail(goodsApplyIdParam));
     }
+
+
+
+
+    /**
+     * 下载物资领用审批单（pdf）
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("下载物资领用审批单（pdf）")
+    @CommonLog("下载物资领用审批单（pdf）")
+    @PostMapping(value = "/sys/hr/goods/download")
+    public void download(@RequestBody @Valid DownLoadParam param , HttpServletResponse response){
+        goodsApplyService.download(param, response);
+    }
+
 }

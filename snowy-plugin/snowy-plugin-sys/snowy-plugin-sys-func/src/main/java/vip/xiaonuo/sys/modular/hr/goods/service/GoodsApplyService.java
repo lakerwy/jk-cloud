@@ -3,11 +3,9 @@ package vip.xiaonuo.sys.modular.hr.goods.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.goods.entity.GoodsApply;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyAddParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyEditParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyIdParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyPageParam;
+import vip.xiaonuo.sys.modular.hr.goods.param.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -65,4 +63,6 @@ public interface GoodsApplyService extends IService<GoodsApply> {
      * @date  2025/05/23 14:34
      **/
     GoodsApply queryEntity(String id);
+
+    void download(DownLoadParam param, HttpServletResponse response);
 }

@@ -86,5 +86,22 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-biz-api</artifactId>
         </dependency>
+
+
+
+        <!-- POI-TL for Word 模板填充 -->
+        <dependency>
+            <groupId>com.deepoove</groupId>
+            <artifactId>poi-tl</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <!-- XDocReport for Word 转 PDF -->
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.poi.xwpf.converter.pdf</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
     </dependencies>
 </project>

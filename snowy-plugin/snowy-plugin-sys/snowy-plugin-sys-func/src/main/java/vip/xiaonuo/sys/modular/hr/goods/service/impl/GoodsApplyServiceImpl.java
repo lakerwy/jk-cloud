@@ -1,8 +1,11 @@
 package vip.xiaonuo.sys.modular.hr.goods.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -22,23 +25,23 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.goods.entity.GoodsApply;
 import vip.xiaonuo.sys.modular.hr.goods.entity.GoodsItem;
 import vip.xiaonuo.sys.modular.hr.goods.enums.GoodsTypeEnum;
 import vip.xiaonuo.sys.modular.hr.goods.mapper.GoodsApplyMapper;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyAddParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyEditParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyIdParam;
-import vip.xiaonuo.sys.modular.hr.goods.param.GoodsApplyPageParam;
+import vip.xiaonuo.sys.modular.hr.goods.param.*;
 import vip.xiaonuo.sys.modular.hr.goods.service.GoodsApplyService;
 import vip.xiaonuo.sys.modular.hr.goods.service.GoodsItemService;
+import vip.xiaonuo.sys.modular.hr.goods.util.MyFileUtil;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -285,5 +288,34 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             throw new CommonException("物资领用申请不存在，id值为：{}", id);
         }
         return goodsApply;
+    }
+
+    @Override
+    public void download(DownLoadParam param, HttpServletResponse response) {
+        try {
+            String dateTmpStr = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN);
+            String fileName = StrUtil.join("_",param.getSn(),dateTmpStr+".pdf");
+            Map<String,Object> paramMap = new HashMap<>();
+            paramMap.put("sn",param.getSn());
+            paramMap.put("deptName",param.getDeptName());
+            paramMap.put("optName",param.getOptName());
+            paramMap.put("optTime",DateUtil.format(param.getOptTime(),DatePattern.NORM_DATETIME_PATTERN));
+            paramMap.put("deptLeader",param.getDeptLeader());
+            paramMap.put("xzLeader",param.getXzLeader());
+            String itemStr = "";
+            for (GoodsItemEditParam item : param.getGoodsApplyList()) {
+                itemStr += item.getGoodName() + "（数量：" + item.getGoodNum() + "，单价："+ item.getGoodPrice() + "元，总价：" + item.getGoodTotal() + "元）；";
+            }
+            paramMap.put("itemStr",itemStr);
+            byte[] bytes = MyFileUtil.genPdfFile(paramMap,"goodsTemplate.docx");
+            CommonDownloadUtil.download(fileName, bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载物资领用申请单失败：", e);
+            try {
+                CommonResponseUtil.renderError(response, "下载物资领用申请单失败");
+            } catch (IOException ex) {
+                log.error("异常："+ex.getMessage());
+            }
+        }
     }
 }
