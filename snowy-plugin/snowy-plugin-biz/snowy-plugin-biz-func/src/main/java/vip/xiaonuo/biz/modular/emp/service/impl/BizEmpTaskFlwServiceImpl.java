@@ -302,6 +302,7 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 bizEmpTaskList.forEach(item->{
                     item.setSelfScore(null);
                     item.setScore(null);
+                    item.setComplete("");
                 });
                 bizEmpTaskService.updateBatchById(bizEmpTaskList);
             }

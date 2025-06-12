@@ -74,10 +74,12 @@ public class BizEmpTask {
 
     /** 自评分 */
     @ApiModelProperty(value = "自评分", position = 11)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double selfScore;
 
     /** 评分 */
     @ApiModelProperty(value = "评分", position = 12)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double score;
 
     /** 备注 */
