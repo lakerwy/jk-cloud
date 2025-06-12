@@ -300,6 +300,8 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             paramMap.put("deptName",param.getDeptName());
             paramMap.put("optName",param.getOptName());
             paramMap.put("optTime",DateUtil.format(param.getOptTime(),DatePattern.NORM_DATETIME_PATTERN));
+            // 取实际审批人签字
+            dealSign(param);
             paramMap.put("deptLeader",param.getDeptLeader());
             paramMap.put("xzLeader",param.getXzLeader());
             String itemStr = "";
@@ -316,6 +318,37 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             } catch (IOException ex) {
                 log.error("异常："+ex.getMessage());
             }
+        }
+    }
+
+    private void dealSign(DownLoadParam param) {
+        List<FlwComment> commentList = param.getCommentList();
+        if(CollUtil.isEmpty(commentList)) {
+            return;
+        }
+        // 仅保留发起节点、审批同意节点、自动通过节点的评论
+        commentList = commentList.stream().filter(x -> "PASS".equals(x.getOperateType())
+                        || "START".equals(x.getOperateType()) || "AUTO_COMPLETE".equals(x.getOperateType()))
+                .collect(Collectors.toList());
+        if(CollUtil.isEmpty(commentList)){
+            return;
+        }
+        // 将评论转为节点名称->审核人名称的映射（多个审批人用逗号分隔）
+        Map<String, List<FlwComment>> commentMap = commentList.stream().collect(Collectors.groupingBy(FlwComment::getTaskName));
+        Map<String, String> map = commentMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(FlwComment::getUserName)
+                                .filter(Objects::nonNull)
+                                .distinct()
+                                .collect(Collectors.joining(","))
+                ));
+        if(ObjectUtil.isNotEmpty(map.get("部门负责人"))){
+            param.setDeptLeader(map.get("部门负责人"));
+        }
+        if(ObjectUtil.isNotEmpty(map.get("行政经理"))){
+            param.setXzLeader(map.get("行政经理"));
         }
     }
 }

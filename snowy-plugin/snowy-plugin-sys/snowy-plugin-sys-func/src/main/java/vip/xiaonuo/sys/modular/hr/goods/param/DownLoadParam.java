@@ -50,4 +50,8 @@ public class DownLoadParam {
     @ApiModelProperty(value = "物资清单", position = 100)
     private List<GoodsItemEditParam> goodsApplyList;
 
+    /** 审批意见 - 集合 */
+    @ApiModelProperty(value = "审批意见 - 集合", position = 200)
+    private List<FlwComment> commentList;
+
 }
