@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -15,6 +16,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.AreaBreakType;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -40,7 +51,10 @@ import vip.xiaonuo.sys.modular.hr.goods.util.MyFileUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -310,7 +324,19 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             }
             paramMap.put("itemStr",itemStr);
             byte[] bytes = MyFileUtil.genPdfFile(paramMap,"goodsTemplate.docx");
-            CommonDownloadUtil.download(fileName, bytes, response);
+
+//            //参数转换
+//            List<Map<String, String>> mapList = param.getCommentList().stream()
+//                    .map(comment -> {
+//                        Map<String, String> map = new HashMap<>();
+//                        BeanUtils.copyProperties(comment,map); // 注意参数顺序
+//                        return map;
+//                    })
+//                    .collect(Collectors.toList());
+
+            byte[] newBytes = addTableToPdf(bytes,param.getCommentList());
+            //下载
+            CommonDownloadUtil.download(fileName, newBytes, response);
         } catch (Exception e) {
             log.error(">>> 下载物资领用申请单失败：", e);
             try {
@@ -320,6 +346,11 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             }
         }
     }
+
+
+
+
+
 
     private void dealSign(DownLoadParam param) {
         List<FlwComment> commentList = param.getCommentList();
@@ -349,6 +380,66 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
         }
         if(ObjectUtil.isNotEmpty(map.get("行政经理"))){
             param.setXzLeader(map.get("行政经理"));
+        }
+    }
+
+
+    /**
+     * pdf 添加 table
+     * @param pdfBytes
+     * @param commentList
+     * @return
+     */
+    public byte[] addTableToPdf(byte[] pdfBytes, List<FlwComment> commentList){
+        if(CollUtil.isEmpty(commentList)) return pdfBytes;
+        try {
+            ByteArrayOutputStream newPdfOutputStream = new ByteArrayOutputStream();
+
+            // 1. 打开已有 PDF
+            com.itextpdf.kernel.pdf.PdfReader reader = new com.itextpdf.kernel.pdf.PdfReader(new ByteArrayInputStream(pdfBytes));
+            PdfWriter writer = new PdfWriter(newPdfOutputStream);
+            PdfDocument pdfDoc = new PdfDocument(reader, writer);
+            Document document = new Document(pdfDoc);
+
+            // 2. 添加表格（7列）
+            Table table = new Table(UnitValue.createPercentArray(7)).setWidth(520);
+
+            InputStream fontStream = POICacheManager.getFile("SIMSUN.ttf");
+            PdfFont font = PdfFontFactory.createFont(IoUtil.readBytes(fontStream), PdfEncodings.IDENTITY_H);
+            table.setFont(font);
+            table.setTextAlignment(TextAlignment.CENTER);
+
+            // 表头
+            table.addHeaderCell("节点名称");
+            table.addHeaderCell("操作人");
+            table.addHeaderCell("操作类型");
+            table.addHeaderCell("意见");
+            table.addHeaderCell("耗时");
+            table.addHeaderCell("附件");
+            table.addHeaderCell("操作时间");
+
+            // 添加数据行
+            for (FlwComment row : commentList) {
+                table.addCell(row.getTaskName());
+                table.addCell(row.getUserName());
+                table.addCell(row.getOperateText());
+                table.addCell(row.getComment());
+                table.addCell(row.getApproveExpendHours());
+                table.addCell("无");
+                table.addCell(row.getApproveTime());
+            }
+
+            // 3. 插入到文档末尾
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+            document.add(table);
+
+            // 4. 关闭资源
+            document.close();
+
+            return newPdfOutputStream.toByteArray();
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return pdfBytes;
         }
     }
 }
