@@ -420,13 +420,13 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
 
             // 添加数据行
             for (FlwComment row : commentList) {
-                table.addCell(row.getTaskName());
-                table.addCell(row.getUserName());
-                table.addCell(row.getOperateText());
-                table.addCell(row.getComment());
-                table.addCell(row.getApproveExpendHours());
+                table.addCell(ObjectUtil.isNotEmpty(row.getTaskName()) ? row.getTaskName() : "");
+                table.addCell(ObjectUtil.isNotEmpty(row.getUserName()) ? row.getUserName() : "");
+                table.addCell(ObjectUtil.isNotEmpty(row.getOperateText()) ? row.getOperateText() : "");
+                table.addCell(ObjectUtil.isNotEmpty(row.getComment()) ? row.getComment() : "");
+                table.addCell(ObjectUtil.isNotEmpty(row.getApproveExpendHours()) ? row.getApproveExpendHours() : "");
                 table.addCell("无");
-                table.addCell(row.getApproveTime());
+                table.addCell(ObjectUtil.isNotEmpty(row.getApproveTime()) ? row.getApproveTime() : "");
             }
 
             // 3. 插入到文档末尾
