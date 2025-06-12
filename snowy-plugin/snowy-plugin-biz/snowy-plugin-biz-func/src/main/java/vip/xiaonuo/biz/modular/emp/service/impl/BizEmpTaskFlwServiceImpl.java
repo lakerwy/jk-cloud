@@ -15,9 +15,11 @@ package vip.xiaonuo.biz.modular.emp.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -294,6 +296,15 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 throw new CommonException("参数缺失");
             }
             bizEmpPerformanceService.removeById(param.getEpId());
+            //处理自评，评分
+            List<BizEmpTask> bizEmpTaskList = bizEmpTaskService.list(new LambdaQueryWrapper<BizEmpTask>().eq(BizEmpTask::getFlwId,param.getId()));
+            if(CollUtil.isNotEmpty(bizEmpTaskList)){
+                bizEmpTaskList.forEach(item->{
+                    item.setSelfScore(null);
+                    item.setScore(null);
+                });
+                bizEmpTaskService.updateBatchById(bizEmpTaskList);
+            }
         }else{
             throw new CommonException("参数异常");
         }
