@@ -100,7 +100,7 @@
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.poi.xwpf.converter.pdf</artifactId>
-            <version>2.0.2</version>
+            <version>2.0.3</version>
         </dependency>
 
         <!-- iText 7 Core -->
@@ -117,11 +117,25 @@
             <version>7.2.5</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
             <version>5.5.13.4</version>
+        </dependency>
+
+        <!-- iText5 for PDF conversion -->
+        <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+            <version>2.1.7</version>
+        </dependency>
+
+
+        <!-- word工具 -->
+        <dependency>
+            <groupId>com.luhuiguo</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>23.1</version>
         </dependency>
 
     </dependencies>

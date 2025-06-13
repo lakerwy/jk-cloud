@@ -16,6 +16,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.deepoove.poi.data.RowRenderData;
+import com.deepoove.poi.data.Rows;
+import com.deepoove.poi.data.Tables;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -57,6 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 /**
  * 物资领用申请Service接口实现类
@@ -323,20 +327,14 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
                 itemStr += item.getGoodName() + "（数量：" + item.getGoodNum() + "，单价："+ item.getGoodPrice() + "元，总价：" + item.getGoodTotal() + "元）；";
             }
             paramMap.put("itemStr",itemStr);
-            byte[] bytes = MyFileUtil.genPdfFile(paramMap,"goodsTemplate.docx");
 
-//            //参数转换
-//            List<Map<String, String>> mapList = param.getCommentList().stream()
-//                    .map(comment -> {
-//                        Map<String, String> map = new HashMap<>();
-//                        BeanUtils.copyProperties(comment,map); // 注意参数顺序
-//                        return map;
-//                    })
-//                    .collect(Collectors.toList());
+            addParamMap(param.getCommentList(),paramMap);
 
-            byte[] newBytes = addTableToPdf(bytes,param.getCommentList());
+            byte[] bytes = MyFileUtil.genPdfFile2(paramMap,"goodsTemplate1.docx");
+
+//            byte[] newBytes = addTableToPdf(bytes,param.getCommentList());
             //下载
-            CommonDownloadUtil.download(fileName, newBytes, response);
+            CommonDownloadUtil.download(fileName, bytes, response);
         } catch (Exception e) {
             log.error(">>> 下载物资领用申请单失败：", e);
             try {
@@ -382,6 +380,32 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyMapper, GoodsAp
             param.setXzLeader(map.get("行政经理"));
         }
     }
+
+
+    /**
+     * 添加表格
+     * @param commentList
+     * @param paramMap
+     */
+    public void addParamMap(List<FlwComment> commentList,Map<String,Object> paramMap){
+        if(CollUtil.isEmpty(commentList)) return;
+        //2  表头居中且设置背景色的表格
+        RowRenderData row0 =  Rows.of("节点名称", "操作人","操作类型","意见", "耗时","操作时间").center().create();
+        List<RowRenderData> rowRenderDataList = new ArrayList<>();
+        rowRenderDataList.add(row0);
+        commentList.forEach(row->{
+            String taskName = ObjectUtil.isNotEmpty(row.getTaskName()) ? row.getTaskName() : "";
+            String userName = ObjectUtil.isNotEmpty(row.getUserName()) ? row.getUserName() : "";
+            String operate = ObjectUtil.isNotEmpty(row.getOperateText()) ? row.getOperateText() : "";
+            String comment = ObjectUtil.isNotEmpty(row.getComment()) ? row.getComment() : "";
+            String expend = ObjectUtil.isNotEmpty(row.getApproveExpendHours()) ? row.getApproveExpendHours() : "";
+            String approve = ObjectUtil.isNotEmpty(row.getApproveTime()) ? row.getApproveTime() : "";
+            RowRenderData rowData = Rows.create(taskName,userName,operate,comment,expend,approve);
+            rowRenderDataList.add(rowData);
+        });
+        paramMap.put("table1", Tables.create(rowRenderDataList.toArray(new RowRenderData[0])));
+    }
+
 
 
     /**
