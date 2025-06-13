@@ -148,8 +148,8 @@ public class BizFormFeeEditParam {
     private List<BizFormFeeItemEditParam> itemList;
 
     /** 成本一览表 - 集合 */
-    @ApiModelProperty(value = "成本一览表 - 集合", position = 67)
-    private List<BizFormFeeCostEditParam> costList;
+//    @ApiModelProperty(value = "成本一览表 - 集合", position = 67)
+//    private List<BizFormFeeCostEditParam> costList;
 
 
 

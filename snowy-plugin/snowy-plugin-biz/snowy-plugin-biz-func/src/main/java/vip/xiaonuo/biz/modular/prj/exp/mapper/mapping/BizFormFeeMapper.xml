@@ -17,9 +17,14 @@
         from
         (
              (select b.COMPANY, a.DEPT_NAME, a.EXP_ITEM, a.SECOND_EXP_ITEM, (a.VERIFY_AMOUNT - a.TAX_AMOUNT) as amount
-             from BIZ_FORM_FEE_COST a
+             from BIZ_FORM_FEE_ITEM a
                       join BIZ_FORM_FEE b on a.FORM_FEE_ID = b.ID
                  ${ew.customSqlSegment})
+         union all
+             (select b.COMPANY, a.DEPT_NAME, a.EXP_ITEM, a.SECOND_EXP_ITEM, (a.VERIFY_AMOUNT - a.TAX_AMOUNT) as amount
+              from BIZ_FORM_FEE_COST a
+                       join BIZ_FORM_FEE b on a.FORM_FEE_ID = b.ID
+                  ${ew.customSqlSegment})
          union all
              (select b.COMPANY, a.DEPT_NAME, a.EXP_ITEM, a.SECOND_EXP_ITEM, (a.VERIFY_AMOUNT - a.TAX_AMOUNT) as amount
              from BIZ_FORM_TRAVEL_COST a

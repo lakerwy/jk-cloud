@@ -139,6 +139,9 @@ public class FeeExcelData {
     @ApiModelProperty(value = "冲账类型", position = 45)
     private String offsetType;
 
+    /** 进项税合计 */
+    @ApiModelProperty(value = "进项税合计", position = 46)
+    private BigDecimal taxAmountTotal;
 
     /** 报销明细 - 集合 */
     @ApiModelProperty(value = "报销明细 - 集合", position = 66)

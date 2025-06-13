@@ -312,12 +312,16 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                         excelData.getItemList().forEach(item->{
                             if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
                         });
+                        // 进税项合计
+                        BigDecimal taxAmountTotal = excelData.getItemList().stream().map(BizFormFeeItemEditParam::getTaxAmount)
+                                .filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                        excelData.setTaxAmountTotal(taxAmountTotal);
                     }
-                    if(CollUtil.isNotEmpty(excelData.getCostList())){
-                        excelData.getCostList().forEach(item->{
-                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
-                        });
-                    }
+//                    if(CollUtil.isNotEmpty(excelData.getCostList())){
+//                        excelData.getCostList().forEach(item->{
+//                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+//                        });
+//                    }
                 }
                 // 使用 EasyExcel 填充数据
                 excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
@@ -337,23 +341,23 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 int lastRow_commentList = firstRow_commentList + commentList_Size ;
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
                 mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 10));
+                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
 
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
                 excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
 
-                List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
-                int firstRow_cost = 3; //第4行
-                int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
-                int lastRow_cost = firstRow_cost + costList_Size ;
-                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
-                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
-
-                WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList2)).build();
-                excelWriter.fill(excelData, sheet2);
-                excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
+//                List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
+//                int firstRow_cost = 3; //第4行
+//                int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
+//                int lastRow_cost = firstRow_cost + costList_Size ;
+//                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
+//                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
+//
+//                WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList2)).build();
+//                excelWriter.fill(excelData, sheet2);
+//                excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
                 excelWriter.finish();
 
             } else if ("TRAVEL".equals(excelParam.getExcelType())) {

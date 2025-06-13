@@ -55,4 +55,24 @@ public class BizFormFeeItemEditParam {
     @ApiModelProperty(value = "备注", position = 9)
     private String memo;
 
+    /** 合同id */
+    @ApiModelProperty(value = "合同id", position = 20)
+    private String htId;
+
+    /** 合同名称 */
+    @ApiModelProperty(value = "合同名称", position = 21)
+    private String htName;
+
+    /** 合同SN */
+    @ApiModelProperty(value = "合同SN（项目合同编号）", position = 22)
+    private String htSn;
+
+    /** 进项税 */
+    @ApiModelProperty(value = "进项税", position = 23)
+    private BigDecimal taxAmount;
+
+    /** 费用承担部门 */
+    @ApiModelProperty(value = "费用承担部门", position = 24)
+    private String deptName;
+
 }
