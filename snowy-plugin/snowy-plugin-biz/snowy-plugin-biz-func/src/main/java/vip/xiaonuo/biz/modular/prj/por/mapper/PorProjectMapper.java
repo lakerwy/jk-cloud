@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
-import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
+import vip.xiaonuo.biz.modular.prj.por.vo.HtData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorProjectVo;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface PorProjectMapper extends BaseMapper<PorProject> {
      * @param bizProjectId
      * @return
      */
-    List<HetongDetailVo> getHtListByPrjId(String bizProjectId);
+    List<HtData> getHtListByPrjId(String bizProjectId);
 
     /**
      * 根据立项id,获取项目回款记录

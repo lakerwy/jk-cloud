@@ -169,7 +169,7 @@ public class PorProjectController {
     @ApiOperationSupport(order = 23)
     @ApiOperation("根据项目id,获取收入合同")
     @GetMapping("/biz/prj/por/getHtListByPrjId")
-    public CommonResult<List<HetongDetailVo>> getHtListByPrjId(@Valid PorProjectParam param) {
+    public CommonResult<List<HtData>> getHtListByPrjId(@Valid PorProjectParam param) {
         return CommonResult.data(porProjectService.getHtListByPrjId(param));
     }
 

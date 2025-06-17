@@ -16,7 +16,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.parameters.entity.BizCrmRecPlan;
 import vip.xiaonuo.biz.modular.crm.parameters.service.BizCrmRecPlanService;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
@@ -200,7 +199,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     }
 
     @Override
-    public List<HetongDetailVo> getHtListByPrjId(PorProjectParam param) {
+    public List<HtData> getHtListByPrjId(PorProjectParam param) {
         PorProject porProject = this.queryEntity(param.getPorProjectId());
         return porProjectMapper.getHtListByPrjId(porProject.getProjectId());
     }
@@ -209,8 +208,8 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     public List<RecData> getRecListByPrjId(PorProjectParam param) {
         List<RecData> result = new ArrayList<>();
         PorProject porProject = this.queryEntity(param.getPorProjectId());
-        List<HetongDetailVo> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
-        for (HetongDetailVo ht : htList) {
+        List<HtData> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
+        for (HtData ht : htList) {
             RecData porRecData = new RecData();
             porRecData.setHtId(ht.getId());
             porRecData.setHtProjectName(ht.getProjectName());
@@ -271,7 +270,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     public List<PisData> getPisListByPrjId(PorProjectParam param) {
         List<PisData> result = new ArrayList<>();
         PorProject porProject = this.queryEntity(param.getPorProjectId());
-        List<HetongDetailVo> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
+        List<HtData> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
         if(CollUtil.isEmpty(htList)) return result;
         List<String> htIds = htList.stream().map(x->x.getId()).collect(Collectors.toList());
 

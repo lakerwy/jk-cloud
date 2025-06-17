@@ -27,7 +27,7 @@
     </select>
 
 
-    <select id="getHtListByPrjId" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" parameterType="String">
+    <select id="getHtListByPrjId" resultType="vip.xiaonuo.biz.modular.prj.por.vo.HtData" parameterType="String">
         select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
                b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
                b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,

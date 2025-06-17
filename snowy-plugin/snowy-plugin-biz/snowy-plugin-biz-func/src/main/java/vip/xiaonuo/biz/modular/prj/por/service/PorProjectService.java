@@ -2,7 +2,6 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
@@ -70,7 +69,7 @@ public interface PorProjectService extends IService<PorProject> {
 
     Page<PorProjectVo> pageList(PorProjectPageParam porProjectPageParam);
 
-    List<HetongDetailVo> getHtListByPrjId(PorProjectParam param);
+    List<HtData> getHtListByPrjId(PorProjectParam param);
 
     List<RecData> getRecListByPrjId(PorProjectParam param);
 
