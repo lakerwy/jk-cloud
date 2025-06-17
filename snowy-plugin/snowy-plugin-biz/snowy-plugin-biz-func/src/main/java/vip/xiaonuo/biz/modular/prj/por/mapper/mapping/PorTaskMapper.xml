@@ -21,7 +21,19 @@
         from BIZ_POR_TASK a
                  left join BIZ_POR_PROJECT b on a.POR_PROJECT_ID = b.ID
                  left join BIZ_PROJECT c on b.PROJECT_ID = c.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
+    </select>
+
+
+    <select id="getList" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorTaskVo" >
+        select a.*,
+               c.TYPE as bizPrjType,
+               c.NAME as bizPrjName,
+               c.SN as bizPrjSn
+        from BIZ_POR_TASK a
+                 left join BIZ_POR_PROJECT b on a.POR_PROJECT_ID = b.ID
+                 left join BIZ_PROJECT c on b.PROJECT_ID = c.ID
+        where a.POR_PROJECT_ID = #{prjId} and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 
 </mapper>

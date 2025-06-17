@@ -5,7 +5,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -99,10 +98,5 @@ public class PorMemberServiceImpl extends ServiceImpl<PorMemberMapper, PorMember
             throw new CommonException("项目产值台账 - 项目管理 - 项目成员管理不存在，id值为：{}", id);
         }
         return porMember;
-    }
-
-    @Override
-    public List<PorMember> getListById(PorPrjParam param) {
-        return this.list(new LambdaQueryWrapper<PorMember>().eq(PorMember::getPorProjectId,param.getPorProjectId()));
     }
 }

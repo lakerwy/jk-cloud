@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.prj.por.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -11,20 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorSign;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorSignService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 项目产值台账 - 项目管理 - 签字审图费管理控制器
@@ -116,5 +113,18 @@ public class PorSignController {
     @GetMapping("/biz/prj/por/sign/detail")
     public CommonResult<PorSignVo> detail(@Valid PorSignIdParam porSignIdParam) {
         return CommonResult.data(porSignService.detail(porSignIdParam));
+    }
+
+
+
+
+    /**
+     * 根据合同id,获取签字审图费用收取明细
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("根据合同id,获取签字审图费用收取明细")
+    @GetMapping("/biz/prj/por/sign/getListByHtId")
+    public CommonResult<List<PisData>> getListByHtId(@Valid ContractParam param) {
+        return CommonResult.data(porSignService.getListByHtId(param));
     }
 }

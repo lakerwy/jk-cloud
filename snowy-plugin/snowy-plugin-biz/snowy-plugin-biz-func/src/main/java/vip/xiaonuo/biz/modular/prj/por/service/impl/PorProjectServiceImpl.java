@@ -4,29 +4,39 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.BizCrmRecPlan;
+import vip.xiaonuo.biz.modular.crm.parameters.service.BizCrmRecPlanService;
+import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
-import vip.xiaonuo.biz.modular.prj.por.vo.PorProjectVo;
+import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
+import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
+import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
+import vip.xiaonuo.biz.modular.prj.por.entity.*;
+import vip.xiaonuo.biz.modular.prj.por.mapper.*;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.service.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
-import vip.xiaonuo.biz.modular.prj.por.mapper.PorProjectMapper;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectPageParam;
-import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,10 +51,46 @@ import java.util.stream.Collectors;
 public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProject> implements PorProjectService {
 
     @Resource
-    private PorProjectMapper porProjectMapper;
+    private PorReportService porReportService;
+
+    @Resource
+    private PorTaskService porTaskService;
+
+    @Resource
+    private PorMemberService porMemberService;
+
+    @Resource
+    private PorWarnService porWarnService;
+
+    @Resource
+    private PisAllotmentService pisAllotmentService;
+
+    @Resource
+    private SubcontractService subcontractService;
 
     @Resource
     private BizOrgService bizOrgService;
+
+    @Resource
+    private BizCrmRecPlanService bizCrmRecPlanService;
+
+    @Resource
+    private PorProjectMapper porProjectMapper;
+
+    @Resource
+    private PorOwnerSettleMapper porOwnerSettleMapper;
+
+    @Resource
+    private PorSubSettleMapper porSubSettleMapper;
+
+    @Resource
+    private PorRpmMapper porRpmMapper;
+
+    @Resource
+    private PorSignMapper porSignMapper;
+
+    @Resource
+    private PorSiteFeeMapper porSiteFeeMapper;
 
     @Override
     public Page<PorProjectVo> page(PorProjectPageParam porProjectPageParam) {
@@ -151,5 +197,176 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             queryWrapper.orderByDesc("a.CREATE_TIME");
         }
         return porProjectMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public List<HetongDetailVo> getHtListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porProjectMapper.getHtListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<RecData> getRecListByPrjId(PorProjectParam param) {
+        List<RecData> result = new ArrayList<>();
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        List<HetongDetailVo> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
+        for (HetongDetailVo ht : htList) {
+            RecData porRecData = new RecData();
+            porRecData.setHtId(ht.getId());
+            porRecData.setHtProjectName(ht.getProjectName());
+            porRecData.setHtContractNo(ht.getContractNo());
+            porRecData.setProcessInstanceId(ht.getProcessInstanceId());
+            porRecData.setStatus(ht.getStatus());
+            LambdaQueryWrapper<BizCrmRecPlan> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(BizCrmRecPlan::getHetongId,ht.getId());
+            List<BizCrmRecPlan> recPlanList = bizCrmRecPlanService.list(queryWrapper);
+            porRecData.setPlanList(recPlanList);
+            result.add(porRecData);
+        }
+        return result;
+    }
+
+    @Override
+    public List<PorOwnerSettleVo> getOwnerListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porOwnerSettleMapper.getOwnerSettleListById(porProject.getProjectId());
+    }
+
+    @Override
+    public List<FinDataPpc> getPpcListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porProjectMapper.getPpcListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<Subcontract> getSubListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porProjectMapper.getSubListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorReport> getReportListByPrjId(PorProjectParam param) {
+        LambdaQueryWrapper<PorReport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorReport::getPorProjectId,param.getPorProjectId());
+        if(ObjectUtil.isNotEmpty(param.getReportType())){
+            queryWrapper.eq(PorReport::getReportType,param.getReportType());
+        }
+        return porReportService.list(queryWrapper);
+    }
+
+    @Override
+    public List<PorTask> getTaskListByPrjId(PorProjectParam param) {
+        LambdaQueryWrapper<PorTask> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorTask::getPorProjectId,param.getPorProjectId());
+        return porTaskService.list(queryWrapper);
+    }
+
+    @Override
+    public List<PorSubSettleVo> getSubSettleListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porSubSettleMapper.getSubSettleListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PisData> getPisListByPrjId(PorProjectParam param) {
+        List<PisData> result = new ArrayList<>();
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        List<HetongDetailVo> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
+        if(CollUtil.isEmpty(htList)) return result;
+        List<String> htIds = htList.stream().map(x->x.getId()).collect(Collectors.toList());
+
+        LambdaQueryWrapper<PisAllotment> pisAllotmentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        pisAllotmentLambdaQueryWrapper.in(PisAllotment::getHtId,htIds);
+        List<PisAllotment> pisAllotmentList = pisAllotmentService.list(pisAllotmentLambdaQueryWrapper);
+        if(CollUtil.isEmpty(pisAllotmentList)) return result;
+
+        LambdaQueryWrapper<Subcontract> subcontractLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        subcontractLambdaQueryWrapper.in(Subcontract::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        subcontractLambdaQueryWrapper.in(Subcontract::getHetongId,htIds);
+        List<Subcontract> subcontractList = subcontractService.list(subcontractLambdaQueryWrapper);
+
+        return getPisData(result, pisAllotmentList, subcontractList);
+    }
+
+
+    /**
+     * 构造结果
+     * @param result
+     * @param pisAllotmentList
+     * @param subcontractList
+     * @return
+     */
+    @Override
+    public List<PisData> getPisData(List<PisData> result, List<PisAllotment> pisAllotmentList, List<Subcontract> subcontractList) {
+        //构建结果
+        for (PisAllotment pis : pisAllotmentList) {
+            List<PisData> hJsonList = JSONUtil.toList(pis.getHJson(), PisData.class);
+            for (PisData hJson : hJsonList) {
+                PisData tmpObj = BeanUtil.copyProperties(hJson, PisData.class);
+                Subcontract tmpSubcontract = subcontractList.stream().filter(x -> x.getContractNo().equals(hJson.getSubcontractNumber())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(tmpSubcontract)){
+                    tmpObj.setSn(pis.getSn());
+                    tmpObj.setProcessInstanceId(pis.getProcessInstanceId());
+                    tmpObj.setStatus(pis.getStatus());
+                    tmpObj.setHtId(pis.getHtId());
+                    tmpObj.setHtProjectName(pis.getHtProjectName());
+                    tmpObj.setHtContractNo(pis.getHtContractNo());
+                    tmpObj.setSubId(tmpSubcontract.getId());
+                    tmpObj.setSubProjectName(tmpSubcontract.getProjectName());
+                    tmpObj.setSubContractNo(tmpSubcontract.getContractNo());
+                    tmpObj.setSubContractAmount(tmpSubcontract.getContractAmount());
+                    result.add(tmpObj);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<PorRpmVo> getRpmListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porRpmMapper.getRpmListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorSignVo> getSignListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porSignMapper.getSignListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorSiteFeeVo> getSiteListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porSiteFeeMapper.getSiteListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorMember> getMemberListByPrjId(PorPrjParam param) {
+        LambdaQueryWrapper<PorMember> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorMember::getPorProjectId,param.getPorProjectId());
+        return porMemberService.list(queryWrapper);
+    }
+
+    @Override
+    public List<PorWarn> getWarnListByPrjId(PorPrjParam param) {
+        LambdaQueryWrapper<PorWarn> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorWarn::getPorProjectId,param.getPorProjectId());
+        return porWarnService.list(queryWrapper);
+    }
+
+    @Override
+    public void updateRec(RecParam param) {
+        BizCrmRecPlan bizCrmRecPlan = bizCrmRecPlanService.getById(param.getId());
+        bizCrmRecPlan.setRecStatus(param.getRecStatus());
+        bizCrmRecPlanService.updateById(bizCrmRecPlan);
+    }
+
+    @Override
+    public void updatePorWarn(RecParam param) {
+        PorWarn porWarn = porWarnService.getById(param.getId());
+        porWarn.setDealStatus(porWarn.getDealStatus());
+        porWarn.setDealTime(DateTime.now());
+        porWarnService.updateById(porWarn);
     }
 }

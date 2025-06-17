@@ -120,4 +120,9 @@ public class PorTask {
     @ApiModelProperty(value = "数据权限控制字段", position = 21)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态", position = 22)
+    private String taskStatus;
 }

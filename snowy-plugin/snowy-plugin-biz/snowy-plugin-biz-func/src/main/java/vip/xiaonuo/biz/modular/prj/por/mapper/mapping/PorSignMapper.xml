@@ -33,7 +33,28 @@
         from BIZ_POR_SIGN a
                  left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
                  left join BIZ_PROJECT c on b.BIZ_PROJECT_ID = c.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
+    </select>
+
+
+    <select id="getSignListByPrjId" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo" parameterType="String">
+        select a.*,
+               b.PROJECT_NAME as contractName,
+               b.CONTRACT_NO as contractNo,
+               b.CONTRACT_TYPE as contractType,
+               b.CONTRACT_AMOUNT as contractAmount,
+               b.SUM_AMOUNT as contractSumAmount,
+               b.SECOND_LEVEL as contractSecondLevel,
+               c.TYPE as bizPrjType,
+               c.LOCATION as bizPrjLocation,
+               c.HEAD as bizPrjHead
+        from BIZ_POR_SIGN a
+             join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
+             left join BIZ_PROJECT c on b.BIZ_PROJECT_ID = c.ID
+        where b.BIZ_PROJECT_ID = #{bizProjectId}
+          and b.DELETE_FLAG = 'NOT_DELETE'
+          and b.STATUS in ('0','1')
+          and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 
 </mapper>

@@ -33,7 +33,7 @@
         from BIZ_POR_OEM a
                 left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID
                 left join BIZ_PROJECT c on b.BIZ_PROJECT_ID = c.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
     </select>
 
 

@@ -10,16 +10,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorTaskVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorTask;
 import vip.xiaonuo.biz.modular.prj.por.mapper.PorTaskMapper;
-import vip.xiaonuo.biz.modular.prj.por.param.PorTaskAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorTaskEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorTaskIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorTaskPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorTaskService;
 
 import javax.annotation.Resource;

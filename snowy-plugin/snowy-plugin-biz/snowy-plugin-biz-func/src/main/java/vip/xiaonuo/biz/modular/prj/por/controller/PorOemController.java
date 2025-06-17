@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.prj.por.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -21,6 +21,7 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorOemService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 项目产值台账 - 项目管理 - 经营费管理控制器
@@ -122,7 +123,7 @@ public class PorOemController {
     @ApiOperationSupport(order = 21)
     @ApiOperation("根据合同id,获取经营费拨付明细")
     @GetMapping("/biz/prj/por/oem/getListByHtId")
-    public CommonResult<Object> getListByHtId(@Valid ContractParam param) {
+    public CommonResult<List<PisData>> getListByHtId(@Valid ContractParam param) {
         return CommonResult.data(porOemService.getListByHtId(param));
     }
 }

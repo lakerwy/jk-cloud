@@ -29,7 +29,7 @@
         from BIZ_POR_REPORT a
                  left join BIZ_POR_PROJECT b on a.POR_PROJECT_ID = b.ID
                  left join BIZ_PROJECT c on b.PROJECT_ID = c.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
     </select>
 
 

@@ -295,4 +295,8 @@ public class HetongDetailVo {
     /** 立项 - 经营部门 */
     @ApiModelProperty(value = "立项 - 经营部门", position = 200)
     private String manageDept;
+
+    /** 合同类型 */
+    @ApiModelProperty(value = "合同类型", position = 80)
+    private String contractType;
 }

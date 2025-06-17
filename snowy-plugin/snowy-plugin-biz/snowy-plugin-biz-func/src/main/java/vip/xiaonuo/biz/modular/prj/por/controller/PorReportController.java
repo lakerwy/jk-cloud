@@ -11,15 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorReportVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorReport;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorReportService;
 
 import javax.annotation.Resource;

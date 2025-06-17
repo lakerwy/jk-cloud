@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOwnerSettle;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOwnerSettleVo;
 
+import java.util.List;
+
 /**
  * 项目产值台账 - 项目管理 - 项目业主结算记录Mapper接口
  *
@@ -20,4 +22,11 @@ public interface PorOwnerSettleMapper extends BaseMapper<PorOwnerSettle> {
 
     PorOwnerSettleVo getDetail(String id);
 
+
+    /**
+     * 根据立项id，获取项目结算
+     * @param bizProjectId
+     * @return
+     */
+    List<PorOwnerSettleVo> getOwnerSettleListById(String bizProjectId);
 }

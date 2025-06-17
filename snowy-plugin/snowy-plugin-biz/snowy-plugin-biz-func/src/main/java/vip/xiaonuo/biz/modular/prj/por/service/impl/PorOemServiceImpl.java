@@ -2,17 +2,27 @@ package vip.xiaonuo.biz.modular.prj.por.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
+import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
+import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
+import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
@@ -20,6 +30,7 @@ import vip.xiaonuo.biz.modular.prj.por.mapper.PorOemMapper;
 import vip.xiaonuo.biz.modular.prj.por.service.PorOemService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +45,15 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
 
     @Resource
     private PorOemMapper porOemMapper;
+
+    @Resource
+    private SubcontractService subcontractService;
+
+    @Resource
+    private PisAllotmentService pisAllotmentService;
+
+    @Resource
+    private PorProjectService porProjectService;
 
     @Override
     public Page<PorOemVo> page(PorOemPageParam porOemPageParam) {
@@ -93,7 +113,22 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
     }
 
     @Override
-    public Object getListByHtId(ContractParam param) {
-        return null;
+    public List<PisData> getListByHtId(ContractParam param) {
+        List<PisData> result = new ArrayList<>();
+
+        LambdaQueryWrapper<PisAllotment> pisAllotmentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        pisAllotmentLambdaQueryWrapper.eq(PisAllotment::getHtId,param.getHetongId());
+        List<PisAllotment> pisAllotmentList = pisAllotmentService.list(pisAllotmentLambdaQueryWrapper);
+        if(CollUtil.isEmpty(pisAllotmentList)) return result;
+
+        LambdaQueryWrapper<Subcontract> subcontractLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        subcontractLambdaQueryWrapper.in(Subcontract::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        subcontractLambdaQueryWrapper.eq(Subcontract::getHetongId,param.getHetongId());
+        subcontractLambdaQueryWrapper.eq(Subcontract::getExpenseNature,"经营费");
+        List<Subcontract> subcontractList = subcontractService.list(subcontractLambdaQueryWrapper);
+        if(CollUtil.isEmpty(subcontractList)) return result;
+
+        return porProjectService.getPisData(result,pisAllotmentList,subcontractList);
     }
 }

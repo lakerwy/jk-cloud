@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorTask;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorTaskVo;
 
+import java.util.List;
+
 /**
  * 项目产值台账 - 项目管理 - 项目计划管理Mapper接口
  *
@@ -20,4 +22,6 @@ public interface PorTaskMapper extends BaseMapper<PorTask> {
 
     PorTaskVo getDetail(String id);
 
+
+    List<PorTaskVo> getList(String prjId);
 }

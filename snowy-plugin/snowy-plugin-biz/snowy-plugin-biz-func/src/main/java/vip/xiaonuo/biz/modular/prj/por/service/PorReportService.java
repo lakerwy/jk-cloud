@@ -3,10 +3,7 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorReport;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorReportPageParam;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorReportVo;
 
 import java.util.List;

@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSign;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo;
 
+import java.util.List;
+
 /**
  * 项目产值台账 - 项目管理 - 签字审图费管理Mapper接口
  *
@@ -20,4 +22,11 @@ public interface PorSignMapper extends BaseMapper<PorSign> {
     Page<PorSignVo> getPageList(Page<PorSignVo> page, @Param(Constants.WRAPPER) Wrapper<PorSign> queryWrapper);
 
     PorSignVo getDetail(String id);
+
+    /**
+     * 根据立项id,获取签字费
+     * @param bizProjectId
+     * @return
+     */
+    List<PorSignVo> getSignListByPrjId(String bizProjectId);
 }

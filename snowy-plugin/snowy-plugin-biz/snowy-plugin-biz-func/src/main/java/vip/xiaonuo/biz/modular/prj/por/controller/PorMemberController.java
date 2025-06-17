@@ -21,7 +21,6 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorMemberService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * 项目产值台账 - 项目管理 - 项目成员管理控制器
@@ -113,20 +112,5 @@ public class PorMemberController {
     @GetMapping("/biz/prj/por/member/detail")
     public CommonResult<PorMember> detail(@Valid PorMemberIdParam porMemberIdParam) {
         return CommonResult.data(porMemberService.detail(porMemberIdParam));
-    }
-
-
-
-    /**
-     * 获取项目产值台账 - 项目管理 - 项目成员（根据项目id，获取项目成员列表）
-     *
-     * @author yy
-     * @date  2025/06/03 09:40
-     */
-    @ApiOperationSupport(order = 11)
-    @ApiOperation("获取项目产值台账 - 项目管理 - 项目成员（根据项目id，获取项目成员列表）")
-    @GetMapping("/biz/prj/por/member/getListById")
-    public CommonResult<List<PorMember>> getListById(@Valid PorPrjParam param) {
-        return CommonResult.data(porMemberService.getListById(param));
     }
 }

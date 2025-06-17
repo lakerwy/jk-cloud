@@ -11,15 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOwnerSettleVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorOwnerSettle;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOwnerSettleAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOwnerSettleEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOwnerSettleIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorOwnerSettlePageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorOwnerSettleService;
 
 import javax.annotation.Resource;

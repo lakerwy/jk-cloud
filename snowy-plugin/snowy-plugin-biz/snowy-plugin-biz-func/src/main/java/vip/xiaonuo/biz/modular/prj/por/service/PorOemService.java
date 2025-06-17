@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 
 import java.util.List;
@@ -64,5 +65,5 @@ public interface PorOemService extends IService<PorOem> {
      **/
     PorOem queryEntity(String id);
 
-    Object getListByHtId(ContractParam param);
+    List<PisData> getListByHtId(ContractParam param);
 }

@@ -2,12 +2,13 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorProjectPageParam;
-import vip.xiaonuo.biz.modular.prj.por.vo.PorProjectVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
+import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
+import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
+import vip.xiaonuo.biz.modular.prj.por.entity.*;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.*;
 
 import java.util.List;
 
@@ -68,4 +69,39 @@ public interface PorProjectService extends IService<PorProject> {
     PorProject queryEntity(String id);
 
     Page<PorProjectVo> pageList(PorProjectPageParam porProjectPageParam);
+
+    List<HetongDetailVo> getHtListByPrjId(PorProjectParam param);
+
+    List<RecData> getRecListByPrjId(PorProjectParam param);
+
+    List<PorOwnerSettleVo> getOwnerListByPrjId(PorProjectParam param);
+
+    List<FinDataPpc> getPpcListByPrjId(PorProjectParam param);
+
+    List<Subcontract> getSubListByPrjId(PorProjectParam param);
+
+    List<PorReport> getReportListByPrjId(PorProjectParam param);
+
+    List<PorTask> getTaskListByPrjId(PorProjectParam param);
+
+    List<PorSubSettleVo> getSubSettleListByPrjId(PorProjectParam param);
+
+    List<PisData> getPisListByPrjId(PorProjectParam param);
+
+
+    List<PisData> getPisData(List<PisData> result, List<PisAllotment> pisAllotmentList, List<Subcontract> subcontractList);
+
+    List<PorRpmVo> getRpmListByPrjId(PorProjectParam param);
+
+    List<PorSignVo> getSignListByPrjId(PorProjectParam param);
+
+    List<PorSiteFeeVo> getSiteListByPrjId(PorProjectParam param);
+
+    List<PorMember> getMemberListByPrjId(PorPrjParam param);
+
+    List<PorWarn> getWarnListByPrjId(PorPrjParam param);
+
+    void updateRec(RecParam param);
+
+    void updatePorWarn(RecParam param);
 }

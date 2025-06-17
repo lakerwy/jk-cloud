@@ -81,4 +81,7 @@ public class PorTaskAddParam {
     @ApiModelProperty(value = "预留字段-附件", position = 18)
     private String attach;
 
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态", position = 22)
+    private String taskStatus;
 }

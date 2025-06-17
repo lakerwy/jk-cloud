@@ -52,4 +52,7 @@ public class PorTaskPageParam {
     @ApiModelProperty(value = "责任人")
     private String taskLeaderName;
 
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态", position = 22)
+    private String taskStatus;
 }

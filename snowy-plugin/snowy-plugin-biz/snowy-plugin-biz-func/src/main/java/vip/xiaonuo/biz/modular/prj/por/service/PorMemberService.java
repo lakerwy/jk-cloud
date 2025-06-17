@@ -62,6 +62,4 @@ public interface PorMemberService extends IService<PorMember> {
      * @date  2025/06/03 09:40
      **/
     PorMember queryEntity(String id);
-
-    List<PorMember> getListById(PorPrjParam param);
 }

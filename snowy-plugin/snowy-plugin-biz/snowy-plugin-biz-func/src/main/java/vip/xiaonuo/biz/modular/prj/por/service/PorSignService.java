@@ -3,10 +3,8 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSign;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignAddParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignEditParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignIdParam;
-import vip.xiaonuo.biz.modular.prj.por.param.PorSignPageParam;
+import vip.xiaonuo.biz.modular.prj.por.param.*;
+import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo;
 
 import java.util.List;
@@ -66,4 +64,6 @@ public interface PorSignService extends IService<PorSign> {
      * @date  2025/06/03 09:54
      **/
     PorSign queryEntity(String id);
+
+    List<PisData> getListByHtId(ContractParam param);
 }

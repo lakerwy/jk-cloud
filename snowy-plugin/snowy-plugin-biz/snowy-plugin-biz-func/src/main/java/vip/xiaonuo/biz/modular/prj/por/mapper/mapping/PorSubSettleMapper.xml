@@ -27,7 +27,29 @@
                b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
         from BIZ_POR_SUB_SETTLE a
                  left join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
     </select>
+
+
+    <select id="getSubSettleListByPrjId" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorSubSettleVo" parameterType="String">
+        select a.*,
+               b.PROJECT_NAME as subContractName,
+               b.CONTRACT_NO as subContractNo,
+               b.COUNTERPARTY as subContractCounterparty,
+               b.SECOND_LEVEL as subContractSecondLevel,
+               b.SUB_TYPE as subContractType,
+               b.EXPENSE_NATURE as subContractExpenseNature,
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+        from BIZ_POR_SUB_SETTLE a
+             join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
+             join BIZ_CRM_HETONG c on b.HETONG_ID = c.ID
+        where c.BIZ_PROJECT_ID = #{bizProjectId}
+          and c.DELETE_FLAG = 'NOT_DELETE'
+          and c.STATUS in ('0','1')
+          and b.DELETE_FLAG = 'NOT_DELETE'
+          and b.STATUS in ('0','1')
+          and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
 
 </mapper>

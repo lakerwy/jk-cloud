@@ -23,7 +23,43 @@
                b.SOURCE as bizPrjSource
         from BIZ_POR_PROJECT a
                  left join BIZ_PROJECT b on a.PROJECT_ID = b.ID
-        where a.ID = ${id}
+        where a.ID = #{id}
     </select>
+
+
+    <select id="getHtListByPrjId" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" parameterType="String">
+        select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
+               b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
+               b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,b.MANAGE_DEPT as manageDept
+        from BIZ_CRM_HETONG a
+            join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
+        where a.BIZ_PROJECT_ID = #{bizProjectId}
+          and a.DELETE_FLAG = 'NOT_DELETE'
+          and a.STATUS in ('0','1')
+    </select>
+
+
+    <select id="getPpcListByPrjId" resultType="vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc" parameterType="String">
+        select b.*
+        from BIZ_CRM_HETONG a
+                 join FIN_DATA_PPC b on a.ID = b.CONTRACT_ID
+        where a.BIZ_PROJECT_ID = #{bizProjectId}
+          and a.DELETE_FLAG = 'NOT_DELETE'
+          and a.STATUS in ('0','1')
+          and b.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <select id="getSubListByPrjId" resultType="vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract" parameterType="String">
+        select b.*
+        from BIZ_CRM_HETONG a
+                 join BIZ_CRM_SUBCONTRACT b on a.ID = b.HETONG_ID
+        where a.BIZ_PROJECT_ID = #{bizProjectId}
+          and a.DELETE_FLAG = 'NOT_DELETE'
+          and a.STATUS in ('0','1')
+          and b.DELETE_FLAG = 'NOT_DELETE'
+          and b.STATUS in ('0','1')
+    </select>
+
 
 </mapper>

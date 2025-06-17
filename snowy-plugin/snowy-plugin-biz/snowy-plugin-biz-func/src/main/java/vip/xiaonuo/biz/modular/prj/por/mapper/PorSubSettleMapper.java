@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSubSettle;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSubSettleVo;
 
+import java.util.List;
+
 /**
  * 项目产值台账 - 项目管理 - 项目分包结算记录Mapper接口
  *
@@ -20,4 +22,10 @@ public interface PorSubSettleMapper extends BaseMapper<PorSubSettle> {
 
     PorSubSettleVo getDetail(String id);
 
+    /**
+     * 根据立项id,获取分包结算
+     * @param bizProjectId
+     * @return
+     */
+    List<PorSubSettleVo> getSubSettleListByPrjId(String bizProjectId);
 }
