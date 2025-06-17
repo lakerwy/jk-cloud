@@ -187,4 +187,9 @@ public class BizFormFee {
     /** 餐饮招待登记表json 例如：[{"id":"1","SN":"S111","PROCESS_INSTANCE_ID":"12332"}，{"id":"1","SN":"S111","PROCESS_INSTANCE_ID":"12332"}] */
     @ApiModelProperty(value = "餐饮招待登记表json 例如：[{\"id\":\"1\",\"SN\":\"S111\",\"PROCESS_INSTANCE_ID\":\"12332\"}，{\"id\":\"1\",\"SN\":\"S111\",\"PROCESS_INSTANCE_ID\":\"12332\"}]", position = 47)
     private String hRegJson;
+
+    /** 数据版本标识 */
+    @ApiModelProperty(value = "数据版本标识", position = 50)
+    private String versionFlag;
+
 }
