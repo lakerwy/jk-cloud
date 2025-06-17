@@ -32,6 +32,7 @@ import vip.xiaonuo.biz.modular.prj.exp.entity.BizFormTravel;
 import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormCashBackStatusEnum;
 import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormCashTypeEnum;
 import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormOffsetTypeEnum;
+import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormVersionEnum;
 import vip.xiaonuo.biz.modular.prj.exp.param.*;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormBackService;
 import vip.xiaonuo.biz.modular.prj.exp.service.BizFormFeeService;
@@ -300,66 +301,13 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 excelWriter.finish();
 
             } else if ("FEE".equals(excelParam.getExcelType())) {
-                ClassPathResource classPathResource = new ClassPathResource("Fee_Template.xlsx");
-                inputStream = classPathResource.getStream();
                 FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
-                excelData.setCommentList(excelParam.getCommentList());
-                if(ObjectUtil.isNotEmpty(excelData)){
-                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
-                        excelData.setExpDateStr(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
-                    }
-                    if(CollUtil.isNotEmpty(excelData.getItemList())){
-                        excelData.getItemList().forEach(item->{
-                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
-                        });
-                        // 进税项合计
-                        BigDecimal taxAmountTotal = excelData.getItemList().stream().map(BizFormFeeItemEditParam::getTaxAmount)
-                                .filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-                        excelData.setTaxAmountTotal(taxAmountTotal);
-                    }
-//                    if(CollUtil.isNotEmpty(excelData.getCostList())){
-//                        excelData.getCostList().forEach(item->{
-//                            if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
-//                        });
-//                    }
+                BizFormFee bizFormFee = bizFormFeeService.queryEntity(excelData.getId());
+                if(BizFormVersionEnum.ZERO.getValue().equals(bizFormFee.getVersionFlag())){
+                    genExcelFeeVersion0(outputFileName, excelData, excelParam.getCommentList());
+                } else if (BizFormVersionEnum.ONE.getValue().equals(bizFormFee.getVersionFlag())) {
+                    genExcelFeeVersion1(outputFileName, excelData, excelParam.getCommentList());
                 }
-                // 使用 EasyExcel 填充数据
-                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
-                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
-
-                List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
-                int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
-                int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
-                int lastRow_Item = firstRow_Item + itemList_Size ;
-                mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 0, 1)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 2, 6));
-                mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
-                mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 10));
-
-                int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
-                int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
-                int lastRow_commentList = firstRow_commentList + commentList_Size ;
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
-                mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
-
-                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
-                excelWriter.fill(excelData, sheet1);
-                excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
-                excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
-
-//                List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
-//                int firstRow_cost = 3; //第4行
-//                int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
-//                int lastRow_cost = firstRow_cost + costList_Size ;
-//                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
-//                mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
-//
-//                WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList2)).build();
-//                excelWriter.fill(excelData, sheet2);
-//                excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
-                excelWriter.finish();
-
             } else if ("TRAVEL".equals(excelParam.getExcelType())) {
                 ClassPathResource classPathResource = new ClassPathResource("Travel_Template.xlsx");
                 inputStream = classPathResource.getStream();
@@ -437,6 +385,110 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
                 }
             }
         }
+    }
+
+    // 费用报销-新模板打印
+    private void genExcelFeeVersion1(String outputFileName, FeeExcelData excelData, List<FlwComment> commentList) {
+        ClassPathResource classPathResource = new ClassPathResource("Fee_Template_1.xlsx");
+        InputStream inputStream = classPathResource.getStream();
+        excelData.setCommentList(commentList);
+        if(ObjectUtil.isNotEmpty(excelData)){
+            if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                excelData.setExpDateStr(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+            }
+            if(CollUtil.isNotEmpty(excelData.getItemList())){
+                excelData.getItemList().forEach(item->{
+                    if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                });
+                // 进税项合计
+                BigDecimal taxAmountTotal = excelData.getItemList().stream().map(BizFormFeeItemEditParam::getTaxAmount)
+                        .filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                excelData.setTaxAmountTotal(taxAmountTotal);
+            }
+        }
+        // 使用 EasyExcel 填充数据
+        ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+
+        List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+        int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
+        int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
+        int lastRow_Item = firstRow_Item + itemList_Size ;
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 0, 1)); //A + B 列
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 2, 6));
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 10));
+
+        int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
+        int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
+        int lastRow_commentList = firstRow_commentList + commentList_Size ;
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
+
+        WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+        excelWriter.fill(excelData, sheet1);
+        excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
+        excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+        excelWriter.finish();
+    }
+
+    // 费用报销-旧模板打印
+    private void genExcelFeeVersion0(String outputFileName, FeeExcelData excelData, List<FlwComment> commentList) {
+        ClassPathResource classPathResource = new ClassPathResource("Fee_Template_0.xlsx");
+        InputStream inputStream = classPathResource.getStream();
+        excelData.setCommentList(commentList);
+        if(ObjectUtil.isNotEmpty(excelData)){
+            if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                excelData.setExpDateStr(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+            }
+            if(CollUtil.isNotEmpty(excelData.getItemList())){
+                excelData.getItemList().forEach(item->{
+                    if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                });
+            }
+            if(CollUtil.isNotEmpty(excelData.getCostList())){
+                excelData.getCostList().forEach(item->{
+                    if(ObjectUtil.isNotEmpty(item.getSecondExpItem())) item.setExpItem(item.getExpItem()+"/"+item.getSecondExpItem());
+                });
+            }
+        }
+        // 使用 EasyExcel 填充数据
+        ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+
+        List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+        int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
+        int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
+        int lastRow_Item = firstRow_Item + itemList_Size ;
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 0, 1)); //A + B 列
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 2, 6));
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
+        mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 10));
+
+        int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
+        int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
+        int lastRow_commentList = firstRow_commentList + commentList_Size ;
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
+        mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 10));
+
+        WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
+        excelWriter.fill(excelData, sheet1);
+        excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
+        excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+
+        List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
+        int firstRow_cost = 3; //第4行
+        int costList_Size = CollUtil.isNotEmpty(excelData.getCostList()) ? excelData.getCostList().size()-1 : 0 ;
+        int lastRow_cost = firstRow_cost + costList_Size ;
+        mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 3, 5));
+        mergeList2.add(new MergeCell(firstRow_cost, lastRow_cost, 6, 7));
+
+        WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList2)).build();
+        excelWriter.fill(excelData, sheet2);
+        excelWriter.fill(new FillWrapper("cost", excelData.getCostList()),fillConfig, sheet2);
+        excelWriter.finish();
     }
 
     @Override

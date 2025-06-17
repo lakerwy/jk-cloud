@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.prj.exp.entity.*;
+import vip.xiaonuo.biz.modular.prj.exp.enums.BizFormVersionEnum;
 import vip.xiaonuo.biz.modular.prj.exp.mapper.BizFormTravelMapper;
 import vip.xiaonuo.biz.modular.prj.exp.param.*;
 import vip.xiaonuo.biz.modular.prj.exp.service.*;
@@ -80,6 +81,7 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         if(CollUtil.isNotEmpty(hiddenFormFeeIds)) {
             queryWrapper.lambda().not(q  -> q.in(BizFormFee::getId, hiddenFormFeeIds)
                     .eq(BizFormFee::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue())
+                    .eq(BizFormFee::getVersionFlag, BizFormVersionEnum.ZERO.getValue())
             );
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
@@ -88,7 +90,8 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
     private Set<String> getHiddenFormFeeIds() {
         Set<String> hiddenFormFeeIds = new HashSet<>();
         // 关联了餐饮招待登记表的报销单
-        List<String> list1 = this.list(new LambdaQueryWrapper<BizFormFee>().isNotNull(BizFormFee::getHRegJson).select(BizFormFee::getId)).stream().map(BizFormFee::getId).collect(Collectors.toList());
+        List<String> list1 = this.list(new LambdaQueryWrapper<BizFormFee>().isNotNull(BizFormFee::getHRegJson)
+                .select(BizFormFee::getId)).stream().map(BizFormFee::getId).collect(Collectors.toList());
         // 费用类型为招待费的报销单
         List<String> list2 = bizFormFeeCostService.list(new LambdaQueryWrapper<BizFormFeeCost>().eq(BizFormFeeCost::getExpItem, "招待费")
                 .select(BizFormFeeCost::getFormFeeId)).stream().map(BizFormFeeCost::getFormFeeId).collect(Collectors.toList());
@@ -118,6 +121,8 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
         }else{
             bizFormFee.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+        // 数据版本标识
+        bizFormFee.setVersionFlag(BizFormVersionEnum.ONE.getValue());
         this.save(bizFormFee);
         //处理费用明细
         if(CollUtil.isNotEmpty(bizFormFeeAddParam.getItemList())){
@@ -128,13 +133,13 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             bizFormFeeItemService.saveBatch(itemList);
         }
         //处理成本一览表
-//        if(CollUtil.isNotEmpty(bizFormFeeAddParam.getCostList())){
-//            List<BizFormFeeCost> costList = BeanUtil.copyToList(bizFormFeeAddParam.getCostList(), BizFormFeeCost.class);
-//            costList.forEach(x->{
-//                x.setFormFeeId(bizFormFee.getId());
-//            });
-//            bizFormFeeCostService.saveBatch(costList);
-//        }
+        if(CollUtil.isNotEmpty(bizFormFeeAddParam.getCostList())){
+            List<BizFormFeeCost> costList = BeanUtil.copyToList(bizFormFeeAddParam.getCostList(), BizFormFeeCost.class);
+            costList.forEach(x->{
+                x.setFormFeeId(bizFormFee.getId());
+            });
+            bizFormFeeCostService.saveBatch(costList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -186,35 +191,35 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             bizFormFeeItemService.remove(new QueryWrapper<BizFormFeeItem>().lambda().eq(BizFormFeeItem::getFormFeeId,bizFormFee.getId()));
         }
         //处理成本一览表
-//        if(CollUtil.isNotEmpty(bizFormFeeEditParam.getCostList())){
-//            //本次传入的数据
-//            List<BizFormFeeCost> costList = BeanUtil.copyToList(bizFormFeeEditParam.getCostList(), BizFormFeeCost.class);
-//            costList.forEach(x->{
-//                x.setFormFeeId(bizFormFee.getId());
-//            });
-//            //获取历史数据
-//            List<BizFormFeeCost> oldList = bizFormFeeCostService.list(
-//                    new QueryWrapper<BizFormFeeCost>().lambda().eq(BizFormFeeCost::getFormFeeId,bizFormFee.getId()));
-//            List<String> oldIds = oldList.stream().map(x->x.getId()).collect(Collectors.toList());
-//            //待新增的
-//            List<BizFormFeeCost> addList = costList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
-//            //待更新的
-//            List<BizFormFeeCost> updateList = costList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
-//            //待删除的
-//            List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
-//            List<BizFormFeeCost> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
-//            if(CollUtil.isNotEmpty(addList)){
-//                bizFormFeeCostService.saveBatch(addList);
-//            }
-//            if(CollUtil.isNotEmpty(updateList)){
-//                bizFormFeeCostService.updateBatchById(updateList);
-//            }
-//            if(CollUtil.isNotEmpty(removeList)){
-//                bizFormFeeCostService.removeByIds(removeList);
-//            }
-//        }else{
-//            bizFormFeeCostService.remove(new QueryWrapper<BizFormFeeCost>().lambda().eq(BizFormFeeCost::getFormFeeId,bizFormFee.getId()));
-//        }
+        if(CollUtil.isNotEmpty(bizFormFeeEditParam.getCostList())){
+            //本次传入的数据
+            List<BizFormFeeCost> costList = BeanUtil.copyToList(bizFormFeeEditParam.getCostList(), BizFormFeeCost.class);
+            costList.forEach(x->{
+                x.setFormFeeId(bizFormFee.getId());
+            });
+            //获取历史数据
+            List<BizFormFeeCost> oldList = bizFormFeeCostService.list(
+                    new QueryWrapper<BizFormFeeCost>().lambda().eq(BizFormFeeCost::getFormFeeId,bizFormFee.getId()));
+            List<String> oldIds = oldList.stream().map(x->x.getId()).collect(Collectors.toList());
+            //待新增的
+            List<BizFormFeeCost> addList = costList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizFormFeeCost> updateList = costList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<BizFormFeeCost> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizFormFeeCostService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizFormFeeCostService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizFormFeeCostService.removeByIds(removeList);
+            }
+        }else{
+            bizFormFeeCostService.remove(new QueryWrapper<BizFormFeeCost>().lambda().eq(BizFormFeeCost::getFormFeeId,bizFormFee.getId()));
+        }
 
     }
 
@@ -309,7 +314,6 @@ public class BizFormFeeServiceImpl extends ServiceImpl<BizFormFeeMapper, BizForm
             feeQueryWrapper.eq("b.EXP_ID", StpUtil.getLoginIdAsString());
         }
 
-        feeQueryWrapper.isNotNull("a.DEPT_NAME");
         List<ExpMonthTotal> result = bizFormFeeMapper.getMonthTotal(feeQueryWrapper);
 
         result.sort(Comparator.comparing(ExpMonthTotal::getCompany,Comparator.nullsLast(Comparator.naturalOrder()))
