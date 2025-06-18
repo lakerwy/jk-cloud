@@ -43,10 +43,6 @@ public class BizCompanyGoalKpiAddParam {
     @ApiModelProperty(value = "目标值", position = 7)
     private BigDecimal goalValue;
 
-    /** 完成值 */
-    @ApiModelProperty(value = "完成值", position = 8)
-    private BigDecimal completedValue;
-
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 9)
     private String attach;

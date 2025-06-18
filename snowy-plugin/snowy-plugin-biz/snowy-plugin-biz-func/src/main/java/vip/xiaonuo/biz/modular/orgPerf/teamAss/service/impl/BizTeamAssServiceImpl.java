@@ -50,7 +50,7 @@ public class BizTeamAssServiceImpl extends ServiceImpl<BizTeamAssMapper, BizTeam
             queryWrapper.orderBy(true, bizTeamAssPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizTeamAssPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizTeamAss::getId);
+            queryWrapper.lambda().orderByDesc(BizTeamAss::getCreateTime);
         }
         Page<BizTeamAss> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         for (BizTeamAss item : result.getRecords()) {

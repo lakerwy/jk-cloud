@@ -3,10 +3,8 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoal;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalPageParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
+import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizCompanyGoalVo;
 
 import java.util.List;
 
@@ -65,4 +63,12 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @date  2025/06/18 10:02
      **/
     BizCompanyGoal queryEntity(String id);
+
+    /**
+     * 查询指定目标登记详情
+     *
+     * @author pzh
+     * @date 2025/06/18 14:24
+     */
+    BizCompanyGoalVo getByAssYear(BizCompanyGoalParam bizCompanyGoalParam);
 }

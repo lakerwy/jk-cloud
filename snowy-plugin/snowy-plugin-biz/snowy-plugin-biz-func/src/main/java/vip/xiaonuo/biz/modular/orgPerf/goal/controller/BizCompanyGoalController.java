@@ -11,14 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
+import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizCompanyGoalVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoal;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalPageParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
 
 import javax.annotation.Resource;
@@ -115,5 +113,19 @@ public class BizCompanyGoalController {
     @GetMapping("/biz/orgPerf/companyGoal/detail")
     public CommonResult<BizCompanyGoal> detail(@Valid BizCompanyGoalIdParam bizCompanyGoalIdParam) {
         return CommonResult.data(bizCompanyGoalService.detail(bizCompanyGoalIdParam));
+    }
+
+    /**
+     * 查询指定目标登记详情
+     *
+     * @author pzh
+     * @date  2025/06/18 14:24
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("查询指定目标登记详情")
+    // @SaCheckPermission("/biz/orgPerf/companyGoal/detail")
+    @GetMapping("/biz/orgPerf/companyGoal/getByAssYear")
+    public CommonResult<BizCompanyGoalVo> getByAssYear(@Valid BizCompanyGoalParam bizCompanyGoalParam) {
+        return CommonResult.data(bizCompanyGoalService.getByAssYear(bizCompanyGoalParam));
     }
 }
