@@ -49,7 +49,7 @@ public class BizTeamAssController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取班子考核分页")
     // @SaCheckPermission("/biz/orgPerf/teamAss/page")
-    @GetMapping("/biz/org/orgPerf/teamAss/page")
+    @GetMapping("/biz/orgPerf/teamAss/page")
     public CommonResult<Page<BizTeamAss>> page(BizTeamAssPageParam bizTeamAssPageParam) {
         return CommonResult.data(bizTeamAssService.page(bizTeamAssPageParam));
     }

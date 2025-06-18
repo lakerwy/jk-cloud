@@ -10,8 +10,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
-import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -24,7 +22,6 @@ import vip.xiaonuo.biz.modular.orgPerf.teamAss.param.BizTeamAssPageParam;
 import vip.xiaonuo.biz.modular.orgPerf.teamAss.service.BizTeamAssService;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 班子考核Service接口实现类

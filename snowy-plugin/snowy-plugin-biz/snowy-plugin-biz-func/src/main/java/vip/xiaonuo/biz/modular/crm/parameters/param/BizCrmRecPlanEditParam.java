@@ -21,7 +21,6 @@ public class BizCrmRecPlanEditParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
     private String id;
 
     /** 关联-合同参数主键ID */
