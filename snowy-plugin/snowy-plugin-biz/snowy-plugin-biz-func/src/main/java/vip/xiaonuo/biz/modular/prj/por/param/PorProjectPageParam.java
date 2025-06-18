@@ -44,4 +44,7 @@ public class PorProjectPageParam {
     @ApiModelProperty(value = "项目状态")
     private String projectStatus;
 
+    /** 项目类型（BizProject.type） */
+    @ApiModelProperty(value = "项目类型（BizProject.type）")
+    private String bizPrjType;
 }

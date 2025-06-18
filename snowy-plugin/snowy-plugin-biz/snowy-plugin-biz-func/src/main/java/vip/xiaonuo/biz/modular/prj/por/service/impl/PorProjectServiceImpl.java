@@ -170,7 +170,18 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             queryWrapper.eq("a.PROJECT_STATUS", porProjectPageParam.getProjectStatus());
         }
         if(ObjectUtil.isNotEmpty(porProjectPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("b.NAME",porProjectPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.NAME",porProjectPageParam.getSearchKey())
+                    .or().like("a.DUTY_DEPT_NAME",porProjectPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isNotEmpty(porProjectPageParam.getBizPrjType())){
+            List<String> prjTypes = Arrays.asList(porProjectPageParam.getBizPrjType().split(","));
+            if(CollUtil.isNotEmpty(prjTypes)){
+                queryWrapper.or(q->{
+                    for (String prjType : prjTypes) {
+                        q.apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+                    }
+                });
+            }
         }
 
         // 校验数据范围
