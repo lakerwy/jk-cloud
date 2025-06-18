@@ -3,7 +3,6 @@ package vip.xiaonuo.biz.modular.prj.por.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
-import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.*;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
@@ -88,7 +87,7 @@ public interface PorProjectService extends IService<PorProject> {
     List<PisData> getPisListByPrjId(PorProjectParam param);
 
 
-    List<PisData> getPisData(List<PisData> result, List<PisAllotment> pisAllotmentList, List<Subcontract> subcontractList);
+    List<PisData> getPisData(List<String> htIds, List<String> natureList);
 
     List<PorRpmVo> getRpmListByPrjId(PorProjectParam param);
 

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
 import vip.xiaonuo.biz.modular.prj.por.vo.HtData;
@@ -45,4 +46,12 @@ public interface PorProjectMapper extends BaseMapper<PorProject> {
      * @return
      */
     List<Subcontract> getSubListByPrjId(String bizProjectId);
+
+
+    /**
+     * 根据立项id,获取销售发票确认信息
+     * @param bizProjectId
+     * @return
+     */
+    List<InvoiceSaleBillVo> getInvoiceBillListByPrjId(String bizProjectId);
 }

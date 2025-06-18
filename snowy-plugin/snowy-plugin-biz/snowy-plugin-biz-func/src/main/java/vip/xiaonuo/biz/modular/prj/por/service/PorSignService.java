@@ -65,5 +65,5 @@ public interface PorSignService extends IService<PorSign> {
      **/
     PorSign queryEntity(String id);
 
-    List<PisData> getListByHtId(ContractParam param);
+    List<PisData> getPisListByHtId(ContractParam param);
 }

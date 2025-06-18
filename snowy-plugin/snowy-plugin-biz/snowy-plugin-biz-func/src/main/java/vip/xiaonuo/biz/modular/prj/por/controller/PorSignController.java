@@ -123,8 +123,8 @@ public class PorSignController {
      */
     @ApiOperationSupport(order = 21)
     @ApiOperation("根据合同id,获取签字审图费用收取明细")
-    @GetMapping("/biz/prj/por/sign/getListByHtId")
-    public CommonResult<List<PisData>> getListByHtId(@Valid ContractParam param) {
-        return CommonResult.data(porSignService.getListByHtId(param));
+    @GetMapping("/biz/prj/por/sign/getPisListByHtId")
+    public CommonResult<List<PisData>> getPisListByHtId(@Valid ContractParam param) {
+        return CommonResult.data(porSignService.getPisListByHtId(param));
     }
 }

@@ -24,7 +24,7 @@ public interface PorOwnerSettleMapper extends BaseMapper<PorOwnerSettle> {
 
 
     /**
-     * 根据立项id，获取项目结算
+     * 根据立项id，获取业主结算
      * @param bizProjectId
      * @return
      */

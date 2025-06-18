@@ -10,7 +10,8 @@
                b.SECOND_LEVEL as subContractSecondLevel,
                b.SUB_TYPE as subContractType,
                b.EXPENSE_NATURE as subContractExpenseNature,
-               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo,
+               b.CONTRACT_AMOUNT as subContractAmount
         from BIZ_POR_SUB_SETTLE a
                  left join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
             ${ew.customSqlSegment}
@@ -24,7 +25,8 @@
                b.SECOND_LEVEL as subContractSecondLevel,
                b.SUB_TYPE as subContractType,
                b.EXPENSE_NATURE as subContractExpenseNature,
-               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo,
+               b.CONTRACT_AMOUNT as subContractAmount
         from BIZ_POR_SUB_SETTLE a
                  left join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
         where a.ID = #{id}
@@ -39,7 +41,8 @@
                b.SECOND_LEVEL as subContractSecondLevel,
                b.SUB_TYPE as subContractType,
                b.EXPENSE_NATURE as subContractExpenseNature,
-               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo
+               b.EXPENSE_NATURE_MEMO as subContractExpenseNatureMemo,
+               b.CONTRACT_AMOUNT as subContractAmount
         from BIZ_POR_SUB_SETTLE a
              join BIZ_CRM_SUBCONTRACT b on a.SUB_HETONG_ID = b.ID
              join BIZ_CRM_HETONG c on b.HETONG_ID = c.ID

@@ -122,8 +122,8 @@ public class PorOemController {
      */
     @ApiOperationSupport(order = 21)
     @ApiOperation("根据合同id,获取经营费拨付明细")
-    @GetMapping("/biz/prj/por/oem/getListByHtId")
-    public CommonResult<List<PisData>> getListByHtId(@Valid ContractParam param) {
-        return CommonResult.data(porOemService.getListByHtId(param));
+    @GetMapping("/biz/prj/por/oem/getPisListByHtId")
+    public CommonResult<List<PisData>> getPisListByHtId(@Valid ContractParam param) {
+        return CommonResult.data(porOemService.getPisListByHtId(param));
     }
 }

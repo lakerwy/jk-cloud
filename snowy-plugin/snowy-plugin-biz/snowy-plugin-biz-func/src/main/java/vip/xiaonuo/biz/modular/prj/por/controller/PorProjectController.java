@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorMember;
@@ -264,7 +263,7 @@ public class PorProjectController {
 
 
     /**
-     * 根据项目id,获取签字费
+     * 根据项目id,获取项目现场管理费
      */
     @ApiOperationSupport(order = 32)
     @ApiOperation("根据项目id,获取项目现场管理费")

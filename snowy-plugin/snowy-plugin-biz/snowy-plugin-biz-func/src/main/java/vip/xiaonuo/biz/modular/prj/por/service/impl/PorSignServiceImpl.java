@@ -2,26 +2,20 @@ package vip.xiaonuo.biz.modular.prj.por.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
-import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
-import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
-import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
-import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSign;
@@ -30,7 +24,6 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorSignService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,12 +39,6 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
 
     @Resource
     private PorSignMapper porSignMapper;
-
-    @Resource
-    private SubcontractService subcontractService;
-
-    @Resource
-    private PisAllotmentService pisAllotmentService;
 
     @Resource
     private PorProjectService porProjectService;
@@ -114,22 +101,9 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
     }
 
     @Override
-    public List<PisData> getListByHtId(ContractParam param) {
-        List<PisData> result = new ArrayList<>();
-
-        LambdaQueryWrapper<PisAllotment> pisAllotmentLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
-        pisAllotmentLambdaQueryWrapper.eq(PisAllotment::getHtId,param.getHetongId());
-        List<PisAllotment> pisAllotmentList = pisAllotmentService.list(pisAllotmentLambdaQueryWrapper);
-        if(CollUtil.isEmpty(pisAllotmentList)) return result;
-
-        LambdaQueryWrapper<Subcontract> subcontractLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        subcontractLambdaQueryWrapper.in(Subcontract::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
-        subcontractLambdaQueryWrapper.eq(Subcontract::getHetongId,param.getHetongId());
-        List<Subcontract> subcontractList = subcontractService.list(subcontractLambdaQueryWrapper);
-
-        List<PisData> pisData = porProjectService.getPisData(result, pisAllotmentList, subcontractList);
-
+    public List<PisData> getPisListByHtId(ContractParam param) {
+        List<String> htIds = CollectionUtil.toList(param.getHetongId());
+        List<PisData> pisData = porProjectService.getPisData(htIds,null);
         return pisData.stream().filter(x->ObjectUtil.isNotEmpty(x.getDeductSignature()) && BigDecimal.ZERO.compareTo(x.getDeductSignature())!=0).collect(Collectors.toList());
     }
 }

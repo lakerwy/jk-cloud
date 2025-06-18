@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 
+import java.util.List;
+
 /**
  * 项目产值台账 - 项目管理 - 经营费管理Mapper接口
  *
@@ -20,4 +22,10 @@ public interface PorOemMapper extends BaseMapper<PorOem> {
 
     PorOemVo getDetail(String id);
 
+    /**
+     * 根据立项id,获取经营费
+     * @param bizProjectId
+     * @return
+     */
+    List<PorOemVo> getOemListByPrjId(String bizProjectId);
 }

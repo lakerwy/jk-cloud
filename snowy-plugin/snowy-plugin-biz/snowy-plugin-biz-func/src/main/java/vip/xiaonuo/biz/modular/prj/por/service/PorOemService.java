@@ -65,5 +65,5 @@ public interface PorOemService extends IService<PorOem> {
      **/
     PorOem queryEntity(String id);
 
-    List<PisData> getListByHtId(ContractParam param);
+    List<PisData> getPisListByHtId(ContractParam param);
 }
