@@ -18,11 +18,13 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.dev.api.DevDictApi;
+import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.dev.modular.dict.param.DevDictListParam;
 import vip.xiaonuo.dev.modular.dict.service.DevDictService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +39,9 @@ public class DevDictApiProvider implements DevDictApi {
     @Resource
     private DevDictService devDictService;
 
+    @Resource
+    private DevMessageApi devMessageApi;
+
     @Override
     public List<JSONObject> list(String parentId, String category) {
         DevDictListParam devDictListParam = new DevDictListParam();
@@ -47,5 +52,10 @@ public class DevDictApiProvider implements DevDictApi {
             return list.stream().map(JSONUtil::parseObj).collect(Collectors.toList());
         }
         return CollectionUtil.newArrayList();
+    }
+
+    @Override
+    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
+        devMessageApi.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
     }
 }

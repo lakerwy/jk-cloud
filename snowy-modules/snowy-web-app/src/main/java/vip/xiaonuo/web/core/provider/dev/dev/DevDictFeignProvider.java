@@ -23,6 +23,7 @@ import vip.xiaonuo.dev.feign.DevDictFeign;
 import vip.xiaonuo.dev.modular.dict.provider.DevDictApiProvider;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 开发工具模块综合Feign提供者
@@ -42,6 +43,12 @@ public class DevDictFeignProvider implements DevDictFeign {
     @RequestMapping("/feign/dev/dict/list")
     public List<JSONObject> list(@RequestParam("parentId") String parentId, @RequestParam("category") String category) {
         return devDictApiProvider.list(parentId, category);
+    }
+
+    @Override
+    @RequestMapping("/feign/dev/dict/sendMessageWithContent")
+    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
+        devDictApiProvider.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
     }
 
 }

@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.api;
 import cn.hutool.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典API
@@ -31,4 +32,16 @@ public interface DevDictApi {
      * @return
      */
     List<JSONObject> list(String parentId, String category);
+
+    /**
+     * 发送站内信带内容，指定分类
+     *
+     * @param receiverIdList 接收的用户id集合
+     * @param subject 主题
+     * @param content 站内信内容
+     * @author xuyuxiang
+     * @date 2022/6/22 17:35
+     **/
+    void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String,String> taskMap);
+
 }

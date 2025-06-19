@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 开发工具模块综合Feign
@@ -31,4 +32,8 @@ public interface DevDictFeign {
 
     @RequestMapping("/feign/dev/dict/list")
     List<JSONObject> list(@RequestParam("parentId") String parentId, @RequestParam("category") String category);
+
+    @RequestMapping("/feign/dev/dict/sendMessageWithContent")
+    void sendMessageWithContent(@RequestParam List<String> receiverIdList,@RequestParam String category,@RequestParam String subject,@RequestParam String content,@RequestParam Map<String,String> taskMap);
+
 }

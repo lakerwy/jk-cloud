@@ -21,7 +21,7 @@ import vip.xiaonuo.biz.modular.prj.por.param.PorMsgEditParam;
 import vip.xiaonuo.biz.modular.prj.por.param.PorMsgIdParam;
 import vip.xiaonuo.biz.modular.prj.por.param.PorMsgPageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorMsgService;
-import vip.xiaonuo.dev.api.DevMessageApi;
+import vip.xiaonuo.dev.api.DevDictApi;
 import vip.xiaonuo.dev.api.IDingDingService;
 
 import javax.annotation.Resource;
@@ -37,8 +37,8 @@ import java.util.List;
 @DS("slave_1")
 public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> implements PorMsgService {
 
-//    @Resource
-//    DevMessageApi devMessageApi;
+    @Resource
+    DevDictApi devDictApi;
 
     @Resource
     IDingDingService dingDingService;
@@ -85,7 +85,7 @@ public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> impleme
         if(CollUtil.isNotEmpty(porMsgAddParam.getUserIdList())){
             // 发送站内信
             String category = "系统".equals(porMsgAddParam.getMsgType()) ? "SYS" : "BIZ";
-//            devMessageApi.sendMessageWithContent(porMsgAddParam.getUserIdList(), category, porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent(), null);
+            devDictApi.sendMessageWithContent(porMsgAddParam.getUserIdList(), category, porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent(), null);
             // 发送钉钉提醒
             dingDingService.batchSend(String.format("【%s】%s", porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent()),porMsgAddParam.getUserIdList());
         }

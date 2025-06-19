@@ -20,6 +20,7 @@ import vip.xiaonuo.dev.api.DevDictApi;
 import vip.xiaonuo.dev.feign.DevDictFeign;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 开发工具模块综合API上下文Bean
@@ -37,5 +38,10 @@ public class DevDictApiContextBean implements DevDictApi {
     @Override
     public List<JSONObject> list(String parentId, String category) {
         return devDictFeign.list(parentId, category);
+    }
+
+    @Override
+    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
+        devDictFeign.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
     }
 }
