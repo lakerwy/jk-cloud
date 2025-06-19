@@ -111,7 +111,7 @@ public class BizCompanyGoalController {
     @ApiOperation("获取公司绩效考核-目标登记详情")
     // @SaCheckPermission("/biz/orgPerf/companyGoal/detail")
     @GetMapping("/biz/orgPerf/companyGoal/detail")
-    public CommonResult<BizCompanyGoal> detail(@Valid BizCompanyGoalIdParam bizCompanyGoalIdParam) {
+    public CommonResult<BizCompanyGoalVo> detail(@Valid BizCompanyGoalIdParam bizCompanyGoalIdParam) {
         return CommonResult.data(bizCompanyGoalService.detail(bizCompanyGoalIdParam));
     }
 

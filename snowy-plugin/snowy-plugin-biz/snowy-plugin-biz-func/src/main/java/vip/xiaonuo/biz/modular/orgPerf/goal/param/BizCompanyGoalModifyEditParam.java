@@ -25,7 +25,8 @@ public class BizCompanyGoalModifyEditParam {
     private String id;
 
     /** 目标登记主键ID */
-    @ApiModelProperty(value = "目标登记主键ID", position = 2)
+    @ApiModelProperty(value = "目标登记主键ID", required = true, position = 2)
+    @NotBlank(message = "目标登记主键ID不能为空")
     private String goalId;
 
     /** 流程表单数据JSON */

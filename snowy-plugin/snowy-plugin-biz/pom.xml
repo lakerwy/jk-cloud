@@ -20,6 +20,9 @@
 
         <!-- 业务功能插件func实现 -->
         <module>snowy-plugin-biz-func</module>
+
+        <!-- 业务功能插件feign接口 -->
+        <module>snowy-plugin-biz-feign</module>
     </modules>
 
 </project>

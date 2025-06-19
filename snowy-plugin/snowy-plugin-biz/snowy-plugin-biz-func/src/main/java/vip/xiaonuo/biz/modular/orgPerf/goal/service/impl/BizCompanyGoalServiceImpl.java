@@ -5,12 +5,14 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
@@ -150,8 +152,14 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
     }
 
     @Override
-    public BizCompanyGoal detail(BizCompanyGoalIdParam bizCompanyGoalIdParam) {
-        return this.queryEntity(bizCompanyGoalIdParam.getId());
+    public BizCompanyGoalVo detail(BizCompanyGoalIdParam bizCompanyGoalIdParam) {
+        BizCompanyGoal bizCompanyGoal = this.queryEntity(bizCompanyGoalIdParam.getId());
+        BizCompanyGoalVo bizCompanyGoalVo = BeanUtil.copyProperties(bizCompanyGoal, BizCompanyGoalVo.class);
+        // 查询明细
+        List<BizCompanyGoalKpi> kpiList = bizCompanyGoalKpiService.list(new LambdaQueryWrapper<BizCompanyGoalKpi>()
+                .eq(BizCompanyGoalKpi::getGoalId, bizCompanyGoalIdParam.getId()));
+        bizCompanyGoalVo.setKpiList(kpiList);
+        return bizCompanyGoalVo;
     }
 
     @Override
@@ -165,7 +173,6 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
 
     @Override
     public BizCompanyGoalVo getByAssYear(BizCompanyGoalParam bizCompanyGoalParam) {
-        BizCompanyGoalVo bizCompanyGoalVo = new BizCompanyGoalVo();
         LambdaQueryWrapper<BizCompanyGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizCompanyGoal>()
                 .orderByDesc(BizCompanyGoal::getCreateTime).last("limit 1");
         if(ObjectUtil.isNotEmpty(bizCompanyGoalParam.getAssType())){
@@ -178,10 +185,18 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         if(ObjectUtil.isEmpty(bizCompanyGoal)){
             throw new CommonException("未找到对应的目标登记信息");
         }
+        BizCompanyGoalVo bizCompanyGoalVo = BeanUtil.copyProperties(bizCompanyGoal, BizCompanyGoalVo.class);
         // 查询明细
         List<BizCompanyGoalKpi> kpiList = bizCompanyGoalKpiService.list(new LambdaQueryWrapper<BizCompanyGoalKpi>()
                 .eq(BizCompanyGoalKpi::getGoalId, bizCompanyGoal.getId()));
         bizCompanyGoalVo.setKpiList(kpiList);
         return bizCompanyGoalVo;
+    }
+
+    @Override
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateCompanyGoal(JSONObject jsonObject) {
+        BizCompanyGoal bizCompanyGoal = this.queryEntity(jsonObject.getStr("goalId"));
+        System.out.println("Test："+bizCompanyGoal.getId());
     }
 }

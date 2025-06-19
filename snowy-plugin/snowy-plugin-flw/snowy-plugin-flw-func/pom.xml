@@ -65,5 +65,10 @@
 <!--            <groupId>vip.xiaonuo</groupId>-->
 <!--            <artifactId>snowy-plugin-bp-func</artifactId>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-biz-api</artifactId>
+        </dependency>
+
     </dependencies>
 </project>
