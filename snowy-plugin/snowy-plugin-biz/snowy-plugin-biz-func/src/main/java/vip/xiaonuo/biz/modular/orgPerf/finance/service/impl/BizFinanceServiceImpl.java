@@ -67,7 +67,7 @@ public class BizFinanceServiceImpl extends ServiceImpl<BizFinanceMapper, BizFina
             queryWrapper.orderBy(true, bizFinancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizFinancePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizFinance::getId);
+            queryWrapper.lambda().orderByDesc(BizFinance::getCreateTime);
         }
         // 校验数据范围
 //        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();

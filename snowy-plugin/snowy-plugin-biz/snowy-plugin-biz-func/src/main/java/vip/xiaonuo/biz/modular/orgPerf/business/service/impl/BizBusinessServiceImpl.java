@@ -65,7 +65,7 @@ public class BizBusinessServiceImpl extends ServiceImpl<BizBusinessMapper, BizBu
             queryWrapper.orderBy(true, bizBusinessPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizBusinessPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizBusiness::getId);
+            queryWrapper.lambda().orderByDesc(BizBusiness::getCreateTime);
         }
         // 校验数据范围
 //        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
