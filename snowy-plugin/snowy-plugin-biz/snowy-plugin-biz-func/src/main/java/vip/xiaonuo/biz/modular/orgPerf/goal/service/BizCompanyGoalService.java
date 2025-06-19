@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.orgPerf.goal.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoal;
@@ -54,7 +55,7 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @author pzh
      * @date  2025/06/18 10:02
      */
-    BizCompanyGoal detail(BizCompanyGoalIdParam bizCompanyGoalIdParam);
+    BizCompanyGoalVo detail(BizCompanyGoalIdParam bizCompanyGoalIdParam);
 
     /**
      * 获取公司绩效考核-目标登记详情
@@ -71,4 +72,6 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @date 2025/06/18 14:24
      */
     BizCompanyGoalVo getByAssYear(BizCompanyGoalParam bizCompanyGoalParam);
+
+    void updateCompanyGoal( JSONObject goalId);
 }
