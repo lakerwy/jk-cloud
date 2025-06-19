@@ -498,9 +498,10 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
 
             //10. [周报|日报 最新]
             PorReport tmpPorReport = porReportService.getOne(new LambdaQueryWrapper<PorReport>().eq(PorReport::getPorProjectId,prj.getId()).orderByDesc(PorReport::getCreateTime).last("limit 1"));
-
-            prj.setReportRate(tmpPorReport.getReportRate());
-            prj.setReportPreEndDate(tmpPorReport.getReportPreEndDate());
+            if(ObjectUtil.isNotEmpty(tmpPorReport)) {
+                prj.setReportRate(tmpPorReport.getReportRate());
+                prj.setReportPreEndDate(tmpPorReport.getReportPreEndDate());
+            }
             prj.setPrjScaleSum(prjScaleSum);
             prj.setPrjHtSum(prjHtSum);
             prj.setPrjHtNum(prjHtNum);

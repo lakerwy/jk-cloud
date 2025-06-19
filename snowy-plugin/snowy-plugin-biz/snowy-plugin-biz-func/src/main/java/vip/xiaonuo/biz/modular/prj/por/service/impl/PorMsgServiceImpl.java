@@ -37,8 +37,8 @@ import java.util.List;
 @DS("slave_1")
 public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> implements PorMsgService {
 
-    @Resource
-    DevMessageApi devMessageApi;
+//    @Resource
+//    DevMessageApi devMessageApi;
 
     @Resource
     IDingDingService dingDingService;
@@ -85,7 +85,7 @@ public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> impleme
         if(CollUtil.isNotEmpty(porMsgAddParam.getUserIdList())){
             // 发送站内信
             String category = "系统".equals(porMsgAddParam.getMsgType()) ? "SYS" : "BIZ";
-            devMessageApi.sendMessageWithContent(porMsgAddParam.getUserIdList(), category, porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent(), null);
+//            devMessageApi.sendMessageWithContent(porMsgAddParam.getUserIdList(), category, porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent(), null);
             // 发送钉钉提醒
             dingDingService.batchSend(String.format("【%s】%s", porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent()),porMsgAddParam.getUserIdList());
         }
