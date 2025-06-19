@@ -1,8 +1,10 @@
 package vip.xiaonuo.biz.modular.crm.parameters.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -36,11 +38,13 @@ public class BizCrmRecPlanAddParam {
 
     /** 计划收款日期（格式：yyyy-MM-dd） */
     @ApiModelProperty(value = "计划收款日期（格式：yyyy-MM-dd）", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date plannedRecDate;
 
     /** 缓冲期 */
     @ApiModelProperty(value = "缓冲期", position = 7)
-    private String gracePeriod;
+    private Integer gracePeriod;
 
     /** 收款比例（按总价计算） */
     @ApiModelProperty(value = "收款比例（按总价计算）", position = 8)

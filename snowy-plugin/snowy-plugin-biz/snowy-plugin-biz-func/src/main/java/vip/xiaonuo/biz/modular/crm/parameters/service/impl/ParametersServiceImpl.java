@@ -174,7 +174,7 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
             //本次传入的数据
             List<BizCrmRecPlan> itemList = BeanUtil.copyToList(parametersEditParam.getRecPlanList(), BizCrmRecPlan.class);
             itemList.forEach(x->{
-                x.setId(parameters.getId());
+                x.setParametersId(parameters.getId());
                 x.setHetongId(parameters.getProjectId());
             });
             //获取历史数据

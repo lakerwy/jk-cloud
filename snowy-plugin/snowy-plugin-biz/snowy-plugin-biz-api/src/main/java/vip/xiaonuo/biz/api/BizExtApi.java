@@ -15,13 +15,14 @@ package vip.xiaonuo.biz.api;
 import cn.hutool.json.JSONObject;
 
 /**
- * 绩效考核-目标登记Api
- *
+ *  biz远程调用Api
  *  @Author pzh
  *  @Date 2025/06/19 08:42
+ *
  **/
 public interface BizExtApi {
 
+    // 更新-绩效考核-目标登记
     void updateCompanyGoal(JSONObject jsonObject);
 
 }

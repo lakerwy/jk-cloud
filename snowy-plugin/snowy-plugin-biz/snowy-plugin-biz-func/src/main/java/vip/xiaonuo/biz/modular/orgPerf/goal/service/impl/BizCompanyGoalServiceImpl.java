@@ -5,14 +5,12 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
@@ -195,8 +193,35 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateCompanyGoal(JSONObject jsonObject) {
-        BizCompanyGoal bizCompanyGoal = this.queryEntity(jsonObject.getStr("goalId"));
-        System.out.println("Test："+bizCompanyGoal.getId());
+    public void updateCompanyGoal(String goalId, List<BizCompanyGoalKpi> kpiList) {
+        // 处理KPI指标-集合
+        if(CollUtil.isNotEmpty(kpiList)){
+            //本次传入的数据
+            kpiList.forEach(x->{
+                x.setGoalId(goalId);
+            });
+            //获取历史数据
+            List<BizCompanyGoalKpi> oldList = bizCompanyGoalKpiService.list(new QueryWrapper<BizCompanyGoalKpi>().lambda()
+                    .eq(BizCompanyGoalKpi::getGoalId, goalId));
+            List<String> oldIds = oldList.stream().map(BizCompanyGoalKpi::getId).collect(Collectors.toList());
+            //待新增的
+            List<BizCompanyGoalKpi> addList = kpiList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizCompanyGoalKpi> updateList = kpiList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(BizCompanyGoalKpi::getId).collect(Collectors.toList());
+            List<BizCompanyGoalKpi> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizCompanyGoalKpiService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizCompanyGoalKpiService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizCompanyGoalKpiService.removeByIds(removeList);
+            }
+        }else{
+            bizCompanyGoalKpiService.remove(new QueryWrapper<BizCompanyGoalKpi>().lambda().eq(BizCompanyGoalKpi::getGoalId,goalId));
+        }
     }
 }
