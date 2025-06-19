@@ -23,4 +23,9 @@ public interface SysExtApi {
      */
     Boolean dealIcManage(JSONObject object);
 
+
+    String getUserIdByName(String userName);
+
+    String getOrgIdByName(String orgName);
+
 }

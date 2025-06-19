@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.hr.reg.provider;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -10,6 +11,10 @@ import vip.xiaonuo.sys.api.SysExtApi;
 import vip.xiaonuo.sys.modular.hr.icManage.service.IcManageService;
 import vip.xiaonuo.sys.modular.hr.reg.entity.RegSubsidyResult;
 import vip.xiaonuo.sys.modular.hr.reg.service.RegSubsidyResultService;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -24,6 +29,12 @@ public class SysExtApiProvider implements SysExtApi {
 
     @Resource
     private IcManageService icManageService;
+
+    @Resource
+    private SysUserService sysUserService;
+
+    @Resource
+    private SysOrgService sysOrgService;
 
     /**
      * 注册补贴 审批 通过 处理结果反馈
@@ -69,6 +80,31 @@ public class SysExtApiProvider implements SysExtApi {
     @Override
     public Boolean dealIcManage(JSONObject object) {
         return icManageService.dealIcManage(object);
+    }
+
+    @Override
+    public String getUserIdByName(String userName) {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getName,userName);
+        queryWrapper.orderByDesc(SysUser::getUserStatus);
+        queryWrapper.last(" limit 1 ");
+        SysUser sysUser = sysUserService.getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(sysUser)){
+            return sysUser.getId();
+        }
+        return null;
+    }
+
+    @Override
+    public String getOrgIdByName(String orgName) {
+        LambdaQueryWrapper<SysOrg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysOrg::getName,orgName);
+        queryWrapper.last(" limit 1 ");
+        SysOrg sysOrg = sysOrgService.getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(sysOrg)){
+            return sysOrg.getId();
+        }
+        return null;
     }
 
 }

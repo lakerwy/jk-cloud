@@ -129,4 +129,8 @@ public class PorProject {
     /** 责任人 */
     @ApiModelProperty(value = "责任人", position = 24)
     private String dutyName;
+
+    /** 是否为初始化数据:1 是 0 否 */
+    @ApiModelProperty(value = "是否为初始化数据:1 是 0 否", position = 25)
+    private Integer isInit;
 }

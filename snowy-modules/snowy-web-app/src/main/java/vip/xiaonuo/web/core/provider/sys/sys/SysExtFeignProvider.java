@@ -58,5 +58,15 @@ public class SysExtFeignProvider implements SysExtFeign {
         return sysExtApiProvider.dealIcManage(object);
     }
 
+    @Override
+    public String getUserIdByName(String userName) {
+        return sysExtApiProvider.getUserIdByName(userName);
+    }
+
+    @Override
+    public String getOrgIdByName(String orgName) {
+        return sysExtApiProvider.getOrgIdByName(orgName);
+    }
+
 
 }

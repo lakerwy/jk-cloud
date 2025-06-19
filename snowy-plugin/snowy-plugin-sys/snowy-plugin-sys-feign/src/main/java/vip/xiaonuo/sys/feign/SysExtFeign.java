@@ -17,6 +17,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 import java.util.Map;
@@ -44,4 +45,11 @@ public interface SysExtFeign {
      */
     @RequestMapping(value = "/feign/sys/ext/dealIcManage",method = RequestMethod.POST)
     Boolean dealIcManage(@RequestBody JSONObject object);
+
+
+    @RequestMapping("/feign/sys/ext/getNameById")
+    String getUserIdByName(@RequestParam(value = "userName",required = false) String userName);
+
+    @RequestMapping("/feign/sys/ext/getOrgIdByName")
+    String getOrgIdByName(@RequestParam(value = "orgName",required = false) String orgName);
 }

@@ -51,4 +51,14 @@ public class SysExtApiContextBean implements SysExtApi {
     public Boolean dealIcManage(JSONObject object) {
         return sysExtFeign.dealIcManage(object);
     }
+
+    @Override
+    public String getUserIdByName(String userName) {
+        return sysExtFeign.getUserIdByName(userName);
+    }
+
+    @Override
+    public String getOrgIdByName(String orgName) {
+        return sysExtFeign.getOrgIdByName(orgName);
+    }
 }

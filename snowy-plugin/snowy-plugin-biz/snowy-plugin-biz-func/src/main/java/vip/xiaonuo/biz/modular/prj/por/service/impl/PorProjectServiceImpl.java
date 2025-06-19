@@ -421,7 +421,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             BigDecimal prjHsSum = ppcData.stream().map(x -> x.getHkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjHsRate = calculatePercentage(prjHsSum,prjYsSum);
             BigDecimal prjDsSum = prjYsSum.subtract(prjHsSum);
-            Double prjDsRate = 1-prjHsRate;
+            Double prjDsRate = ObjectUtil.isNotEmpty(prjHsRate) ? 1-prjHsRate : null;
 
 
             //10. [项目回款进度]
