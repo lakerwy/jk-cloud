@@ -12,13 +12,17 @@
  */
 package vip.xiaonuo.biz.modular.orgPerf.goal.provider;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.biz.api.BizExtApi;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,6 +34,16 @@ public class BizExtApiProvider implements BizExtApi {
     @Override
     public void updateCompanyGoal(JSONObject jsonObject) {
         log.info("更新-绩效考核-目标登记，参数值 jsonObject:{}", jsonObject);
-        bizCompanyGoalService.updateCompanyGoal(jsonObject);
+        JSONArray jsonArray = new JSONArray();
+        String goalId = null;
+        try {
+            goalId = jsonObject.getStr("id");
+            jsonArray = jsonObject.getJSONArray("kpiList");
+        } catch (Exception e){
+            log.error("更新-绩效考核-目标登记时,参数转换异常");
+        }
+        List<BizCompanyGoalKpi> kpiList = JSONUtil.toList(jsonArray, BizCompanyGoalKpi.class);
+        log.info("更新-绩效考核-目标登记，参数值goalId:{}，kpiList:{}", goalId, kpiList);
+        bizCompanyGoalService.updateCompanyGoal(goalId, kpiList);
     }
 }

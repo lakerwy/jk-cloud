@@ -42,9 +42,8 @@ public class FlwCompanyGoalModifyExecutionListener implements ExecutionListener 
             log.info(">>> 执行监听器：{}事件触发，流程id为：{}，当前活动节点为：{}",
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             Object dataJson = execution.getVariable("initiatorDataJson");
-            String goalId = String.valueOf(execution.getVariable("goalId"));
             JSONObject jsonObject = JSONUtil.parseObj(dataJson);
-            jsonObject.set("goalId", goalId);
+            // 更新-绩效考核-目标登记
             bizExtApi.updateCompanyGoal(jsonObject);
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwCompanyGoalModifyExecutionListener.class.getName(), e.getMessage());
