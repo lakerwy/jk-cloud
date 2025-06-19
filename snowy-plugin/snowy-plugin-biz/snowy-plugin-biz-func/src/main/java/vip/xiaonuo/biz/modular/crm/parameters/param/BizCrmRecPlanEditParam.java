@@ -48,7 +48,7 @@ public class BizCrmRecPlanEditParam {
 
     /** 缓冲期 */
     @ApiModelProperty(value = "缓冲期", position = 7)
-    private String gracePeriod;
+    private Integer gracePeriod;
 
     /** 收款比例（按总价计算） */
     @ApiModelProperty(value = "收款比例（按总价计算）", position = 8)
