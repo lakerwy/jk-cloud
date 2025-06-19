@@ -27,6 +27,20 @@
     </select>
 
 
+    <select id="getList" resultType="vip.xiaonuo.biz.modular.prj.por.vo.PorProjectVo" >
+        select a.*,
+               b.TYPE as bizPrjType,
+               b.NAME as bizPrjName,
+               b.SN as bizPrjSn,
+               b.LOCATION as bizPrjLocation,
+               b.SOURCE as bizPrjSource
+        from BIZ_POR_PROJECT a
+               left join BIZ_PROJECT b on a.PROJECT_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+
+
     <select id="getHtListByPrjId" resultType="vip.xiaonuo.biz.modular.prj.por.vo.HtData" parameterType="String">
         select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
                b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,

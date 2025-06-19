@@ -27,6 +27,7 @@ import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
 import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.*;
+import vip.xiaonuo.biz.modular.prj.por.enums.PorWarnEnum;
 import vip.xiaonuo.biz.modular.prj.por.mapper.*;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.service.*;
@@ -39,6 +40,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -145,9 +147,11 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     @Override
     public PorProjectVo detail(PorProjectIdParam porProjectIdParam) {
         PorProjectVo result = porProjectMapper.getDetail(porProjectIdParam.getId());
-        List<PorProjectVo> list = new ArrayList<>();
-        list.add(result);
-        return getPorProjectData(list).get(0);
+        List<PorProjectVo> list = Arrays.asList(result);
+        if(CollUtil.isNotEmpty(list)){
+            return getPorProjectData(list).get(0);
+        }
+        return result;
     }
 
     @Override
@@ -299,6 +303,54 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         return getPisData(htIds,null);
     }
 
+    @Override
+    public List<PorRpmVo> getRpmListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porRpmMapper.getRpmListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorSignVo> getSignListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porSignMapper.getSignListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorSiteFeeVo> getSiteListByPrjId(PorProjectParam param) {
+        PorProject porProject = this.queryEntity(param.getPorProjectId());
+        return porSiteFeeMapper.getSiteListByPrjId(porProject.getProjectId());
+    }
+
+    @Override
+    public List<PorMember> getMemberListByPrjId(PorPrjParam param) {
+        LambdaQueryWrapper<PorMember> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorMember::getPorProjectId,param.getPorProjectId());
+        return porMemberService.list(queryWrapper);
+    }
+
+    @Override
+    public List<PorWarn> getWarnListByPrjId(PorPrjParam param) {
+        LambdaQueryWrapper<PorWarn> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PorWarn::getPorProjectId,param.getPorProjectId());
+        return porWarnService.list(queryWrapper);
+    }
+
+    @Override
+    public void updateRec(RecParam param) {
+        BizCrmRecPlan bizCrmRecPlan = bizCrmRecPlanService.getById(param.getId());
+        bizCrmRecPlan.setRecStatus(param.getRecStatus());
+        bizCrmRecPlanService.updateById(bizCrmRecPlan);
+    }
+
+    @Override
+    public void updatePorWarn(RecParam param) {
+        PorWarn porWarn = porWarnService.getById(param.getId());
+        porWarn.setDealStatus(porWarn.getDealStatus());
+        porWarn.setDealTime(DateTime.now());
+        porWarnService.updateById(porWarn);
+    }
+
+
 
 
     /**
@@ -350,6 +402,8 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         return result;
     }
 
+
+
     /**
      * 计算百分比：(part / total) × 100%
      * @param part
@@ -360,11 +414,15 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         if (total == null || total.compareTo(BigDecimal.ZERO) == 0) {
             return null;
         }
+        if (part == null || part.compareTo(BigDecimal.ZERO) < 0){
+            return null;
+        }
 
         return part.divide(total, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
+
 
     /**
      * 计算金额合计
@@ -384,6 +442,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         }
         return sumTotal;
     }
+
 
     /**
      * 统计信息[补充统计信息]
@@ -428,16 +487,12 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             Double prjRcmRate = calculatePercentage(prjHsSum,prjHtSum);
 
             //11. [项目回款进度缺口]
-            BigDecimal recTotal = BigDecimal.ZERO;
+            BigDecimal recPlanSum = BigDecimal.ZERO;
             if(CollUtil.isNotEmpty(htList)) {
-                LambdaQueryWrapper<BizCrmRecPlan> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.in(BizCrmRecPlan::getHetongId,htList.stream().map(x->x.getId()).collect(Collectors.toList()));
-                queryWrapper.lt(BizCrmRecPlan::getPlannedRecDate,DateTime.now());
-                queryWrapper.isNotNull(BizCrmRecPlan::getPlannedRecAmount);
-                List<BizCrmRecPlan> tmpRecList = bizCrmRecPlanService.list(queryWrapper);
-                recTotal = tmpRecList.stream().map(x -> x.getPlannedRecAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                List<BizCrmRecPlan> tmpRecList = getBizCrmRecPlanList(htList.stream().map(x->x.getId()).collect(Collectors.toList()));
+                recPlanSum = tmpRecList.stream().map(x -> x.getPlannedRecAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             }
-            Double prjRcmLostRate = calculatePercentage(recTotal.subtract(prjHsSum),prjHtSum);
+            Double prjRcmLostRate = calculatePercentage(recPlanSum.subtract(prjHsSum),prjHtSum);
 
 
             //3. [分包合同]
@@ -536,50 +591,80 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     }
 
 
-    @Override
-    public List<PorRpmVo> getRpmListByPrjId(PorProjectParam param) {
-        PorProject porProject = this.queryEntity(param.getPorProjectId());
-        return porRpmMapper.getRpmListByPrjId(porProject.getProjectId());
+    /**
+     * 根据合同id，获取该合同的还款计划信息
+     * 条件：还款日期、缓冲期、还款金额 不为空，还款日期+缓冲期<当前日期
+     * @param htIds 合同id
+     * @return
+     */
+    private List<BizCrmRecPlan> getBizCrmRecPlanList(List<String> htIds) {
+        if(CollUtil.isEmpty(htIds)) return null;
+        LambdaQueryWrapper<BizCrmRecPlan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(BizCrmRecPlan::getHetongId, htIds);
+        queryWrapper.isNotNull(BizCrmRecPlan::getPlannedRecAmount);
+        queryWrapper.isNotNull(BizCrmRecPlan::getGracePeriod);
+        queryWrapper.isNotNull(BizCrmRecPlan::getPlannedRecDate);
+        queryWrapper.apply("DATE_ADD(PLANNED_REC_DATE, INTERVAL GRACE_PERIOD DAY) < NOW()");
+        List<BizCrmRecPlan> tmpRecList = bizCrmRecPlanService.list(queryWrapper);
+        for (BizCrmRecPlan item : tmpRecList) {
+            if(ObjectUtil.isAllNotEmpty(item.getPlannedRecDate(),item.getGracePeriod())){
+
+            }
+        }
+        return tmpRecList;
     }
 
-    @Override
-    public List<PorSignVo> getSignListByPrjId(PorProjectParam param) {
-        PorProject porProject = this.queryEntity(param.getPorProjectId());
-        return porSignMapper.getSignListByPrjId(porProject.getProjectId());
-    }
 
     @Override
-    public List<PorSiteFeeVo> getSiteListByPrjId(PorProjectParam param) {
-        PorProject porProject = this.queryEntity(param.getPorProjectId());
-        return porSiteFeeMapper.getSiteListByPrjId(porProject.getProjectId());
-    }
+    public void doWarn(String warnType){
+        //框定数据集
+        LocalDate threeYearAgo = LocalDate.now().minusYears(3);
+        QueryWrapper<PorProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.ge("b.CREATE_TIME",threeYearAgo);
+        queryWrapper.in("a.PROJECT_STATUS","进行中","已完工","已结项");
+        List<String> prjTypes = Arrays.asList("设计","勘察","咨询");
+        if(CollUtil.isNotEmpty(prjTypes)){
+            queryWrapper.or(q->{
+                for (String prjType : prjTypes) {
+                    q.apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+                }
+            });
+        }
+        List<PorProjectVo> dataList = porProjectMapper.getList(queryWrapper);
+        //预警
+        if(PorWarnEnum.HK_FX_WARN.getValue().equals(warnType)){
+            for (PorProjectVo prj : dataList) {
+                //项目下所有合同
+                List<HtData> htData = porProjectMapper.getHtListByPrjId(prj.getProjectId());
+                //[收入合同 - 审批通过]
+                List<HtData> htList = htData.stream().filter(x->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(x.getStatus())).collect(Collectors.toList());
 
-    @Override
-    public List<PorMember> getMemberListByPrjId(PorPrjParam param) {
-        LambdaQueryWrapper<PorMember> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PorMember::getPorProjectId,param.getPorProjectId());
-        return porMemberService.list(queryWrapper);
-    }
+                if(CollUtil.isNotEmpty(htList)) {
+                    List<String> htIds = htList.stream().map(x->x.getId()).collect(Collectors.toList());
+                    List<BizCrmRecPlan> tmpRecList = getBizCrmRecPlanList(htIds);
+                    //计划回款总金额
+                    BigDecimal recPlanSum = tmpRecList.stream().map(x -> x.getPlannedRecAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    //实际回款金额
+                    List<FinDataPpc> ppcData = porProjectMapper.getPpcListByPrjId(prj.getProjectId());
+                    BigDecimal prjHsSum = ppcData.stream().map(x -> x.getHkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                }
 
-    @Override
-    public List<PorWarn> getWarnListByPrjId(PorPrjParam param) {
-        LambdaQueryWrapper<PorWarn> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PorWarn::getPorProjectId,param.getPorProjectId());
-        return porWarnService.list(queryWrapper);
-    }
+//                if()
+//
+//                //11. [项目回款进度缺口]
+//                BigDecimal recPlanSum = BigDecimal.ZERO;
+//
+//                Double prjRcmLostRate = calculatePercentage(recPlanSum.subtract(prjHsSum),prjHtSum);
 
-    @Override
-    public void updateRec(RecParam param) {
-        BizCrmRecPlan bizCrmRecPlan = bizCrmRecPlanService.getById(param.getId());
-        bizCrmRecPlan.setRecStatus(param.getRecStatus());
-        bizCrmRecPlanService.updateById(bizCrmRecPlan);
-    }
+            }
 
-    @Override
-    public void updatePorWarn(RecParam param) {
-        PorWarn porWarn = porWarnService.getById(param.getId());
-        porWarn.setDealStatus(porWarn.getDealStatus());
-        porWarn.setDealTime(DateTime.now());
-        porWarnService.updateById(porWarn);
+
+
+
+        }else if (PorWarnEnum.JF_YQ_WARN.getValue().equals(warnType)){
+
+        }
+
     }
 }

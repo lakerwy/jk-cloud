@@ -11,8 +11,11 @@ import lombok.Getter;
 @Getter
 public enum PorWarnEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 回款风险预警 */
+    HK_FX_WARN("回款风险预警"),
+
+    /** 项目交付延期预警 */
+    JF_YQ_WARN("项目交付延期预警");
 
     private final String value;
 

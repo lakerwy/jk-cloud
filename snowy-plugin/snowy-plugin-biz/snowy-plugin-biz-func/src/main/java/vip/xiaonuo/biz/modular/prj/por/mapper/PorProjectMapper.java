@@ -26,6 +26,8 @@ public interface PorProjectMapper extends BaseMapper<PorProject> {
 
     PorProjectVo getDetail(String id);
 
+    List<PorProjectVo> getList(@Param(Constants.WRAPPER) Wrapper<PorProject> queryWrapper);
+
     /**
      * 根据立项id,获取 审批中|审批通过 合同
      * @param bizProjectId

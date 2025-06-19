@@ -102,4 +102,7 @@ public interface PorProjectService extends IService<PorProject> {
     void updateRec(RecParam param);
 
     void updatePorWarn(RecParam param);
+
+
+    void doWarn(String warnType);
 }

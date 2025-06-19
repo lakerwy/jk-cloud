@@ -100,4 +100,10 @@ public class BizCrmRecPlan {
     @ApiModelProperty(value = "数据权限控制字段", position = 22)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+
+    /** （若均存在）计划收款日期+缓冲期（格式：yyyy-MM-dd） */
+    @ApiModelProperty(value = "（若均存在）计划收款日期+缓冲期（计划收款日期（格式：yyyy-MM-dd）", position = 5)
+    @TableField(exist = false)
+    private Date recDate;
 }
