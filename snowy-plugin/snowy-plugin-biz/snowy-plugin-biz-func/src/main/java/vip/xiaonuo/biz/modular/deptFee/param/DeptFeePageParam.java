@@ -36,10 +36,10 @@ public class DeptFeePageParam {
 
     /** 年份（例如：2025） */
     @ApiModelProperty(value = "年份（例如：2025）", position = 4)
-    private String year;
+    private Integer year;
 
     /** 季度（例如：1） */
     @ApiModelProperty(value = "季度（例如：1）", position = 5)
-    private String season;
+    private Integer season;
 
 }

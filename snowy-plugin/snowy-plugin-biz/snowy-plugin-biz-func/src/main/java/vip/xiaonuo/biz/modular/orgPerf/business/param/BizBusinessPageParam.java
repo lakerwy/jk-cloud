@@ -46,10 +46,10 @@ public class BizBusinessPageParam {
 
     /** 年份（例如：2025） */
     @ApiModelProperty(value = "年份（例如：2025）")
-    private String year;
+    private Integer year;
 
-    /** 月份（例如：01） */
-    @ApiModelProperty(value = "月份（例如：01）")
-    private String month;
+    /** 月份（例如：1） */
+    @ApiModelProperty(value = "月份（例如：1）")
+    private Integer month;
 
 }

@@ -22,7 +22,7 @@ import vip.xiaonuo.biz.feign.BizExtFeign;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class BizExtContextBean implements BizExtApi {
+public class BizExtApiContextBean implements BizExtApi {
 
     private final BizExtFeign bizExtFeign;
 

@@ -57,7 +57,7 @@ public class BizExtApiProvider implements BizExtApi {
             log.error("更新-绩效考核-目标登记时,参数转换异常");
         }
         List<BizCompanyGoalKpi> kpiList = JSONUtil.toList(jsonArray, BizCompanyGoalKpi.class);
-        log.info("更新-绩效考核-目标登记，参数值goalId:{}，kpiList:{}", goalId, kpiList);
+        log.info("更新-绩效考核-目标登记，参数值 goalId:{}，kpiList:{}", goalId, kpiList);
         bizCompanyGoalService.updateCompanyGoal(goalId, kpiList);
     }
 

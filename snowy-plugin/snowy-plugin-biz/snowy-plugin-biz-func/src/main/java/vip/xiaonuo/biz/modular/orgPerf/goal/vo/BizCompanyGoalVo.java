@@ -29,7 +29,7 @@ public class BizCompanyGoalVo {
 
     /** 考核周期（例如：2025） */
     @ApiModelProperty(value = "考核周期（例如：2025）", position = 3)
-    private String assYear;
+    private Integer assYear;
 
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 4)

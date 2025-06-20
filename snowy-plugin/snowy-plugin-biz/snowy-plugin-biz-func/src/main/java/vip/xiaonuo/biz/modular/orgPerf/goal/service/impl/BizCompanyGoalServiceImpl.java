@@ -16,6 +16,8 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalKpiService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizCompanyGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -25,6 +27,8 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,12 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
 
     @Resource
     private BizCompanyGoalKpiService bizCompanyGoalKpiService;
+
+    @Resource
+    private BizCompanyGoalMapper bizCompanyGoalMapper;
+
+    // 湖北建科科技集团有限公司orgId
+    private static final String COMPANY_ID = "1543842934270394368";
 
     @Override
     public Page<BizCompanyGoal> page(BizCompanyGoalPageParam bizCompanyGoalPageParam) {
@@ -82,6 +92,8 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         if(CollUtil.isNotEmpty(kpiList)){
             kpiList.forEach(x->{
                 x.setGoalId(bizCompanyGoal.getId());
+                x.setAssType(bizCompanyGoal.getAssType());
+                x.setAssYear(bizCompanyGoal.getAssYear());
             });
             bizCompanyGoalKpiService.saveBatch(kpiList);
         }
@@ -112,6 +124,8 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
             //本次传入的数据
             kpiList.forEach(x->{
                 x.setGoalId(bizCompanyGoal.getId());
+                x.setAssType(bizCompanyGoal.getAssType());
+                x.setAssYear(bizCompanyGoal.getAssYear());
             });
             //获取历史数据
             List<BizCompanyGoalKpi> oldList = bizCompanyGoalKpiService.list(new QueryWrapper<BizCompanyGoalKpi>().lambda()
@@ -223,5 +237,88 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         }else{
             bizCompanyGoalKpiService.remove(new QueryWrapper<BizCompanyGoalKpi>().lambda().eq(BizCompanyGoalKpi::getGoalId,goalId));
         }
+    }
+
+    /**
+     *
+     * 1.新签合同总额：业务情况表，湖北建科科技集团有限公司对应月份“累计新签合同额”；
+     * 2.收入总额：财务情况表，湖北建科科技集团有限公司对应月份“累计回款额”
+     * 3.产值：产值情况表，统计年度内各部门生产产值求和，仅计算3月、6月、9月、12月份产值累计值，即3月累计产值为第一季度各部门产值之和，6月累计产值为各部门第一季度+第二季度产值之和，以此类推。其他月份产值累计值为空。
+     * 4.利润总额：财务情况表，湖北建科科技集团有限公司对应月份“累计净利润”
+     *
+     * @param companySummaryListParam
+     * @return
+     *
+     */
+    @Override
+    public List<CompanySummaryListVo> companySummaryList(CompanySummaryListParam companySummaryListParam) {
+        List<CompanySummaryListVo> voList = CollUtil.newArrayList();
+        List<BizCompanyGoal> companyGoalList = this.list();
+        if(CollUtil.isEmpty(companyGoalList)){
+            return voList;
+        }
+        // 没有传考核年份，则取所有目标年份
+        List<Integer> assYearList = new ArrayList<>();
+        if(companySummaryListParam.getAssYear() == null){
+            assYearList = companyGoalList.stream().map(BizCompanyGoal::getAssYear).distinct().collect(Collectors.toList());
+        }else {
+            assYearList.add(companySummaryListParam.getAssYear());
+        }
+        // 查询完成值
+        voList = bizCompanyGoalMapper.companySummaryList(assYearList, COMPANY_ID);
+        if(CollUtil.isEmpty(companyGoalList)){
+            return voList;
+        }
+        List<String> goalIdList = companyGoalList.stream().map(BizCompanyGoal::getId).distinct().collect(Collectors.toList());
+        // 查询kpi
+        List<BizCompanyGoalKpi> kpiList = bizCompanyGoalKpiService.list(new LambdaQueryWrapper<BizCompanyGoalKpi>()
+                .in(BizCompanyGoalKpi::getGoalId, goalIdList));
+        // 获取目标值
+        for(CompanySummaryListVo vo: voList){
+            // 总分
+            BigDecimal totalScore = BigDecimal.ZERO;
+            // 当前考核年度的kpi
+            List<BizCompanyGoalKpi> currKpiList = kpiList.stream().filter(x -> x.getAssYear().equals(vo.getAssYear())).collect(Collectors.toList());
+            BizCompanyGoalKpi kpi1 = currKpiList.stream().filter(x -> "新签合同总额".equals(x.getAssName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(kpi1)){
+                // 新签合同总额-目标值
+                vo.setNewContractTotalGoal(kpi1.getGoalValue());
+                // 新签合同总额-完成进度
+                vo.setNewContractTotalCompProgress(vo.getNewContractTotalComp().divide(vo.getNewContractTotalGoal(), 4, RoundingMode.FLOOR).multiply(new BigDecimal(100)));
+                // 计入总分
+                totalScore = totalScore.add(vo.getNewContractTotalComp().multiply(kpi1.getWeight()).divide(vo.getNewContractTotalGoal(), 2, RoundingMode.FLOOR));
+            }
+            BizCompanyGoalKpi kpi2 = currKpiList.stream().filter(x -> "收入总额".equals(x.getAssName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(kpi2)){
+                // 收入总额-目标值
+                vo.setIncomeTotalGoal(kpi2.getGoalValue());
+                // 收入总额-完成进度
+                vo.setIncomeTotalCompProgress(vo.getIncomeTotalComp().divide(vo.getIncomeTotalGoal(), 4, RoundingMode.FLOOR).multiply(new BigDecimal(100)));
+                // 计入总分
+                totalScore = totalScore.add(vo.getIncomeTotalComp().multiply(kpi2.getWeight()).divide(vo.getIncomeTotalGoal(), 2, RoundingMode.FLOOR));
+            }
+            BizCompanyGoalKpi kpi3 = currKpiList.stream().filter(x -> "产值".equals(x.getAssName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(kpi3)){
+                // 产值-目标值
+                vo.setProValueTotalGoal(kpi3.getGoalValue());
+                // 产值-完成进度
+                vo.setProValueTotalCompProgress(vo.getProValueTotalComp().divide(vo.getProValueTotalGoal(), 4, RoundingMode.FLOOR).multiply(new BigDecimal(100)));
+                // 计入总分
+                totalScore = totalScore.add(vo.getProValueTotalComp().multiply(kpi3.getWeight()).divide(vo.getProValueTotalGoal(), 2, RoundingMode.FLOOR));
+            }
+            BizCompanyGoalKpi kpi4 = currKpiList.stream().filter(x -> "利润总额".equals(x.getAssName())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(kpi4)){
+                // 利润总额-目标值
+                vo.setProfitTotalGoal(kpi4.getGoalValue());
+                // 利润总额-完成进度
+                vo.setProfitTotalCompProgress(vo.getProfitTotalComp().divide(vo.getProfitTotalGoal(), 4, RoundingMode.FLOOR).multiply(new BigDecimal(100)));
+                // 计入总分
+                totalScore = totalScore.add(vo.getProValueTotalComp().multiply(kpi4.getWeight()).divide(vo.getProValueTotalGoal(), 2, RoundingMode.FLOOR));
+            }
+            // 总分
+            vo.setTotalScore(totalScore);
+        }
+        return voList;
+
     }
 }

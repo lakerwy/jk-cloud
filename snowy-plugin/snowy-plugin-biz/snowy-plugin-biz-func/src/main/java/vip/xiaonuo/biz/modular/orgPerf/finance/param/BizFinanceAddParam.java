@@ -29,11 +29,11 @@ public class BizFinanceAddParam {
 
     /** 年份（例如：2025） */
     @ApiModelProperty(value = "年份（例如：2025）", position = 4)
-    private String year;
+    private Integer year;
 
-    /** 月份（例如：01） */
-    @ApiModelProperty(value = "月份（例如：01）", position = 5)
-    private String month;
+    /** 月份（例如：1） */
+    @ApiModelProperty(value = "月份（例如：1）", position = 5)
+    private Integer month;
 
     /** 累计回款额 */
     @ApiModelProperty(value = "累计回款额", position = 6)
