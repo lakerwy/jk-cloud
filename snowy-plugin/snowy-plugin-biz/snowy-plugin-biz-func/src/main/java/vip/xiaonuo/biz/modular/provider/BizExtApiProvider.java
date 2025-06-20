@@ -74,6 +74,9 @@ public class BizExtApiProvider implements BizExtApi {
         if(ObjectUtil.isNotEmpty(dept) && ObjectUtil.isEmpty(deptId)){
             deptId = bizOrgService.getOrgIdByName(dept);
         }
+        if(ObjectUtil.isEmpty(deptId)){  //保底
+            deptId = "-1";
+        }
         PorProject porProject = new PorProject();
         porProject.setProjectId(bizProjectId);
         porProject.setDutyDeptId(deptId);
