@@ -466,7 +466,10 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
     public List<PorProjectVo> getPorProjectData(List<PorProjectVo> dataList){
         for (PorProjectVo prj : dataList) {
             //基础信息
-            List<String> prjTypeList = Arrays.asList(prj.getBizPrjType().replace("，", ",").split(","));
+            List<String> prjTypeList = new ArrayList<>();
+            if(ObjectUtil.isNotEmpty(prj.getBizPrjType())) {
+                prjTypeList = Arrays.asList(prj.getBizPrjType().replace("，", ",").split(","));
+            }
 
             List<HtData> htData = porProjectMapper.getHtListByPrjId(prj.getProjectId());
             List<String> htIds = htData.stream().map(x->x.getId()).collect(Collectors.toList());
