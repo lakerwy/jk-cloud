@@ -12,14 +12,19 @@
  */
 package vip.xiaonuo.biz.modular.provider;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.biz.api.BizExtApi;
+import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
+import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
+import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
+import vip.xiaonuo.biz.modular.user.service.BizUserService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -30,6 +35,15 @@ public class BizExtApiProvider implements BizExtApi {
 
     @Resource
     private BizCompanyGoalService bizCompanyGoalService;
+
+    @Resource
+    private PorProjectService porProjectService;
+
+    @Resource
+    private BizOrgService bizOrgService;
+
+    @Resource
+    private BizUserService bizUserService;
 
     @Override
     public void updateCompanyGoal(JSONObject jsonObject) {
@@ -45,5 +59,29 @@ public class BizExtApiProvider implements BizExtApi {
         List<BizCompanyGoalKpi> kpiList = JSONUtil.toList(jsonArray, BizCompanyGoalKpi.class);
         log.info("更新-绩效考核-目标登记，参数值goalId:{}，kpiList:{}", goalId, kpiList);
         bizCompanyGoalService.updateCompanyGoal(goalId, kpiList);
+    }
+
+    @Override
+    public void doWarn(String warnType) {
+        porProjectService.doWarn(warnType);
+    }
+
+    @Override
+    public void savePorProject(String bizProjectId, String areaLeader, String areaLeaderId, String dept, String deptId) {
+        if(ObjectUtil.isNotEmpty(areaLeader) && ObjectUtil.isEmpty(areaLeaderId)){
+            areaLeaderId = bizUserService.getUserIdByName(areaLeader);
+        }
+        if(ObjectUtil.isNotEmpty(dept) && ObjectUtil.isEmpty(deptId)){
+            deptId = bizOrgService.getOrgIdByName(dept);
+        }
+        PorProject porProject = new PorProject();
+        porProject.setProjectId(bizProjectId);
+        porProject.setDutyDeptId(deptId);
+        porProject.setDutyDeptName(dept);
+        porProject.setDutyId(areaLeaderId);
+        porProject.setDutyName(areaLeader);
+        porProject.setProjectStatus("未开始");
+        porProject.setMemo("立项审批通过-系统自动同步");
+        porProjectService.save(porProject);
     }
 }

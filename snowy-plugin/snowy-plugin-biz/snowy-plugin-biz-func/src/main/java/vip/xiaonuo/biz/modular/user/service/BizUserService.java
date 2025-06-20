@@ -188,4 +188,6 @@ public interface BizUserService extends IService<BizUser> {
      */
     List<JSONObject> dynamicFieldConfigList();
 
+    String getUserIdByName(String userName);
+
 }

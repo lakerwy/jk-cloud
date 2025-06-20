@@ -42,7 +42,6 @@ import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.excel.write.style.row.AbstractRowHeightStyleStrategy;
-import com.baomidou.dynamic.datasource.annotation.Master;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -754,4 +753,19 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
         String tableName = AnnotationUtil.getAnnotationValue(BizUser.class, TableName.class);
         return devDfcApi.getTableFieldList(currentDataSourceId, tableName);
     }
+
+    @Override
+    public String getUserIdByName(String userName) {
+        LambdaQueryWrapper<BizUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BizUser::getName,userName);
+        queryWrapper.orderByDesc(BizUser::getUserStatus);
+        queryWrapper.last(" limit 1 ");
+        BizUser sysUser = this.getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(sysUser)){
+            return sysUser.getId();
+        }
+        return null;
+    }
+
+
 }

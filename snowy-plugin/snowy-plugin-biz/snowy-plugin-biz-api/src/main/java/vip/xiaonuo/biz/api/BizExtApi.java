@@ -25,4 +25,9 @@ public interface BizExtApi {
     // 更新-绩效考核-目标登记
     void updateCompanyGoal(JSONObject jsonObject);
 
+    // 项目管理-预警
+    void doWarn(String warnType);
+
+    void savePorProject(String bizProjectId,String areaLeader,String areaLeaderId,String dept,String deptId);
+
 }

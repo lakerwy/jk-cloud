@@ -31,4 +31,16 @@ public class BizExtFeignProvider implements BizExtFeign {
     public void updateCompanyGoal(@RequestBody JSONObject jsonObject) {
         bizExtApiProvider.updateCompanyGoal(jsonObject);
     }
+
+    @Override
+    @RequestMapping(value = "/feign/biz/ext/por/doWarn")
+    public void doWarn(String warnType) {
+        bizExtApiProvider.doWarn(warnType);
+    }
+
+    @Override
+    @RequestMapping(value = "/feign/biz/ext/por/savePorProject")
+    public void savePorProject(String bizProjectId, String areaLeader, String areaLeaderId, String dept, String deptId) {
+        bizExtApiProvider.savePorProject(bizProjectId,areaLeader,areaLeaderId,dept,deptId);
+    }
 }

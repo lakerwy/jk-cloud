@@ -165,6 +165,13 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!--工作流程feign-->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-biz-feign</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <!-- 动态租户插件 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>

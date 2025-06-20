@@ -53,6 +53,12 @@
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
 
+        <!-- 引入Biz接口，用于获取用户等功能 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-biz-api</artifactId>
+        </dependency>
+
         <!-- 引入工具类模块 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>

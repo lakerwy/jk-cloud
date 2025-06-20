@@ -30,4 +30,14 @@ public class BizExtContextBean implements BizExtApi {
     public void updateCompanyGoal(JSONObject jsonObject) {
         bizExtFeign.updateCompanyGoal(jsonObject);
     }
+
+    @Override
+    public void doWarn(String warnType) {
+        bizExtFeign.doWarn(warnType);
+    }
+
+    @Override
+    public void savePorProject(String bizProjectId, String areaLeader, String areaLeaderId, String dept, String deptId) {
+        bizExtFeign.savePorProject(bizProjectId,areaLeader,areaLeaderId,dept,deptId);
+    }
 }

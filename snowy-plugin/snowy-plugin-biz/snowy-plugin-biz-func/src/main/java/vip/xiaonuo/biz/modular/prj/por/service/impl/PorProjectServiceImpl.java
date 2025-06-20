@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -22,6 +23,7 @@ import vip.xiaonuo.biz.modular.crm.parameters.service.BizCrmRecPlanService;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
+import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
 import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
@@ -36,15 +38,16 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.DevDictApi;
+import vip.xiaonuo.dev.api.IDingDingService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +59,12 @@ import java.util.stream.Collectors;
 @Service
 @DS("slave_1")
 public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProject> implements PorProjectService {
+
+    @Resource
+    DevDictApi devDictApi;
+
+    @Resource
+    IDingDingService dingDingService;
 
     @Resource
     private PorReportService porReportService;
@@ -300,7 +309,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         PorProject porProject = this.queryEntity(param.getPorProjectId());
         List<HtData> htList = porProjectMapper.getHtListByPrjId(porProject.getProjectId());
         List<String> htIds = htList.stream().map(x->x.getId()).collect(Collectors.toList());
-        return getPisData(htIds,null);
+        return getPisData(htIds,null,null);
     }
 
     @Override
@@ -357,15 +366,20 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
      * 构造结果[项目拨付-按照分包合同维度加工]
      * @param htIds      收入合同id集合
      * @param natureList 分包合同款项性质集合
+     * @param pisStatus  项目拨付流程状态
      * @return
      */
     @Override
-    public List<PisData> getPisData(List<String> htIds, List<String> natureList) {
+    public List<PisData> getPisData(List<String> htIds, List<String> natureList,String pisStatus) {
         List<PisData> result = new ArrayList<>();
         if(CollUtil.isEmpty(htIds)) return result;
 
         LambdaQueryWrapper<PisAllotment> pisAllotmentLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(pisStatus)){
+            pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus, pisStatus);
+        }else {
+            pisAllotmentLambdaQueryWrapper.in(PisAllotment::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS.getValue());
+        }
         pisAllotmentLambdaQueryWrapper.in(PisAllotment::getHtId,htIds);
         List<PisAllotment> pisAllotmentList = pisAllotmentService.list(pisAllotmentLambdaQueryWrapper);
         if(CollUtil.isEmpty(pisAllotmentList)) return result;
@@ -503,9 +517,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             BigDecimal prjSubSum = subcontractList.stream().map(x->x.getContractAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Long prjSubNum = subcontractList.stream().count();
             BigDecimal prjYfSum = prjSubSum;
-            List<PisData> pisData = getPisData(htIds,null);
+
             //[拨付- 审批通过]
-            List<PisData> pisDataList = pisData.stream().filter(x -> FlwStatusEnum.COMPLETED_STATUS.getValue().equals(x.getStatus())).collect(Collectors.toList());
+            List<PisData> pisDataList = getPisData(htIds,null,FlwStatusEnum.COMPLETED_STATUS.getValue());
             BigDecimal prjHfSum = pisDataList.stream().map(x->x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjHfRate = calculatePercentage(prjHfSum,prjYfSum);
 
@@ -515,9 +529,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
 
             //5. [经营费]
             List<PorOemVo> oemData = porOemMapper.getOemListByPrjId(prj.getProjectId());
-            List<PisData> oemPisData = getPisData(htIds, CollectionUtil.toList("经营费","居间费"));
+
             //[拨付- 审批通过]
-            List<PisData> oemPisDataList = oemPisData.stream().filter(x -> FlwStatusEnum.COMPLETED_STATUS.getValue().equals(x.getStatus())).collect(Collectors.toList());
+            List<PisData> oemPisDataList = getPisData(htIds, CollectionUtil.toList("经营费","居间费"),FlwStatusEnum.COMPLETED_STATUS.getValue());
             BigDecimal prjOemYfSum = oemData.stream().map(x->x.getOemTotalAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal prjOemHfSum = oemPisDataList.stream().map(x->x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjOemHfRate = calculatePercentage(prjOemHfSum,prjOemYfSum);
@@ -538,8 +552,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
                 List<Subcontract> subSettleSubContractList = subcontractList.stream().filter(x->CollectionUtil.toList("分包","其他").contains(x.getExpenseNature())).collect(Collectors.toList());
                 prjSubYfSum = subSettleSubContractList.stream().map(x -> x.getContractAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             }
-            List<PisData> subSettlePisData = getPisData(htIds, CollectionUtil.toList("分包","其他"));
-            List<PisData> subSettlePisDataList = subSettlePisData.stream().filter(x -> FlwStatusEnum.COMPLETED_STATUS.getValue().equals(x.getStatus())).collect(Collectors.toList());
+
+            // [拨付 - 审批通过]
+            List<PisData> subSettlePisDataList = getPisData(htIds, CollectionUtil.toList("分包","其他"),FlwStatusEnum.COMPLETED_STATUS.getValue());
             BigDecimal prjSubHfSum = subSettlePisDataList.stream().map(x -> x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjSubHfRate = calculatePercentage(prjSubHfSum,prjSubYfSum);
 
@@ -607,11 +622,27 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         queryWrapper.apply("DATE_ADD(PLANNED_REC_DATE, INTERVAL GRACE_PERIOD DAY) < NOW()");
         List<BizCrmRecPlan> tmpRecList = bizCrmRecPlanService.list(queryWrapper);
         for (BizCrmRecPlan item : tmpRecList) {
-            if(ObjectUtil.isAllNotEmpty(item.getPlannedRecDate(),item.getGracePeriod())){
-
-            }
+            item.setRecDate(getDateAdd(item.getPlannedRecDate(),item.getGracePeriod()));
         }
         return tmpRecList;
+    }
+
+    /**
+     * 日期 + n天
+     * @param date 格式 yyyy-MM-dd
+     * @param gracePeriod 加 n 天
+     * @return
+     */
+    public Date getDateAdd(Date date,Integer gracePeriod) {
+        if (ObjectUtil.isEmpty(date) || ObjectUtil.isEmpty(gracePeriod)){
+            return date;
+        }
+        // 转为 LocalDate
+        LocalDate localDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        LocalDate newDate = localDate.plusDays(gracePeriod);
+        return Date.from(newDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
 
@@ -620,6 +651,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         //框定数据集
         LocalDate threeYearAgo = LocalDate.now().minusYears(3);
         QueryWrapper<PorProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.IS_INIT",0);
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.ge("b.CREATE_TIME",threeYearAgo);
         queryWrapper.in("a.PROJECT_STATUS","进行中","已完工","已结项");
@@ -639,32 +671,165 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
                 List<HtData> htData = porProjectMapper.getHtListByPrjId(prj.getProjectId());
                 //[收入合同 - 审批通过]
                 List<HtData> htList = htData.stream().filter(x->FlwStatusEnum.COMPLETED_STATUS.getValue().equals(x.getStatus())).collect(Collectors.toList());
-
+                //有审批通过合同
                 if(CollUtil.isNotEmpty(htList)) {
+                    //合同总额
+                    BigDecimal prjHtSum = htList.stream().map(x -> x.getSumAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
                     List<String> htIds = htList.stream().map(x->x.getId()).collect(Collectors.toList());
                     List<BizCrmRecPlan> tmpRecList = getBizCrmRecPlanList(htIds);
-                    //计划回款总金额
-                    BigDecimal recPlanSum = tmpRecList.stream().map(x -> x.getPlannedRecAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    //实际回款金额
-                    List<FinDataPpc> ppcData = porProjectMapper.getPpcListByPrjId(prj.getProjectId());
-                    BigDecimal prjHsSum = ppcData.stream().map(x -> x.getHkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    //有还款计划
+                    if(CollUtil.isNotEmpty(tmpRecList)) {
+                        BizCrmRecPlan maxBizCrmRecPlan = tmpRecList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getRecDate())).max(Comparator.comparing(BizCrmRecPlan::getRecDate)).orElse(null);
+                        //逾期天数
+                        long lateDays = 0;
+                        if(ObjectUtil.isNotEmpty(maxBizCrmRecPlan)){
+                            lateDays = getDayBetween(maxBizCrmRecPlan.getRecDate(),DateTime.now());
+                        }
+                        //有逾期
+                        if(lateDays > 0) {
+                            //计划回款总金额
+                            BigDecimal recPlanSum = tmpRecList.stream().map(x -> x.getPlannedRecAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                            //实际回款金额
+                            List<FinDataPpc> ppcData = porProjectMapper.getPpcListByPrjId(prj.getProjectId());
+                            BigDecimal prjHsSum = ppcData.stream().map(x -> x.getHkAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+                            //计划回款总金额−实际回款总金额>0
+                            if(recPlanSum.compareTo(prjHsSum)>0){
+                                String warnLevel = "";
+                                String warnSubject = "";
+                                String warnContent = "";
+                                //回款缺口
+                                Double prjRcmLostRate = calculatePercentage(recPlanSum.subtract(prjHsSum),prjHtSum);
+                                if(prjRcmLostRate > 0 && prjRcmLostRate < 50 && lateDays <= 270){
+                                    warnLevel = "蓝色预警";
+                                    warnSubject = "项目回款蓝色预警";
+                                    warnContent = prj.getBizPrjName() + "项目存在轻微回款风险，请及时处理并确认回款计划，逾期未处理将升级预警等级。";
+                                } else if ((prjRcmLostRate >= 50 && prjRcmLostRate < 100 && lateDays <= 270) || (prjRcmLostRate >= 10 && prjRcmLostRate < 50 && lateDays > 270)) {
+                                    warnLevel = "黄色预警";
+                                    warnSubject = "项目回款黄色预警";
+                                    warnContent = prj.getBizPrjName() + "项目已触发中度回款风险预警，请及时反馈延期原因及收款计划，或适当采取催收措施，逾期未处理将升级预警等级。";
+                                } else if (prjRcmLostRate >= 50 && prjRcmLostRate < 100 && lateDays > 270) {
+                                    warnLevel = "红色预警";
+                                    warnSubject = "项目回款红色预警";
+                                    warnContent = prj.getBizPrjName() + "项目已触发最高级别回款风险预警，请及时反馈延期原因及收款计划，或申请法务部门介入。";
+                                }
+                                sendWarnMsg(warnLevel,warnType,warnSubject,warnContent,prj);
+                            }
+                        }
+                    }
                 }
-
-//                if()
-//
-//                //11. [项目回款进度缺口]
-//                BigDecimal recPlanSum = BigDecimal.ZERO;
-//
-//                Double prjRcmLostRate = calculatePercentage(recPlanSum.subtract(prjHsSum),prjHtSum);
-
             }
-
-
-
-
         }else if (PorWarnEnum.JF_YQ_WARN.getValue().equals(warnType)){
-
+            for (PorProjectVo prj : dataList) {
+                LambdaQueryWrapper<PorReport> porReportLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                porReportLambdaQueryWrapper.eq(PorReport::getReportType,"周报");
+                porReportLambdaQueryWrapper.eq(PorReport::getPorProjectId,prj.getId());
+                porReportLambdaQueryWrapper.orderByDesc(PorReport::getCreateTime);
+                porReportLambdaQueryWrapper.last("limit 1");
+                PorReport porReport = porReportService.getOne(porReportLambdaQueryWrapper);
+                if(ObjectUtil.isNotEmpty(porReport) && ObjectUtil.isNotEmpty(porReport.getReportPreEndDate()) && ObjectUtil.isNotEmpty(prj.getPlanEndDate())){
+                    long lateDays = getDayBetween(prj.getPlanEndDate(), porReport.getReportPreEndDate());
+                    String warnLevel = "";
+                    String warnSubject = "";
+                    String warnContent = "";
+                    if(lateDays > 0 && lateDays <= 30){
+                        warnLevel = "蓝色预警";
+                        warnSubject = "项目延期蓝色预警";
+                        warnContent = prj.getBizPrjName() + "项目存在中度延期风险，请相关责任人重视并协调资源优先保障关键路径任务。";
+                    } else if (lateDays > 30 && lateDays <= 60) {
+                        warnLevel = "黄色预警";
+                        warnSubject = "项目延期黄色预警";
+                        warnContent = prj.getBizPrjName() + "项目存在中度延期风险，请相关责任人重视或启用备用资源池和向客户提交《风险告知书》！";
+                    } else if (lateDays > 60) {
+                        warnLevel = "红色预警";
+                        warnSubject = "项目延期红色预警";
+                        warnContent = prj.getBizPrjName() + "项目存在严重延期风险，请高度重视，若有必要请同步财务、法务部门评估损失！";
+                    }
+                    sendWarnMsg(warnLevel,warnType,warnSubject,warnContent,prj);
+                }
+            }
         }
 
+    }
+
+    /**
+     * 发送预警消息
+     * 约束：若最近一条预警消息状态为“已处理”，则7日后再次判断并发送预警消息。
+     * @param warnLevel
+     * @param warnType
+     * @param warnSubject
+     * @param warnContent
+     * @param prj
+     */
+    private void sendWarnMsg(String warnLevel,String warnType, String warnSubject, String warnContent,PorProjectVo prj) {
+        //获取最新一条预警信息
+        LambdaQueryWrapper<PorWarn> porWarnLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        porWarnLambdaQueryWrapper.eq(PorWarn::getPorProjectId,prj.getId());
+        porWarnLambdaQueryWrapper.eq(PorWarn::getWarnLevel,warnLevel);
+        porWarnLambdaQueryWrapper.eq(PorWarn::getWarnType,warnType);
+        porWarnLambdaQueryWrapper.orderByDesc(PorWarn::getCreateTime);
+        porWarnLambdaQueryWrapper.last("limit 1");
+        PorWarn latestPorWarn = porWarnService.getOne(porWarnLambdaQueryWrapper);
+        //是否需要发送消息
+        Boolean isSend = Boolean.TRUE;
+        if(ObjectUtil.isNotEmpty(latestPorWarn) && "已处理".equals(latestPorWarn.getDealStatus()) && getDayBetween(latestPorWarn.getCreateTime(),DateTime.now()) <= 7){
+            isSend = Boolean.FALSE;
+        }
+        List<String> userIds = getUserIds(prj.getDutyId(),prj.getDutyDeptId());
+        //发送消息
+        if(ObjectUtil.isAllNotEmpty(warnSubject, warnContent, userIds) && isSend){
+            devDictApi.sendMessageWithContent(userIds, "SYS", warnSubject, warnContent, null);
+            // 发送钉钉提醒
+            String subject_Content = String.format("【%s】%s", warnSubject, warnContent);
+            dingDingService.batchSend(subject_Content, userIds);
+            //记录预警记录
+            PorWarn porWarn = new PorWarn();
+            porWarn.setPorProjectId(prj.getId());
+            porWarn.setWarnLevel(warnLevel);
+            porWarn.setWarnTime(DateTime.now());
+            porWarn.setWarnType(warnType);
+            porWarn.setWarnContent(subject_Content);
+            porWarn.setDealStatus("未处理");
+            porWarnService.save(porWarn);
+        }
+    }
+
+    /**
+     * 判断两个日期间隔多少天
+     * @param date1 起
+     * @param date2 止
+     * @return
+     */
+    public long getDayBetween(Date date1,Date date2){
+        if(ObjectUtil.isEmpty(date1) || ObjectUtil.isEmpty(date2)){
+            return 0;
+        }
+        // 转换为 LocalDate
+        LocalDate localDate1 = date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate2 = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        // 计算天数差（可带符号）
+        return ChronoUnit.DAYS.between(localDate1, localDate2);
+    }
+
+
+    /**
+     * 根据项目 责任部门、责任人 获取消息接收人id
+     * @param dutyId 责任人id
+     * @param dutyDeptId 责任部门
+     * @return
+     */
+    @NotNull
+    private List<String> getUserIds(String dutyId,String dutyDeptId) {
+        //消息接收人
+        List<String> userIds = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(dutyId)){
+            userIds.add(dutyId);
+        }
+        if(ObjectUtil.isNotEmpty(dutyDeptId)){
+            BizOrg tmpBizOrg = bizOrgService.getById(dutyDeptId);
+            if(ObjectUtil.isNotEmpty(tmpBizOrg) && ObjectUtil.isNotEmpty(tmpBizOrg.getDirectorId()) && !userIds.contains(tmpBizOrg.getDirectorId())){
+                userIds.add(tmpBizOrg.getDirectorId());
+            }
+        }
+        return userIds;
     }
 }

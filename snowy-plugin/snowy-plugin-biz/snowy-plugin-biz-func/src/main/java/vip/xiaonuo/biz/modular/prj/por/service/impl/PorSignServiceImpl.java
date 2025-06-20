@@ -16,6 +16,7 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSignVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSign;
@@ -25,6 +26,7 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorSignService;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -61,7 +63,11 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
         } else {
             queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return porSignMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<PorSignVo> result = porSignMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (PorSignVo record : result.getRecords()) {
+            record.setSignPayAmount(sumPayable(record));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -88,7 +94,9 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
 
     @Override
     public PorSignVo detail(PorSignIdParam porSignIdParam) {
-        return porSignMapper.getDetail(porSignIdParam.getId());
+        PorSignVo result = porSignMapper.getDetail(porSignIdParam.getId());
+        result.setSignPayAmount(sumPayable(result));
+        return result;
     }
 
     @Override
@@ -103,7 +111,19 @@ public class PorSignServiceImpl extends ServiceImpl<PorSignMapper, PorSign> impl
     @Override
     public List<PisData> getPisListByHtId(ContractParam param) {
         List<String> htIds = CollectionUtil.toList(param.getHetongId());
-        List<PisData> pisData = porProjectService.getPisData(htIds,null);
+        List<PisData> pisData = porProjectService.getPisData(htIds,null,null);
         return pisData.stream().filter(x->ObjectUtil.isNotEmpty(x.getDeductSignature()) && BigDecimal.ZERO.compareTo(x.getDeductSignature())!=0).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 计算 累计收取金额（审批通过）
+     * @param param
+     * @return
+     */
+    public BigDecimal sumPayable(PorSignVo param){
+        List<String> htIds = CollectionUtil.toList(param.getHetongId());
+        List<PisData> pisDataList = porProjectService.getPisData(htIds,null, FlwStatusEnum.COMPLETED_STATUS.getValue());
+        return pisDataList.stream().map(x->x.getDeductSignature()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

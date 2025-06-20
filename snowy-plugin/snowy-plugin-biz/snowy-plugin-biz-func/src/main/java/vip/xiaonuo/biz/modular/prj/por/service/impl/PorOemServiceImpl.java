@@ -16,6 +16,7 @@ import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorOemVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorOem;
@@ -23,7 +24,9 @@ import vip.xiaonuo.biz.modular.prj.por.mapper.PorOemMapper;
 import vip.xiaonuo.biz.modular.prj.por.service.PorOemService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 项目产值台账 - 项目管理 - 经营费管理Service接口实现类
@@ -59,7 +62,11 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
         } else {
             queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return porOemMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<PorOemVo> result = porOemMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (PorOemVo record : result.getRecords()) {
+            record.setOemPayAmount(sumPayable(record));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -86,7 +93,9 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
 
     @Override
     public PorOemVo detail(PorOemIdParam porOemIdParam) {
-        return porOemMapper.getDetail(porOemIdParam.getId());
+        PorOemVo result = porOemMapper.getDetail(porOemIdParam.getId());
+        result.setOemPayAmount(sumPayable(result));
+        return result;
     }
 
     @Override
@@ -102,6 +111,18 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
     public List<PisData> getPisListByHtId(ContractParam param) {
         List<String> htIds = CollectionUtil.toList(param.getHetongId());
         List<String> natureList = CollectionUtil.toList("经营费","居间费");
-        return porProjectService.getPisData(htIds,natureList);
+        return porProjectService.getPisData(htIds,natureList,null);
+    }
+
+    /**
+     * 计算 累计付款金额（审批通过）
+     * @param param
+     * @return
+     */
+    public BigDecimal sumPayable(PorOemVo param){
+        List<String> htIds = CollectionUtil.toList(param.getHetongId());
+        List<String> natureList = CollectionUtil.toList("经营费","居间费");
+        List<PisData> pisDataList = porProjectService.getPisData(htIds,natureList, FlwStatusEnum.COMPLETED_STATUS.getValue());
+        return pisDataList.stream().map(x->x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

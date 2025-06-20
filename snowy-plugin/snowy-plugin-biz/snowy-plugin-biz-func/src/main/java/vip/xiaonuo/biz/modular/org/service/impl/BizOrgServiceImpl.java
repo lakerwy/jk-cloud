@@ -473,4 +473,16 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
     public List<BizOrg> getChildren(String orgId) {
         return bizOrgMapper.getChildren(orgId);
     }
+
+    @Override
+    public String getOrgIdByName(String orgName) {
+        LambdaQueryWrapper<BizOrg> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BizOrg::getName,orgName);
+        queryWrapper.last(" limit 1 ");
+        BizOrg sysOrg = this.getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(sysOrg)){
+            return sysOrg.getId();
+        }
+        return null;
+    }
 }

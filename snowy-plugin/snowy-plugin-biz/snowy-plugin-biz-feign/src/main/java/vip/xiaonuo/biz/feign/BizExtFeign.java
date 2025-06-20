@@ -17,6 +17,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 @FeignClient(name= FeignConstant.BIZ_APP, contextId = "BizExtFeign")
@@ -25,4 +26,13 @@ public interface BizExtFeign {
     @RequestMapping(value = "/feign/biz/ext/orgPerf/updateCompanyGoal", method = RequestMethod.POST)
     void updateCompanyGoal(@RequestBody JSONObject jsonObject);
 
+    @RequestMapping(value = "/feign/biz/ext/por/doWarn")
+    void doWarn(@RequestParam(value = "warnType",required = false) String warnType);
+
+    @RequestMapping(value = "/feign/biz/ext/por/savePorProject")
+    void savePorProject(@RequestParam(value = "bizProjectId",required = false) String bizProjectId,
+                        @RequestParam(value = "areaLeader",required = false) String areaLeader,
+                        @RequestParam(value = "areaLeaderId",required = false) String areaLeaderId,
+                        @RequestParam(value = "dept",required = false) String dept,
+                        @RequestParam(value = "deptId",required = false) String deptId);
 }

@@ -87,7 +87,7 @@ public interface PorProjectService extends IService<PorProject> {
     List<PisData> getPisListByPrjId(PorProjectParam param);
 
 
-    List<PisData> getPisData(List<String> htIds, List<String> natureList);
+    List<PisData> getPisData(List<String> htIds, List<String> natureList,String pisStatus);
 
     List<PorRpmVo> getRpmListByPrjId(PorProjectParam param);
 
