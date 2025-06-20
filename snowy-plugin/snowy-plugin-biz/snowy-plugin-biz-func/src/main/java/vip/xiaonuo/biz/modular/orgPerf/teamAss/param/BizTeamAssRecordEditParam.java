@@ -30,7 +30,7 @@ public class BizTeamAssRecordEditParam {
 
     /** 考核年度（例如：2025） */
     @ApiModelProperty(value = "考核年度（例如：2025）", position = 3)
-    private String assYear;
+    private Integer assYear;
 
     /** 考核人ID */
     @ApiModelProperty(value = "考核人ID", position = 4)

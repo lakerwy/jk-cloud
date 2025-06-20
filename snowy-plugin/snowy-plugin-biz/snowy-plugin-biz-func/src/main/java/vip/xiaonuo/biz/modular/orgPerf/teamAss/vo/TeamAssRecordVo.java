@@ -29,7 +29,7 @@ public class TeamAssRecordVo {
 
     /** 考核年月 */
     @ApiModelProperty(value = "考核年度", position = 7)
-    private String assYear;
+    private Integer assYear;
 
     /** 考核类型 */
     @ApiModelProperty(value = "考核类型", position = 9)

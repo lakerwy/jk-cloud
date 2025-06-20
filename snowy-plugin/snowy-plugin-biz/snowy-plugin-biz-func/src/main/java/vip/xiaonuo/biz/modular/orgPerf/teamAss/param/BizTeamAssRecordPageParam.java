@@ -38,7 +38,7 @@ public class BizTeamAssRecordPageParam {
 
     /** 考核年度（例如：2025） */
     @ApiModelProperty(value = "考核年度（例如：2025）")
-    private String assYear;
+    private Integer assYear;
 
     /** 考核人ID */
     @ApiModelProperty(value = "考核人ID")

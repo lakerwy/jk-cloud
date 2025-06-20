@@ -38,6 +38,6 @@ public class BizCompanyGoalPageParam {
 
     /** 考核周期（例如：2025） */
     @ApiModelProperty(value = "考核周期（例如：2025）")
-    private String assYear;
+    private Integer assYear;
 
 }
