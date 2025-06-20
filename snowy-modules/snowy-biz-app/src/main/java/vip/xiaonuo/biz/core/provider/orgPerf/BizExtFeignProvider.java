@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.biz.feign.BizExtFeign;
-import vip.xiaonuo.biz.modular.orgPerf.goal.provider.BizExtApiProvider;
+import vip.xiaonuo.biz.modular.provider.BizExtApiProvider;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +25,6 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.provider.BizExtApiProvider;
 public class BizExtFeignProvider implements BizExtFeign {
 
     private final BizExtApiProvider bizExtApiProvider;
-
 
     @Override
     @RequestMapping(value = "/feign/biz/ext/orgPerf/updateCompanyGoal", method = RequestMethod.POST)

@@ -15,7 +15,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-@TableName("BIZ_PRODUCT_VALUE")
+@TableName("BIZ_PRODUCT")
 public class BizProduct {
 
     /** 主键ID */
