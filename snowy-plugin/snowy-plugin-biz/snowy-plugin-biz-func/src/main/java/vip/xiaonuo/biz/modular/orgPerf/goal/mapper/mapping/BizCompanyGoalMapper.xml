@@ -4,6 +4,9 @@
 
     <select id="companySummaryList" resultType="vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo">
         WITH
+        t0 AS (
+            SELECT ID,ASS_YEAR FROM BIZ_COMPANY_GOAL WHERE DELETE_FLAG = 'NOT_DELETE'
+        ),
         t1 AS (
             SELECT
                 YEAR,
@@ -11,13 +14,10 @@
             FROM
                 BIZ_BUSINESS
             WHERE
-                ORG_ID = #{companyId}
-                AND YEAR IN
-                <foreach collection="yearList" item="item" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
+                DELETE_FLAG = 'NOT_DELETE'
+                AND ORG_ID = #{companyId}
             AND (YEAR, MONTH) IN (
-                SELECT YEAR, MAX(MONTH) FROM BIZ_BUSINESS WHERE ORG_ID = #{companyId} GROUP BY YEAR
+                SELECT YEAR, MAX(MONTH) FROM BIZ_BUSINESS WHERE ORG_ID = #{companyId} AND DELETE_FLAG = 'NOT_DELETE' GROUP BY YEAR
             )
         ),
         t2 AS (
@@ -28,9 +28,10 @@
             FROM
                 BIZ_FINANCE
             WHERE
-                ORG_ID = #{companyId}
+                DELETE_FLAG = 'NOT_DELETE'
+                AND ORG_ID = #{companyId}
             AND (YEAR, MONTH) IN (
-                SELECT YEAR, MAX(MONTH) FROM BIZ_FINANCE WHERE ORG_ID = #{companyId} GROUP BY YEAR
+                SELECT YEAR, MAX(MONTH) FROM BIZ_FINANCE WHERE ORG_ID = #{companyId} AND DELETE_FLAG = 'NOT_DELETE' GROUP BY YEAR
             )
         ),
         t3 AS (
@@ -39,10 +40,14 @@
                 SUM(PRODUCT_AMOUNT) AS PRODUCT_AMOUNT_TOTAL
             FROM
                 BIZ_PRODUCT
+            WHERE
+                DELETE_FLAG = 'NOT_DELETE'
+                AND ORG_ID = #{companyId}
             GROUP BY YEAR
         )
         SELECT
-            t1.YEAR AS assYear,
+            t0.ID AS id,
+            t0.ASS_YEAR AS assYear,
             t1.NEW_CONTRACT_AMOUNT AS newContractTotalComp,
             t2.REC_AMOUNT_ACC AS incomeTotalComp,
             t2.PROFIT_AMOUNT_ACC AS profitTotalComp,
@@ -50,11 +55,14 @@
             t4.ID AS id,
             t5.STATUS AS goalModifyStatus
         FROM
-            t1
-            JOIN t2 ON t1.YEAR = t2.YEAR
-            JOIN t3 ON t1.YEAR = t3.YEAR
-            JOIN BIZ_COMPANY_GOAL t4 ON t1.YEAR = t4.ASS_YEAR
-            LEFT JOIN BIZ_COMPANY_GOAL_MODIFY t5 ON t4.ID = t5.GOAL_ID AND t5.CREATE_TIME = (SELECT MAX(CREATE_TIME) FROM BIZ_COMPANY_GOAL_MODIFY WHERE t4.ID = BIZ_COMPANY_GOAL_MODIFY.GOAL_ID)
+            t0
+            LEFT JOIN t1 ON t0.ASS_YEAR = t1.YEAR
+            LEFT JOIN t2 ON t0.ASS_YEAR = t2.YEAR
+            LEFT JOIN t3 ON t0.ASS_YEAR = t3.YEAR
+            LEFT JOIN BIZ_COMPANY_GOAL t4 ON t0.ASS_YEAR = t4.ASS_YEAR
+            LEFT JOIN BIZ_COMPANY_GOAL_MODIFY t5 ON t4.ID = t5.GOAL_ID AND t5.CREATE_TIME = (SELECT MAX(CREATE_TIME) FROM BIZ_COMPANY_GOAL_MODIFY WHERE t4.ID = GOAL_ID AND DELETE_FLAG = 'NOT_DELETE')
+        WHERE t4.DELETE_FLAG = 'NOT_DELETE'
+            AND t5.DELETE_FLAG = 'NOT_DELETE'
         ORDER BY
             t1.YEAR DESC
     </select>

@@ -15,6 +15,6 @@ import java.util.List;
  **/
 public interface BizCompanyGoalMapper extends BaseMapper<BizCompanyGoal> {
 
-    List<CompanySummaryListVo> companySummaryList(@Param("yearList") List<Integer> yearList, @Param("companyId") String companyId);
+    List<CompanySummaryListVo> companySummaryList(@Param("companyId") String companyId);
 
 }

@@ -6,7 +6,9 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizCompanyGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
 
 import java.util.List;
@@ -89,5 +91,13 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @author pzh
      * @date  2025/06/19 15:55
      */
-    List<CompanySummaryListVo> companySummaryList(CompanySummaryListParam companySummaryListParam);
+    List<CompanySummaryListVo> companySummaryList(CompanySummaryListParam param);
+
+    /**
+     * 获取公司绩效汇总详情
+     *
+     * @author pzh
+     * @date  2025/06/20 16:33
+     */
+    List<CompanySummaryDetailVo> companySummaryDetail(CompanySummaryDetailParam param);
 }
