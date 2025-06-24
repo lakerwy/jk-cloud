@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -38,6 +39,9 @@ public class PorOwnerSettleServiceImpl extends ServiceImpl<PorOwnerSettleMapper,
     @Resource
     private PorOwnerSettleMapper porOwnerSettleMapper;
 
+    @Resource
+    private PorProjectService porProjectService;
+
     @Override
     public Page<PorOwnerSettleVo> page(PorOwnerSettlePageParam porOwnerSettlePageParam) {
         QueryWrapper<PorOwnerSettle> queryWrapper = new QueryWrapper<>();
@@ -68,7 +72,16 @@ public class PorOwnerSettleServiceImpl extends ServiceImpl<PorOwnerSettleMapper,
         } else {
             queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return porOwnerSettleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<PorOwnerSettleVo> result = porOwnerSettleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (PorOwnerSettleVo record : result.getRecords()) {
+            if(ObjectUtil.isNotEmpty(record.getBizProjectId())){
+                PorProject tmpObj = porProjectService.getOne(new LambdaQueryWrapper<PorProject>().eq(PorProject::getProjectId, record.getBizProjectId()).last(" limit 1 "));
+                if(ObjectUtil.isNotEmpty(tmpObj)){
+                    record.setPorProjectId(tmpObj.getId());
+                }
+            }
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -96,7 +109,14 @@ public class PorOwnerSettleServiceImpl extends ServiceImpl<PorOwnerSettleMapper,
 
     @Override
     public PorOwnerSettleVo detail(PorOwnerSettleIdParam porOwnerSettleIdParam) {
-        return porOwnerSettleMapper.getDetail(porOwnerSettleIdParam.getId());
+        PorOwnerSettleVo result = porOwnerSettleMapper.getDetail(porOwnerSettleIdParam.getId());
+        if(ObjectUtil.isNotEmpty(result) && ObjectUtil.isNotEmpty(result.getBizProjectId())){
+            PorProject tmpObj = porProjectService.getOne(new LambdaQueryWrapper<PorProject>().eq(PorProject::getProjectId, result.getBizProjectId()).last(" limit 1 "));
+            if(ObjectUtil.isNotEmpty(tmpObj)){
+                result.setPorProjectId(tmpObj.getId());
+            }
+        }
+        return result;
     }
 
     @Override
