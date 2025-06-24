@@ -45,4 +45,12 @@ public class PorOwnerSettleVo extends PorOwnerSettle {
     private String contractCounterparty;
 
 
+
+    /** 项目产值台账 - 项目管理 - 主键Id */
+    @ApiModelProperty(value = "项目产值台账 - 项目管理 - 主键Id", position = 200)
+    private String porProjectId;
+
+    /** 立项Id */
+    @ApiModelProperty(value = "立项Id", position = 200)
+    private String bizProjectId;
 }
