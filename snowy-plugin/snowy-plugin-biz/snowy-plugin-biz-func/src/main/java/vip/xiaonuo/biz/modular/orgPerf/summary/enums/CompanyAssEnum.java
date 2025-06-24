@@ -34,8 +34,4 @@ public enum CompanyAssEnum {
         return Arrays.stream(CompanyAssEnum.values()).map(CompanyAssEnum::getValue).collect(Collectors.toList());
     }
 
-    public static String getEnumValue(CompanyAssEnum companyAssEnum){
-        return companyAssEnum.getValue();
-    }
-
 }

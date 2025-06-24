@@ -394,15 +394,15 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
                     vo.setWeight(kpi.getWeight());
                     vo.setGoalValue(kpi.getGoalValue());
                     if(CompanyAssEnum.NEW_CONTRACT_TOTAL.getValue().equals(assName)){
-                        BigDecimal compValueTotal = list1.stream().filter(x -> month.equals(x.getMonth())).map(BizBusiness::getNewContractAmount).findFirst().orElse(null);
+                        BigDecimal compValueTotal = list1.stream().filter(x -> month.equals(x.getMonth())).findFirst().map(BizBusiness::getNewContractAmount).orElse(null);
                         vo.setCompValueTotal(compValueTotal);
                     }
                     if(CompanyAssEnum.INCOME_TOTAL.getValue().equals(assName)){
-                        BigDecimal compValueTotal = list2.stream().filter(x -> month.equals(x.getMonth())).map(BizFinance::getRecAmountAcc).findFirst().orElse(null);
+                        BigDecimal compValueTotal = list2.stream().filter(x -> month.equals(x.getMonth())).findFirst().map(BizFinance::getRecAmountAcc).orElse(null);
                         vo.setCompValueTotal(compValueTotal);
                     }
                     if(CompanyAssEnum.PROFIT_TOTAL.getValue().equals(assName)){
-                        BigDecimal compValueTotal = list2.stream().filter(x -> month.equals(x.getMonth())).map(BizFinance::getProfitAmountAcc).findFirst().orElse(null);
+                        BigDecimal compValueTotal = list2.stream().filter(x -> month.equals(x.getMonth())).findFirst().map(BizFinance::getProfitAmountAcc).orElse(null);
                         vo.setCompValueTotal(compValueTotal);
                     }
                     if(CompanyAssEnum.PRO_VALUE.getValue().equals(assName)){

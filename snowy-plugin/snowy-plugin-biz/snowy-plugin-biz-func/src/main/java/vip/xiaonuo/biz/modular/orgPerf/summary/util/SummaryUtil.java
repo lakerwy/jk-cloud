@@ -11,25 +11,27 @@ public class SummaryUtil {
      * @return
      */
     public static BigDecimal calcProgress(BigDecimal compValue, BigDecimal goalValue){
-        if(compValue == null || goalValue == null) {
+        if(compValue == null || goalValue == null || goalValue.compareTo(BigDecimal.ZERO) == 0) {
             return null;
         }
         return compValue.divide(goalValue, 4, RoundingMode.FLOOR).multiply(new BigDecimal(100));
     }
 
     /**
-     * 计算得分，向下保留2位小数，最高120分
+     * 计算得分，向下保留2位小数
+     * 达到目标值得100分，最高加20分
      * @param compValue
      * @param goalValue
      * @param weight
      * @return
      */
     public static BigDecimal calcScore(BigDecimal compValue, BigDecimal goalValue, BigDecimal weight){
-        if(compValue == null || goalValue == null || weight == null) {
+        if(compValue == null || goalValue == null || weight == null || goalValue.compareTo(BigDecimal.ZERO) == 0) {
             return null;
         }
         BigDecimal score = compValue.multiply(weight).divide(goalValue, 2, RoundingMode.FLOOR);
-        score = score.compareTo(new BigDecimal(120)) > 0 ? new BigDecimal(120) : score;
+        BigDecimal maxScore = new BigDecimal("120").multiply(weight).divide(new BigDecimal(100), 2, RoundingMode.FLOOR);
+        score = score.compareTo(maxScore) > 0 ? maxScore : score;
         return score;
     }
 }
