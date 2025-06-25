@@ -24,7 +24,7 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalItemService;
 import java.util.List;
 
 /**
- * 组织绩效考核-考核指标Service接口实现类
+ * 子公司及生产部门绩效考核-考核指标Service接口实现类
  *
  * @author pzh
  * @date  2025/06/24 16:45
@@ -77,7 +77,7 @@ public class BizOrgGoalItemServiceImpl extends ServiceImpl<BizOrgGoalItemMapper,
     public BizOrgGoalItem queryEntity(String id) {
         BizOrgGoalItem bizOrgGoalItem = this.getById(id);
         if(ObjectUtil.isEmpty(bizOrgGoalItem)) {
-            throw new CommonException("组织绩效考核-考核指标不存在，id值为：{}", id);
+            throw new CommonException("子公司及生产部门绩效考核-考核指标不存在，id值为：{}", id);
         }
         return bizOrgGoalItem;
     }

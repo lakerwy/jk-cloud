@@ -22,7 +22,12 @@ public class BizGoalModifyEditParam {
     private String id;
 
     /** 目标登记主键ID */
-    @ApiModelProperty(value = "绩效目标类型(公司|班子|子公司|生产部门|职能部门)", required = true, position = 3)
+    @ApiModelProperty(value = "目标登记主键ID", required = true, position = 3)
+    @NotBlank(message = "目标登记主键ID不能为空")
+    private String goalId;
+
+    /** 目标登记主键ID */
+    @ApiModelProperty(value = "绩效目标类型(公司|班子|子公司|生产部门|职能部门)", required = true, position = 4)
     @NotBlank(message = "绩效目标类型perfGoalType必填")
     private String perfGoalType;
 
@@ -33,11 +38,6 @@ public class BizGoalModifyEditParam {
     /** 目标登记主键ID */
     @ApiModelProperty(value = "考核维度（季度考核|年度考核）", position = 7)
     private String assPeriod;
-
-    /** 目标登记主键ID */
-    @ApiModelProperty(value = "目标登记主键ID", required = true, position = 9)
-    @NotBlank(message = "目标登记主键ID不能为空")
-    private String goalId;
 
     /** 流程表单数据JSON */
     @ApiModelProperty(value = "流程表单数据JSON", position = 11)

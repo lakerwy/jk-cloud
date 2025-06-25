@@ -11,7 +11,7 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalItemPageParam;
 import java.util.List;
 
 /**
- * 组织绩效考核-考核指标Service接口
+ * 子公司及生产部门绩效考核-考核指标Service接口
  *
  * @author pzh
  * @date  2025/06/24 16:45
@@ -19,7 +19,7 @@ import java.util.List;
 public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
 
     /**
-     * 获取组织绩效考核-考核指标分页
+     * 获取子公司及生产部门绩效考核-考核指标分页
      *
      * @author pzh
      * @date  2025/06/24 16:45
@@ -27,7 +27,7 @@ public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
     Page<BizOrgGoalItem> page(BizOrgGoalItemPageParam bizOrgGoalItemPageParam);
 
     /**
-     * 添加组织绩效考核-考核指标
+     * 添加子公司及生产部门绩效考核-考核指标
      *
      * @author pzh
      * @date  2025/06/24 16:45
@@ -35,7 +35,7 @@ public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
     void add(BizOrgGoalItemAddParam bizOrgGoalItemAddParam);
 
     /**
-     * 编辑组织绩效考核-考核指标
+     * 编辑子公司及生产部门绩效考核-考核指标
      *
      * @author pzh
      * @date  2025/06/24 16:45
@@ -43,7 +43,7 @@ public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
     void edit(BizOrgGoalItemEditParam bizOrgGoalItemEditParam);
 
     /**
-     * 删除组织绩效考核-考核指标
+     * 删除子公司及生产部门绩效考核-考核指标
      *
      * @author pzh
      * @date  2025/06/24 16:45
@@ -51,7 +51,7 @@ public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
     void delete(List<BizOrgGoalItemIdParam> bizOrgGoalItemIdParamList);
 
     /**
-     * 获取组织绩效考核-考核指标详情
+     * 获取子公司及生产部门绩效考核-考核指标详情
      *
      * @author pzh
      * @date  2025/06/24 16:45
@@ -59,7 +59,7 @@ public interface BizOrgGoalItemService extends IService<BizOrgGoalItem> {
     BizOrgGoalItem detail(BizOrgGoalItemIdParam bizOrgGoalItemIdParam);
 
     /**
-     * 获取组织绩效考核-考核指标详情
+     * 获取子公司及生产部门绩效考核-考核指标详情
      *
      * @author pzh
      * @date  2025/06/24 16:45

@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.Date;
 
 /**
- * 绩效考核-目标调整实体
+ * 组织绩效考核-目标调整实体
  *
  * @author pzh
  * @date  2025/06/18 14:24

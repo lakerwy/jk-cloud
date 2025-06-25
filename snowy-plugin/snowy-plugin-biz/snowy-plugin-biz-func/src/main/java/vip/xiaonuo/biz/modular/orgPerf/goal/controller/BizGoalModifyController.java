@@ -25,12 +25,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * 绩效考核-目标调整控制器
+ * 组织绩效考核-目标调整控制器
  *
  * @author pzh
  * @date  2025/06/18 14:24
  */
-@Api(tags = "绩效考核-目标调整控制器")
+@Api(tags = "组织绩效考核-目标调整控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -40,13 +40,13 @@ public class BizGoalModifyController {
     private BizGoalModifyService bizGoalModifyService;
 
     /**
-     * 获取绩效考核-目标调整分页
+     * 获取组织绩效考核-目标调整分页
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取绩效考核-目标调整分页")
+    @ApiOperation("获取组织绩效考核-目标调整分页")
     // @SaCheckPermission("/biz/orgPerf/goal/modify/page")
     @GetMapping("/biz/orgPerf/goal/modify/page")
     public CommonResult<Page<BizGoalModify>> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam) {
@@ -54,14 +54,14 @@ public class BizGoalModifyController {
     }
 
     /**
-     * 添加绩效考核-目标调整
+     * 添加组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加绩效考核-目标调整")
-    @CommonLog("添加绩效考核-目标调整")
+    @ApiOperation("添加组织绩效考核-目标调整")
+    @CommonLog("添加组织绩效考核-目标调整")
     // @SaCheckPermission("/biz/orgPerf/goal/modify/add")
     @PostMapping("/biz/orgPerf/goal/modify/add")
     public CommonResult<String> add(@RequestBody @Valid BizGoalModifyAddParam bizGoalModifyAddParam) {
@@ -70,14 +70,14 @@ public class BizGoalModifyController {
     }
 
     /**
-     * 编辑绩效考核-目标调整
+     * 编辑组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑绩效考核-目标调整")
-    @CommonLog("编辑绩效考核-目标调整")
+    @ApiOperation("编辑组织绩效考核-目标调整")
+    @CommonLog("编辑组织绩效考核-目标调整")
     // @SaCheckPermission("/biz/orgPerf/goal/modify/edit")
     @PostMapping("/biz/orgPerf/goal/modify/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizGoalModifyEditParam bizGoalModifyEditParam) {
@@ -86,14 +86,14 @@ public class BizGoalModifyController {
     }
 
     /**
-     * 删除绩效考核-目标调整
+     * 删除组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除绩效考核-目标调整")
-    @CommonLog("删除绩效考核-目标调整")
+    @ApiOperation("删除组织绩效考核-目标调整")
+    @CommonLog("删除组织绩效考核-目标调整")
     // @SaCheckPermission("/biz/orgPerf/goal/modify/delete")
     @PostMapping("/biz/orgPerf/goal/modify/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -103,13 +103,13 @@ public class BizGoalModifyController {
     }
 
     /**
-     * 获取绩效考核-目标调整详情
+     * 获取组织绩效考核-目标调整详情
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取绩效考核-目标调整详情")
+    @ApiOperation("获取组织绩效考核-目标调整详情")
     // @SaCheckPermission("/biz/orgPerf/goal/modify/detail")
     @GetMapping("/biz/orgPerf/goal/modify/detail")
     public CommonResult<BizGoalModify> detail(@Valid BizGoalModifyIdParam bizGoalModifyIdParam) {

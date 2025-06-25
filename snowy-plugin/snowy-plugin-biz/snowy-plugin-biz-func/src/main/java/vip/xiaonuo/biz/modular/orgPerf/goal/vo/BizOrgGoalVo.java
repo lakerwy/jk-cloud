@@ -9,7 +9,7 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
 import java.util.List;
 
 /**
- * 组织绩效考核-详情vo
+ * 子公司及生产部门绩效考核-详情vo
  *
  * @author pzh
  * @date  2025/06/24 17:15

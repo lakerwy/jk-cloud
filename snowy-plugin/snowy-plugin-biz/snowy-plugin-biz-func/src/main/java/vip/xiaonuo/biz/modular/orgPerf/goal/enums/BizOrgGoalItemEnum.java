@@ -3,7 +3,7 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.enums;
 import lombok.Getter;
 
 /**
- * 组织绩效考核-考核指标枚举
+ * 子公司及生产部门绩效考核-考核指标枚举
  *
  * @author pzh
  * @date  2025/06/24 16:45

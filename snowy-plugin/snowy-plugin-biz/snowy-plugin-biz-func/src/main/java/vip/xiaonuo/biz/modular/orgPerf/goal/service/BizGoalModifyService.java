@@ -11,7 +11,7 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyPageParam;
 import java.util.List;
 
 /**
- * 公司绩效考核-目标调整Service接口
+ * 组织绩效考核-目标调整Service接口
  *
  * @author pzh
  * @date  2025/06/18 14:24
@@ -19,7 +19,7 @@ import java.util.List;
 public interface BizGoalModifyService extends IService<BizGoalModify> {
 
     /**
-     * 获取公司绩效考核-目标调整分页
+     * 获取组织绩效考核-目标调整分页
      *
      * @author pzh
      * @date  2025/06/18 14:24
@@ -27,7 +27,7 @@ public interface BizGoalModifyService extends IService<BizGoalModify> {
     Page<BizGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam);
 
     /**
-     * 添加公司绩效考核-目标调整
+     * 添加组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
@@ -35,7 +35,7 @@ public interface BizGoalModifyService extends IService<BizGoalModify> {
     void add(BizGoalModifyAddParam bizGoalModifyAddParam);
 
     /**
-     * 编辑公司绩效考核-目标调整
+     * 编辑组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
@@ -43,7 +43,7 @@ public interface BizGoalModifyService extends IService<BizGoalModify> {
     void edit(BizGoalModifyEditParam bizGoalModifyEditParam);
 
     /**
-     * 删除公司绩效考核-目标调整
+     * 删除组织绩效考核-目标调整
      *
      * @author pzh
      * @date  2025/06/18 14:24
@@ -51,7 +51,7 @@ public interface BizGoalModifyService extends IService<BizGoalModify> {
     void delete(List<BizGoalModifyIdParam> bizGoalModifyIdParamList);
 
     /**
-     * 获取公司绩效考核-目标调整详情
+     * 获取组织绩效考核-目标调整详情
      *
      * @author pzh
      * @date  2025/06/18 14:24
@@ -59,7 +59,7 @@ public interface BizGoalModifyService extends IService<BizGoalModify> {
     BizGoalModify detail(BizGoalModifyIdParam bizGoalModifyIdParam);
 
     /**
-     * 获取公司绩效考核-目标调整详情
+     * 获取组织绩效考核-目标调整详情
      *
      * @author pzh
      * @date  2025/06/18 14:24

@@ -21,6 +21,8 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalItemService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
 import vip.xiaonuo.biz.modular.orgPerf.product.service.BizProductService;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryListVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,7 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 组织绩效考核-目标登记Service接口实现类
+ * 子公司及生产部门绩效考核-目标登记Service接口实现类
  *
  * @author pzh
  * @date  2025/06/24 16:33
@@ -60,8 +62,19 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     @Override
     public Page<BizOrgGoal> page(BizOrgGoalPageParam bizOrgGoalPageParam) {
         QueryWrapper<BizOrgGoal> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizOrgGoal::getAssOrg, bizOrgGoalPageParam.getAssOrg());
+        queryWrapper.lambda().eq(BizOrgGoal::getAssPeriod, bizOrgGoalPageParam.getAssPeriod());
         if(ObjectUtil.isNotEmpty(bizOrgGoalPageParam.getSearchKey())){
             queryWrapper.lambda().like(BizOrgGoal::getOrgName, bizOrgGoalPageParam.getSearchKey());
+        }
+        if(ObjectUtil.isNotEmpty(bizOrgGoalPageParam.getOrgId())){
+            queryWrapper.lambda().eq(BizOrgGoal::getOrgId, bizOrgGoalPageParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizOrgGoalPageParam.getAssYear())){
+            queryWrapper.lambda().eq(BizOrgGoal::getAssYear, bizOrgGoalPageParam.getAssYear());
+        }
+        if(ObjectUtil.isNotEmpty(bizOrgGoalPageParam.getAssSeason())){
+            queryWrapper.lambda().eq(BizOrgGoal::getAssSeason, bizOrgGoalPageParam.getAssSeason());
         }
         if(ObjectUtil.isAllNotEmpty(bizOrgGoalPageParam.getSortField(), bizOrgGoalPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizOrgGoalPageParam.getSortOrder());
@@ -195,7 +208,7 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     public BizOrgGoal queryEntity(String id) {
         BizOrgGoal bizOrgGoal = this.getById(id);
         if(ObjectUtil.isEmpty(bizOrgGoal)) {
-            throw new CommonException("组织绩效考核-目标登记不存在，id值为：{}", id);
+            throw new CommonException("子公司及生产部门绩效考核-目标登记不存在，id值为：{}", id);
         }
         return bizOrgGoal;
     }
@@ -265,5 +278,11 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
         }else{
             bizOrgGoalItemService.remove(new QueryWrapper<BizOrgGoalItem>().lambda().eq(BizOrgGoalItem::getGoalId,goalId));
         }
+    }
+
+
+    @Override
+    public List<OrgSummaryListVo> orgSummaryList(OrgSummaryListParam orgSummaryListParam) {
+        return bizOrgGoalMapper.orgSummaryList(orgSummaryListParam);
     }
 }

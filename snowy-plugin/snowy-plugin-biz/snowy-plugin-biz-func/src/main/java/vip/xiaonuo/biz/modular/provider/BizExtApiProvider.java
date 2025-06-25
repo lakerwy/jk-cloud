@@ -68,7 +68,7 @@ public class BizExtApiProvider implements BizExtApi {
 
     @Override
     public void updateOrgGoal(JSONObject jsonObject) {
-        log.info("更新-组织绩效考核-目标登记，参数值 jsonObject:{}", jsonObject);
+        log.info("更新-子公司及生产部门绩效考核-目标登记，参数值 jsonObject:{}", jsonObject);
         JSONArray jsonArray = new JSONArray();
         String goalId = null;
         try {

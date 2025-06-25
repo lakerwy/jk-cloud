@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 组织绩效考核-目标登记添加参数
+ * 子公司及生产部门绩效考核-目标登记添加参数
  *
  * @author pzh
  * @date  2025/06/24 16:33

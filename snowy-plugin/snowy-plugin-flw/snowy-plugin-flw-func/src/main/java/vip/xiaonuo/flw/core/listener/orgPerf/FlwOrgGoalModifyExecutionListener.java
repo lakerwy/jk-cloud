@@ -24,7 +24,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import javax.annotation.Resource;
 
 /**
- * 组织绩效考核-目标调整-流程完成执行监听器
+ * 子公司及生产部门绩效考核-目标调整-流程完成执行监听器
  *
  *@Author pzh
  *@Date 2025/06/25 11:25
@@ -43,7 +43,7 @@ public class FlwOrgGoalModifyExecutionListener implements ExecutionListener {
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             Object dataJson = execution.getVariable("initiatorDataJson");
             JSONObject jsonObject = JSONUtil.parseObj(dataJson);
-            // 更新-组织绩效考核-目标登记
+            // 更新-子公司及生产部门绩效考核-目标登记
             bizExtApi.updateOrgGoal(jsonObject);
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwOrgGoalModifyExecutionListener.class.getName(), e.getMessage());

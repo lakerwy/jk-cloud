@@ -7,7 +7,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 组织绩效考核-目标登记条件查询参数
+ * 子公司及生产部门绩效考核-目标登记条件查询参数
  *
  * @author pzh
  * @date  2025/06/18 14:24

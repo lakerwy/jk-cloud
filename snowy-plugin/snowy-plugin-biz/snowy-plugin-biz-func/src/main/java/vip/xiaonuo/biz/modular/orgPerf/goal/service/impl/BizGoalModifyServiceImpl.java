@@ -33,7 +33,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 公司绩效考核-目标调整Service接口实现类
+ * 组织绩效考核-目标调整Service接口实现类
  *
  * @author pzh
  * @date  2025/06/18 14:24
@@ -124,7 +124,7 @@ public class BizGoalModifyServiceImpl extends ServiceImpl<BizGoalModifyMapper, B
     public BizGoalModify queryEntity(String id) {
         BizGoalModify bizGoalModify = this.getById(id);
         if(ObjectUtil.isEmpty(bizGoalModify)) {
-            throw new CommonException("公司绩效考核-目标调整不存在，id值为：{}", id);
+            throw new CommonException("组织绩效考核-目标调整不存在，id值为：{}", id);
         }
         return bizGoalModify;
     }
