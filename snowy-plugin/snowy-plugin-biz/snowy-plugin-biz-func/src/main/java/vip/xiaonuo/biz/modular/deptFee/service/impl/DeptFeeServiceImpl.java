@@ -218,6 +218,7 @@ public class DeptFeeServiceImpl extends ServiceImpl<DeptFeeMapper, DeptFee> impl
         result.setSucCount(correctData.size());
         result.setResultList(importData);
         List<DeptFee> addList = BeanUtil.copyToList(correctData, DeptFee.class);
+        addList.forEach(x->x.setNote(DateUtil.now()+"：页面导入；"));
         this.saveBatch(addList);
         return result;
     }

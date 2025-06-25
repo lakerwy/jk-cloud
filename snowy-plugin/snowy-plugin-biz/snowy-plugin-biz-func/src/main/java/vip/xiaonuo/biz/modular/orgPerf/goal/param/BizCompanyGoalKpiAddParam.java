@@ -23,14 +23,6 @@ public class BizCompanyGoalKpiAddParam {
     @ApiModelProperty(value = "关联-目标登记主键ID", position = 2)
     private String goalId;
 
-    /** 考核类型 */
-    @ApiModelProperty(value = "考核类型", position = 5)
-    private String assType;
-
-    /** 考核周期（例如：2025） */
-    @ApiModelProperty(value = "考核周期（例如：2025）", position = 7)
-    private Integer assYear;
-
     /** 考核指标 */
     @ApiModelProperty(value = "考核指标", position = 9)
     private String assName;

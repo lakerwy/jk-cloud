@@ -95,6 +95,7 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         List<BizCompanyGoalKpi> kpiList = null;
         if(CollUtil.isNotEmpty(bizCompanyGoalAddParam.getKpiList())){
             kpiList = BeanUtil.copyToList(bizCompanyGoalAddParam.getKpiList(), BizCompanyGoalKpi.class);
+            // 这里如果校验权重之和=100的话，那么添加目标调整时也需要校验
 //            BigDecimal weightTotal = kpiList.stream().map(BizCompanyGoalKpi::getWeight).reduce(BigDecimal.ZERO, BigDecimal::add);
 //            if(weightTotal.compareTo(new BigDecimal(100)) != 0){
 //                throw new CommonException("KPI指标权重之和需等于100");
@@ -110,8 +111,6 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         if(CollUtil.isNotEmpty(kpiList)){
             kpiList.forEach(x->{
                 x.setGoalId(bizCompanyGoal.getId());
-                x.setAssType(bizCompanyGoal.getAssType());
-                x.setAssYear(bizCompanyGoal.getAssYear());
             });
             bizCompanyGoalKpiService.saveBatch(kpiList);
         }
@@ -124,10 +123,10 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         List<BizCompanyGoalKpi> kpiList = null;
         if(CollUtil.isNotEmpty(bizCompanyGoalEditParam.getKpiList())){
             kpiList = BeanUtil.copyToList(bizCompanyGoalEditParam.getKpiList(), BizCompanyGoalKpi.class);
-            BigDecimal weightTotal = kpiList.stream().map(BizCompanyGoalKpi::getWeight).reduce(BigDecimal.ZERO, BigDecimal::add);
-            if(weightTotal.compareTo(new BigDecimal(100)) != 0){
-                throw new CommonException("KPI指标权重之和需等于100");
-            }
+//            BigDecimal weightTotal = kpiList.stream().map(BizCompanyGoalKpi::getWeight).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            if(weightTotal.compareTo(new BigDecimal(100)) != 0){
+//                throw new CommonException("KPI指标权重之和需等于100");
+//            }
         }
         long count = this.count(new LambdaQueryWrapper<BizCompanyGoal>().eq(BizCompanyGoal::getAssYear, bizCompanyGoalEditParam.getAssYear())
                 .ne(BizCompanyGoal::getId, bizCompanyGoalEditParam.getId()));
@@ -142,8 +141,6 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
             //本次传入的数据
             kpiList.forEach(x->{
                 x.setGoalId(bizCompanyGoal.getId());
-                x.setAssType(bizCompanyGoal.getAssType());
-                x.setAssYear(bizCompanyGoal.getAssYear());
             });
             //获取历史数据
             List<BizCompanyGoalKpi> oldList = bizCompanyGoalKpiService.list(new QueryWrapper<BizCompanyGoalKpi>().lambda()
@@ -282,8 +279,8 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
         for(CompanySummaryListVo vo: voList){
             // 总分
             BigDecimal totalScore = BigDecimal.ZERO;
-            // 当前考核年度的kpi
-            List<BizCompanyGoalKpi> currKpiList = kpiList.stream().filter(x -> x.getAssYear().equals(vo.getAssYear())).collect(Collectors.toList());
+            // 当前目标下的kpi
+            List<BizCompanyGoalKpi> currKpiList = kpiList.stream().filter(x -> x.getGoalId().equals(vo.getId())).collect(Collectors.toList());
             BizCompanyGoalKpi kpi1 = currKpiList.stream().filter(x -> CompanyAssEnum.NEW_CONTRACT_TOTAL.getValue().equals(x.getAssName())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(kpi1)){
                 // 新签合同总额-目标值
@@ -421,9 +418,9 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
                         }
                     }
                     // 没有数据的明细不显示
-                    if(vo.getCompValueTotal() == null){
-                        continue;
-                    }
+//                    if(vo.getCompValueTotal() == null){
+//                        continue;
+//                    }
                     // 进度
                     vo.setProgress(SummaryUtil.calcProgress(vo.getCompValueTotal(), kpi.getGoalValue()));
                     // 得分
