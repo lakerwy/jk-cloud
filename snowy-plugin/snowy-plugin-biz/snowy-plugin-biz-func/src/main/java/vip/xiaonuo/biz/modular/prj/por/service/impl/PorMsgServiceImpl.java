@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -85,7 +86,13 @@ public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> impleme
         if(CollUtil.isNotEmpty(porMsgAddParam.getUserIdList())){
             // 发送站内信
             String category = "系统".equals(porMsgAddParam.getMsgType()) ? "SYS" : "BIZ";
-            devDictApi.sendMessageWithContent(porMsgAddParam.getUserIdList(), category, porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent(), null);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("receiverIdList",porMsgAddParam.getUserIdList());
+            jsonObject.put("category",category);
+            jsonObject.put("subject",porMsgAddParam.getSubjectTitle());
+            jsonObject.put("content",porMsgAddParam.getContent());
+            jsonObject.put("taskMap",null);
+            devDictApi.sendMessageWithContent(jsonObject);
             // 发送钉钉提醒
             dingDingService.batchSend(String.format("【%s】%s", porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent()),porMsgAddParam.getUserIdList());
         }

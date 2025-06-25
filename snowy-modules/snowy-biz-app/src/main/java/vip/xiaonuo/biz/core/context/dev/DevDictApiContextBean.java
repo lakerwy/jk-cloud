@@ -16,6 +16,7 @@ import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.dev.api.DevDictApi;
 import vip.xiaonuo.dev.feign.DevDictFeign;
 
@@ -41,7 +42,7 @@ public class DevDictApiContextBean implements DevDictApi {
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
-        devDictFeign.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
+    public void sendMessageWithContent(JSONObject jsonObject) {
+        devDictFeign.sendMessageWithContent(jsonObject);
     }
 }

@@ -16,14 +16,11 @@ import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.dev.feign.DevDictFeign;
 import vip.xiaonuo.dev.modular.dict.provider.DevDictApiProvider;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 开发工具模块综合Feign提供者
@@ -46,9 +43,9 @@ public class DevDictFeignProvider implements DevDictFeign {
     }
 
     @Override
-    @RequestMapping("/feign/dev/dict/sendMessageWithContent")
-    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
-        devDictApiProvider.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
+    @RequestMapping(value = "/feign/dev/dict/sendMessageWithContent",method = RequestMethod.POST)
+    public void sendMessageWithContent(@RequestBody JSONObject jsonObject) {
+        devDictApiProvider.sendMessageWithContent(jsonObject);
     }
 
 }

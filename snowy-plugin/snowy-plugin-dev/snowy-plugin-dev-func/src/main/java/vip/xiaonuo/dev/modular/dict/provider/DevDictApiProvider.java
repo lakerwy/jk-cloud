@@ -55,7 +55,15 @@ public class DevDictApiProvider implements DevDictApi {
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content, Map<String, String> taskMap) {
-        devMessageApi.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
+    public void sendMessageWithContent(JSONObject jsonObject) {
+        try {
+            List<String> receiverIdList = jsonObject.getBeanList("receiverIdList",java.lang.String.class);
+            String category = jsonObject.getStr("category");
+            String subject = jsonObject.getStr("subject");
+            String content = jsonObject.getStr("content");
+            Map<String, String> taskMap = jsonObject.get("taskMap", Map.class);
+            devMessageApi.sendMessageWithContent(receiverIdList,category,subject,content,taskMap);
+        }catch (Exception e){
+        }
     }
 }

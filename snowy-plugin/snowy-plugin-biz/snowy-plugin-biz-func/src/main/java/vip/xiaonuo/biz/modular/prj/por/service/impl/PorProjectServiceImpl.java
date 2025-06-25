@@ -8,6 +8,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -780,7 +781,13 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         List<String> userIds = getUserIds(prj.getDutyId(),prj.getDutyDeptId());
         //发送消息
         if(ObjectUtil.isAllNotEmpty(warnSubject, warnContent, userIds) && isSend){
-            devDictApi.sendMessageWithContent(userIds, "SYS", warnSubject, warnContent, null);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("receiverIdList",userIds);
+            jsonObject.put("category","SYS");
+            jsonObject.put("subject",warnSubject);
+            jsonObject.put("content",warnContent);
+            jsonObject.put("taskMap",null);
+            devDictApi.sendMessageWithContent(jsonObject);
             // 发送钉钉提醒
             String subject_Content = String.format("【%s】%s", warnSubject, warnContent);
             dingDingService.batchSend(subject_Content, userIds);
