@@ -22,8 +22,11 @@ import cn.hutool.json.JSONObject;
  **/
 public interface BizExtApi {
 
-    // 更新-绩效考核-目标登记
+    // 更新-公司绩效考核-目标登记
     void updateCompanyGoal(JSONObject jsonObject);
+
+    // 更新-组织绩效考核-目标登记
+    void updateOrgGoal(JSONObject jsonObject);
 
     // 项目管理-预警
     void doWarn(String warnType);

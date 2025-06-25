@@ -33,6 +33,12 @@ public class BizExtFeignProvider implements BizExtFeign {
     }
 
     @Override
+    @RequestMapping(value = "/feign/biz/ext/orgPerf/updateOrgGoal", method = RequestMethod.POST)
+    public void updateOrgGoal(@RequestBody JSONObject jsonObject) {
+        bizExtApiProvider.updateOrgGoal(jsonObject);
+    }
+
+    @Override
     @RequestMapping(value = "/feign/biz/ext/por/doWarn")
     public void doWarn(String warnType) {
         bizExtApiProvider.doWarn(warnType);

@@ -233,4 +233,37 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
                 .set(BizOrgGoal::getOwner, bizOrgGoalEditOwnerParam.getOwner())
                 .set(BizOrgGoal::getOwnerId, bizOrgGoalEditOwnerParam.getOwnerId()));
     }
+
+    @Override
+    public void updateOrgGoal(String goalId, List<BizOrgGoalItem> itemList) {
+        // 处理KPI指标-集合
+        if(CollUtil.isNotEmpty(itemList)){
+            //本次传入的数据
+            itemList.forEach(x->{
+                x.setGoalId(goalId);
+            });
+            //获取历史数据
+            List<BizOrgGoalItem> oldList = bizOrgGoalItemService.list(new QueryWrapper<BizOrgGoalItem>().lambda()
+                    .eq(BizOrgGoalItem::getGoalId, goalId));
+            List<String> oldIds = oldList.stream().map(BizOrgGoalItem::getId).collect(Collectors.toList());
+            //待新增的
+            List<BizOrgGoalItem> addList = itemList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizOrgGoalItem> updateList = itemList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(BizOrgGoalItem::getId).collect(Collectors.toList());
+            List<BizOrgGoalItem> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizOrgGoalItemService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizOrgGoalItemService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizOrgGoalItemService.removeByIds(removeList);
+            }
+        }else{
+            bizOrgGoalItemService.remove(new QueryWrapper<BizOrgGoalItem>().lambda().eq(BizOrgGoalItem::getGoalId,goalId));
+        }
+    }
 }
