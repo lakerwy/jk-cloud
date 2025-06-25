@@ -3,10 +3,7 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalPageParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
 
 import java.util.List;
@@ -66,4 +63,20 @@ public interface BizOrgGoalService extends IService<BizOrgGoal> {
      * @date  2025/06/24 16:33
      **/
     BizOrgGoal queryEntity(String id);
+
+    /**
+     * 条件查询组织绩效考核-目标登记详情
+     *
+     * @author pzh
+     * @date 2025/06/24 16:33
+     */
+    BizOrgGoalVo getByCondition(BizOrgGoalParam bizOrgGoalParam);
+
+    /**
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/06/25 10:01
+     */
+    void editOwner(BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam);
 }

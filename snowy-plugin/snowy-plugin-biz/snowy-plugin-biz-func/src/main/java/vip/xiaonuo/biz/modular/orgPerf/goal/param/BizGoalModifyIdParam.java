@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
  **/
 @Getter
 @Setter
-public class BizCompanyGoalModifyIdParam {
+public class BizGoalModifyIdParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true)

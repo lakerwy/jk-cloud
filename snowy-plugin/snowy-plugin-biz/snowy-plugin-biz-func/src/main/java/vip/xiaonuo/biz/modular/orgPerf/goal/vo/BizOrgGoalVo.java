@@ -3,6 +3,7 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  **/
 @Getter
 @Setter
-public class BizOrgGoalVo {
+public class BizOrgGoalVo extends BizOrgGoal {
 
     /** 基本项指标 */
     @ApiModelProperty(value = "基本项指标-集合", position = 15)

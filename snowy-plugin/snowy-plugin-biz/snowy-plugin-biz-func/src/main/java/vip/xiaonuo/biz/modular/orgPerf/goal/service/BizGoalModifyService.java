@@ -2,10 +2,10 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalModify;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizGoalModify;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyAddParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyEditParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyPageParam;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  * @author pzh
  * @date  2025/06/18 14:24
  **/
-public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModify> {
+public interface BizGoalModifyService extends IService<BizGoalModify> {
 
     /**
      * 获取公司绩效考核-目标调整分页
@@ -24,7 +24,7 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      */
-    Page<BizCompanyGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam);
+    Page<BizGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam);
 
     /**
      * 添加公司绩效考核-目标调整
@@ -32,7 +32,7 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      */
-    void add(BizCompanyGoalModifyAddParam bizCompanyGoalModifyAddParam);
+    void add(BizGoalModifyAddParam bizGoalModifyAddParam);
 
     /**
      * 编辑公司绩效考核-目标调整
@@ -40,7 +40,7 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      */
-    void edit(BizCompanyGoalModifyEditParam bizCompanyGoalModifyEditParam);
+    void edit(BizGoalModifyEditParam bizGoalModifyEditParam);
 
     /**
      * 删除公司绩效考核-目标调整
@@ -48,7 +48,7 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      */
-    void delete(List<BizCompanyGoalModifyIdParam> bizCompanyGoalModifyIdParamList);
+    void delete(List<BizGoalModifyIdParam> bizGoalModifyIdParamList);
 
     /**
      * 获取公司绩效考核-目标调整详情
@@ -56,7 +56,7 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      */
-    BizCompanyGoalModify detail(BizCompanyGoalModifyIdParam bizCompanyGoalModifyIdParam);
+    BizGoalModify detail(BizGoalModifyIdParam bizGoalModifyIdParam);
 
     /**
      * 获取公司绩效考核-目标调整详情
@@ -64,5 +64,5 @@ public interface BizCompanyGoalModifyService extends IService<BizCompanyGoalModi
      * @author pzh
      * @date  2025/06/18 14:24
      **/
-    BizCompanyGoalModify queryEntity(String id);
+    BizGoalModify queryEntity(String id);
 }

@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -197,5 +198,39 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
             throw new CommonException("组织绩效考核-目标登记不存在，id值为：{}", id);
         }
         return bizOrgGoal;
+    }
+
+    @Override
+    public BizOrgGoalVo getByCondition(BizOrgGoalParam bizOrgGoalParam) {
+        LambdaQueryWrapper<BizOrgGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizOrgGoal>()
+                .eq(BizOrgGoal::getAssOrg, bizOrgGoalParam.getAssOrg())
+                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalParam.getAssPeriod())
+                .eq(BizOrgGoal::getOrgId, bizOrgGoalParam.getOrgId())
+                .orderByDesc(BizOrgGoal::getCreateTime).last("limit 1");
+        if(BizOrgAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalParam.getAssPeriod())){
+            lambdaQueryWrapper.eq(BizOrgGoal::getAssYear, bizOrgGoalParam.getAssYear());
+        }
+        if(BizOrgAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalParam.getAssPeriod())){
+            lambdaQueryWrapper.eq(BizOrgGoal::getAssSeason, bizOrgGoalParam.getAssSeason());
+        }
+        BizOrgGoal bizOrgGoal = this.getOne(lambdaQueryWrapper);
+        if(ObjectUtil.isEmpty(bizOrgGoal)){
+            throw new CommonException("未找到对应的目标登记信息");
+        }
+        BizOrgGoalVo bizOrgGoalVo = BeanUtil.copyProperties(bizOrgGoal, BizOrgGoalVo.class);
+        // 查询明细
+        List<BizOrgGoalItem> itemList = bizOrgGoalItemService.list(new LambdaQueryWrapper<BizOrgGoalItem>()
+                .eq(BizOrgGoalItem::getGoalId, bizOrgGoal.getId()));
+        bizOrgGoalVo.setItemList(itemList);
+        return bizOrgGoalVo;
+    }
+
+    @Override
+    public void editOwner(BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
+        this.update(new LambdaUpdateWrapper<BizOrgGoal>().eq(BizOrgGoal::getAssOrg, bizOrgGoalEditOwnerParam.getAssOrg())
+                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalEditOwnerParam.getAssPeriod())
+                .eq(BizOrgGoal::getOrgId, bizOrgGoalEditOwnerParam.getOrgId())
+                .set(BizOrgGoal::getOwner, bizOrgGoalEditOwnerParam.getOwner())
+                .set(BizOrgGoal::getOwnerId, bizOrgGoalEditOwnerParam.getOwnerId()));
     }
 }

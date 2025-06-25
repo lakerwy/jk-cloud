@@ -19,13 +19,13 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalModify;
-import vip.xiaonuo.biz.modular.orgPerf.goal.mapper.BizCompanyGoalModifyMapper;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizGoalModify;
+import vip.xiaonuo.biz.modular.orgPerf.goal.mapper.BizGoalModifyMapper;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyAddParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyEditParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalModifyIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizCompanyGoalModifyPageParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalModifyService;
+import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizGoalModifyService;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -40,7 +40,7 @@ import java.util.List;
  **/
 @Service
 @DS("slave_1")
-public class BizCompanyGoalModifyServiceImpl extends ServiceImpl<BizCompanyGoalModifyMapper, BizCompanyGoalModify> implements BizCompanyGoalModifyService {
+public class BizGoalModifyServiceImpl extends ServiceImpl<BizGoalModifyMapper, BizGoalModify> implements BizGoalModifyService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
@@ -49,83 +49,83 @@ public class BizCompanyGoalModifyServiceImpl extends ServiceImpl<BizCompanyGoalM
     private FlwCommonApi flwCommonApi;
 
     @Override
-    public Page<BizCompanyGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam) {
-        QueryWrapper<BizCompanyGoalModify> queryWrapper = new QueryWrapper<>();
+    public Page<BizGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam) {
+        QueryWrapper<BizGoalModify> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isAllNotEmpty(bizCompanyGoalModifyPageParam.getSortField(), bizCompanyGoalModifyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizCompanyGoalModifyPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizCompanyGoalModifyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizCompanyGoalModifyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizCompanyGoalModify::getId);
+            queryWrapper.lambda().orderByAsc(BizGoalModify::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(BizCompanyGoalModifyAddParam bizCompanyGoalModifyAddParam) {
-        String goalId = bizCompanyGoalModifyAddParam.getGoalId();
-        long count = this.count(new QueryWrapper<BizCompanyGoalModify>().lambda().eq(BizCompanyGoalModify::getGoalId, goalId)
-                .eq(BizCompanyGoalModify::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue()));
+    public void add(BizGoalModifyAddParam bizGoalModifyAddParam) {
+        String goalId = bizGoalModifyAddParam.getGoalId();
+        long count = this.count(new QueryWrapper<BizGoalModify>().lambda().eq(BizGoalModify::getGoalId, goalId)
+                .eq(BizGoalModify::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue()));
         if(count > 0) {
             throw new CommonException("存在审批中的目标调整流程，不能再次发起此流程");
         }
-        BizCompanyGoalModify bizCompanyGoalModify = BeanUtil.toBean(bizCompanyGoalModifyAddParam, BizCompanyGoalModify.class);
+        BizGoalModify bizGoalModify = BeanUtil.toBean(bizGoalModifyAddParam, BizGoalModify.class);
         //走审批流程
-        String processInstanceId = bizCompanyGoalModifyAddParam.getProcessInstanceId();
+        String processInstanceId = bizGoalModifyAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
-            bizCompanyGoalModify.setId(id);
-            bizCompanyGoalModify.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-            bizCompanyGoalModify.setModelId(modelId);
-            bizCompanyGoalModify.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            bizGoalModify.setId(id);
+            bizGoalModify.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizGoalModify.setModelId(modelId);
+            bizGoalModify.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            flwCommonApi.save(modelId, BizCommonEnum.BIZ_COMPANY_GOAL_MODIFY.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_GOAL_MODIFY.getBizTable(),id,processInstanceId,dbName);
         }else{
-            bizCompanyGoalModify.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+            bizGoalModify.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
-        this.save(bizCompanyGoalModify);
+        this.save(bizGoalModify);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(BizCompanyGoalModifyEditParam bizCompanyGoalModifyEditParam) {
-        String id = bizCompanyGoalModifyEditParam.getId();
+    public void edit(BizGoalModifyEditParam bizGoalModifyEditParam) {
+        String id = bizGoalModifyEditParam.getId();
         //判断是否走审批流程内的修改
-        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizCompanyGoalModifyEditParam.getProcessInstanceId())){
-            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(bizCompanyGoalModifyEditParam.getProcessInstanceId());
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizGoalModifyEditParam.getProcessInstanceId())){
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(bizGoalModifyEditParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id = formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
-                bizCompanyGoalModifyEditParam.setId(id);
+                bizGoalModifyEditParam.setId(id);
             }
         }
-        BizCompanyGoalModify bizCompanyGoalModify = this.queryEntity(bizCompanyGoalModifyEditParam.getId());
-        BeanUtil.copyProperties(bizCompanyGoalModifyEditParam, bizCompanyGoalModify);
-        this.updateById(bizCompanyGoalModify);
+        BizGoalModify bizGoalModify = this.queryEntity(bizGoalModifyEditParam.getId());
+        BeanUtil.copyProperties(bizGoalModifyEditParam, bizGoalModify);
+        this.updateById(bizGoalModify);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(List<BizCompanyGoalModifyIdParam> bizCompanyGoalModifyIdParamList) {
+    public void delete(List<BizGoalModifyIdParam> bizGoalModifyIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(bizCompanyGoalModifyIdParamList, BizCompanyGoalModifyIdParam::getId));
+        this.removeByIds(CollStreamUtil.toList(bizGoalModifyIdParamList, BizGoalModifyIdParam::getId));
     }
 
     @Override
-    public BizCompanyGoalModify detail(BizCompanyGoalModifyIdParam bizCompanyGoalModifyIdParam) {
-        return this.queryEntity(bizCompanyGoalModifyIdParam.getId());
+    public BizGoalModify detail(BizGoalModifyIdParam bizGoalModifyIdParam) {
+        return this.queryEntity(bizGoalModifyIdParam.getId());
     }
 
     @Override
-    public BizCompanyGoalModify queryEntity(String id) {
-        BizCompanyGoalModify bizCompanyGoalModify = this.getById(id);
-        if(ObjectUtil.isEmpty(bizCompanyGoalModify)) {
+    public BizGoalModify queryEntity(String id) {
+        BizGoalModify bizGoalModify = this.getById(id);
+        if(ObjectUtil.isEmpty(bizGoalModify)) {
             throw new CommonException("公司绩效考核-目标调整不存在，id值为：{}", id);
         }
-        return bizCompanyGoalModify;
+        return bizGoalModify;
     }
 }

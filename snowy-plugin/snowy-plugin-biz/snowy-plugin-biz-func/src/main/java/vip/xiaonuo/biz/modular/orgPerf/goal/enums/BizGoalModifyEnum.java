@@ -9,14 +9,14 @@ import lombok.Getter;
  * @date  2025/06/18 14:24
  **/
 @Getter
-public enum BizCompanyGoalModifyEnum {
+public enum BizGoalModifyEnum {
 
     /** 测试 */
     TEST("TEST");
 
     private final String value;
 
-    BizCompanyGoalModifyEnum(String value) {
+    BizGoalModifyEnum(String value) {
         this.value = value;
     }
 }

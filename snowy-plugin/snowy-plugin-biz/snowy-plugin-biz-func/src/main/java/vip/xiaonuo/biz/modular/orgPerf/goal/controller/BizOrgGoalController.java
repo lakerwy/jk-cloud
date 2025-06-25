@@ -11,15 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalPageParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalService;
 
 import javax.annotation.Resource;
@@ -119,10 +116,33 @@ public class BizOrgGoalController {
     }
 
     /**
-     * 查询指定组织绩效详情
+     * 条件查询组织绩效考核-目标登记详情
      *
      * @author pzh
-     * @date  2025/06/18 14:24
+     * @date  2025/06/25 10:01
      */
-    // TODO
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("条件查询组织绩效考核-目标登记详情")
+    // @SaCheckPermission("/biz/orgPerf/orgGoal/getByCondition")
+    @GetMapping("/biz/orgPerf/orgGoal/getByCondition")
+    public CommonResult<BizOrgGoalVo> getByCondition(@Valid BizOrgGoalParam bizOrgGoalParam) {
+        return CommonResult.data(bizOrgGoalService.getByCondition(bizOrgGoalParam));
+    }
+
+    /**
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/06/25 10:01
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("组织责任人变更")
+    @CommonLog("组织责任人变更")
+    // @SaCheckPermission("/biz/orgPerf/orgGoal/editOwner")
+    @PostMapping("/biz/orgPerf/orgGoal/editOwner")
+    public CommonResult<String> editOwner(@RequestBody @Valid BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
+        bizOrgGoalService.editOwner(bizOrgGoalEditOwnerParam);
+        return CommonResult.ok();
+    }
+
 }
