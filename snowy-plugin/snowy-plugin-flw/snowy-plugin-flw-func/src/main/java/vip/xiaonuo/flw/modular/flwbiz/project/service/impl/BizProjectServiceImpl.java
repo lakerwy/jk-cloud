@@ -42,6 +42,7 @@ import vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
 import vip.xiaonuo.flw.modular.flwbiz.project.util.MyUtil;
+import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizHetongVo;
 import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectData;
 import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectLikeVo;
 import vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo;
@@ -49,8 +50,10 @@ import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +77,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
 
     @Resource
     private DictionaryTransService dictionaryTransService;
+
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
@@ -277,38 +281,44 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Override
     public Page<BizProjectVo> epcMpPage(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue());
-        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectPageParam.getEndApplyTime())) {
-            queryWrapper.between("a.APPLY_TIME", bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
-        }
+        queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())) {
-            queryWrapper.like("a.SN", bizProjectPageParam.getSn());
+            queryWrapper.lambda().like(BizProject::getSn, bizProjectPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())) {
-            queryWrapper.like("a.NAME", bizProjectPageParam.getName());
+            queryWrapper.lambda().like(BizProject::getName, bizProjectPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
-            queryWrapper.like("a.SOURCE", bizProjectPageParam.getSource());
+            queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("a.NAME",bizProjectPageParam.getSearchKey())
-                    .or().like("a.SN",bizProjectPageParam.getSearchKey()));
-        }
-        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
-            queryWrapper.eq("a.IS_HEAD",bizProjectPageParam.getIsHead());
+            queryWrapper.lambda().and(q->q.like(BizProject::getName,bizProjectPageParam.getSearchKey())
+                    .or().like(BizProject::getSn,bizProjectPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getType())){
-            queryWrapper.eq("a.TYPE",bizProjectPageParam.getType());
+            queryWrapper.lambda().eq(BizProject::getType,bizProjectPageParam.getType());
         }
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizProjectPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("a.SN");
+            queryWrapper.lambda().orderByDesc(BizProject::getSn);
         }
-        return bizProjectMapper.getEpcMpPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizProject> queryResult = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizProjectVo> result = new Page<>();
+        List<BizProjectVo> recordList = BeanUtil.copyToList(queryResult.getRecords(),BizProjectVo.class);
+        for (BizProjectVo item : recordList) {
+            List<BizHetongVo> htList = bizProjectMapper.getHetongByProjectId(item.getId());
+            BigDecimal htSumAmount = htList.stream().map(x -> x.getSumAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+            item.setHtSumAmount(htSumAmount);
+        }
+        result.setRecords(recordList);
+        result.setCurrent(queryResult.getCurrent());
+        result.setSize(queryResult.getSize());
+        result.setTotal(queryResult.getTotal());
+        result.setPages(queryResult.getPages());
+        return result;
     }
 
     @Override

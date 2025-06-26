@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -65,6 +66,6 @@ public class BizProjectVo {
 
     /** 合同总额 */
     @ApiModelProperty(value = "合同总额", position = 100)
-    private String htSumAmount;
+    private BigDecimal htSumAmount;
 
 }

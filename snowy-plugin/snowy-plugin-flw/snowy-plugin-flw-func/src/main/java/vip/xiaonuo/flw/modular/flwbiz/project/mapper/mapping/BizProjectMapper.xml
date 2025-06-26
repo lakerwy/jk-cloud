@@ -17,9 +17,11 @@
 
 
 
-    <select id="getEpcMpPageList" resultType="vip.xiaonuo.flw.modular.flwbiz.project.vo.BizProjectVo">
-        SELECT  a.*,b.SUM_AMOUNT as htSumAmount
-        FROM BIZ_PROJECT a left join BIZ_CRM_HETONG  b on a.ID = b.BIZ_PROJECT_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.STATUS = '1'
-            ${ew.customSqlSegment}
+    <select id="getHetongByProjectId" resultType="vip.xiaonuo.flw.modular.flwbiz.project.vo.BizHetongVo" parameterType="String">
+        SELECT *
+        FROM BIZ_CRM_HETONG
+        where BIZ_PROJECT_ID = #{bizProjectId}
+          and DELETE_FLAG = 'NOT_DELETE'
+          and STATUS = '1'
     </select>
 </mapper>

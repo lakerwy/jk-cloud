@@ -40,12 +40,12 @@ public class FinDataPdtPageParam {
     @ApiModelProperty(value = "合同编码")
     private String contractNo;
 
-    /** 拨付日期开始 */
-    @ApiModelProperty(value = "拨付日期开始")
+    /** 日期开始 */
+    @ApiModelProperty(value = "日期开始")
     private String startBfDate;
 
-    /** 拨付日期结束 */
-    @ApiModelProperty(value = "拨付日期结束")
+    /** 日期结束 */
+    @ApiModelProperty(value = "日期结束")
     private String endBfDate;
 
     /** 合同Id */

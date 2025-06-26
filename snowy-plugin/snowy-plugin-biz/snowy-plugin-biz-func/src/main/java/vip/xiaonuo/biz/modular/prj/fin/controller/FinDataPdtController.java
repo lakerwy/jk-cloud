@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.fin.param.*;
 import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataPdtPageTotal;
+import vip.xiaonuo.biz.modular.prj.fin.vo.FinDataResult;
 import vip.xiaonuo.biz.modular.prj.fin.vo.ImportResult;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -139,4 +140,19 @@ public class FinDataPdtController {
     public CommonResult<FinDataPdtPageTotal> pageTotal(FinDataPdtPageParam finDataPdtPageParam) {
         return CommonResult.data(finDataPdtService.pageTotal(finDataPdtPageParam));
     }
+
+
+
+
+
+    /**
+     * 项目收支明细表
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("项目收支明细表")
+    @GetMapping("/biz/prj/fin/pageList")
+    public CommonResult<Page<FinDataResult>> pageList(FinDataPageParam param) {
+        return CommonResult.data(finDataPdtService.pageList(param));
+    }
+
 }
