@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  **/
 @Service
 @DS("slave_1")
-public class BizGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
+public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
 
     @Resource
     private BizCompanyGoalKpiService bizCompanyGoalKpiService;

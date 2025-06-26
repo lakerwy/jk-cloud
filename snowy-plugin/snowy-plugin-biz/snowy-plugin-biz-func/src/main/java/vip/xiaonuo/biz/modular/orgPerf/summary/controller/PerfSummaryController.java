@@ -11,9 +11,11 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalService;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryListParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryListVo;
 import vip.xiaonuo.common.pojo.CommonResult;
 
@@ -49,8 +51,8 @@ public class PerfSummaryController {
     @ApiOperation("获取公司绩效-汇总列表")
     // @SaCheckPermission("/biz/orgPerf/summary/company/list")
     @GetMapping("/biz/orgPerf/summary/company/list")
-    public CommonResult<List<CompanySummaryListVo>> companySummaryList(CompanySummaryListParam companySummaryListParam) {
-        return CommonResult.data(bizCompanyGoalService.companySummaryList(companySummaryListParam));
+    public CommonResult<List<CompanySummaryListVo>> companySummaryList(CompanySummaryListParam param) {
+        return CommonResult.data(bizCompanyGoalService.companySummaryList(param));
     }
 
     /**
@@ -63,13 +65,13 @@ public class PerfSummaryController {
     @ApiOperation("获取公司绩效-汇总详情")
     // @SaCheckPermission("/biz/orgPerf/summary/company/detail")
     @GetMapping("/biz/orgPerf/summary/company/detail")
-    public CommonResult<List<CompanySummaryDetailVo>> companySummaryDetail(CompanySummaryDetailParam companySummaryDetailParam) {
-        return CommonResult.data(bizCompanyGoalService.companySummaryDetail(companySummaryDetailParam));
+    public CommonResult<List<CompanySummaryDetailVo>> companySummaryDetail(CompanySummaryDetailParam param) {
+        return CommonResult.data(bizCompanyGoalService.companySummaryDetail(param));
     }
 
 
     /**
-     * 获取子公司及生产部门绩效汇总列表
+     * 获取子公司及生产部门绩效-汇总列表
      *
      * @author pzh
      * @date  2025/06/25 15:35
@@ -78,8 +80,23 @@ public class PerfSummaryController {
     @ApiOperation("获取子公司及生产部门绩效-汇总列表")
     // @SaCheckPermission("/biz/orgPerf/summary/org/list")
     @GetMapping("/biz/orgPerf/summary/org/list")
-    public CommonResult<List<OrgSummaryListVo>> orgSummaryList(@Valid OrgSummaryListParam orgSummaryListParam) {
-        return CommonResult.data(bizOrgGoalService.orgSummaryList(orgSummaryListParam));
+    public CommonResult<List<OrgSummaryListVo>> orgSummaryList(@Valid OrgSummaryListParam param) {
+        return CommonResult.data(bizOrgGoalService.orgSummaryList(param));
+    }
+
+
+    /**
+     * 获取子公司及生产部门绩效-汇总详情
+     *
+     * @author pzh
+     * @date  2025/06/26 09:00
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("获取子公司及生产部门绩效-汇总详情")
+    // @SaCheckPermission("/biz/orgPerf/summary/org/detail")
+    @GetMapping("/biz/orgPerf/summary/org/detail")
+    public CommonResult<List<OrgSummaryDetailVo>> orgSummaryDetail(@Valid OrgSummaryDetailParam param) {
+        return CommonResult.data(bizOrgGoalService.orgSummaryDetail(param));
     }
 
 }

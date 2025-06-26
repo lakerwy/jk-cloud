@@ -9,6 +9,7 @@
             a.ASS_YEAR assYear,
             a.ASS_SEASON assSeason,
             b.STATUS assStatus,
+            b.PROCESS_INSTANCE_ID assProcessInstanceId,
             IF(b.STATUS = '1', b.ITEM_SCORE_TOTAL, null) itemScoreTotal,
             IF(b.STATUS = '1', b.ORG_DUTY_SCORE, null) orgDutyScore,
             IF(b.STATUS = '1', b.ADD_SCORE_TOTAL, null) addScoreTotal,
