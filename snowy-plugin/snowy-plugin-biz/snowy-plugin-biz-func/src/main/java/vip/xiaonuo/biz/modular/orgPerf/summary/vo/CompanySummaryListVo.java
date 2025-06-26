@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 公司绩效考核-考核指标添加参数
+ * 公司绩效考核-汇总列表参数
  *
  * @author pzh
  * @date  2025/06/18 10:15

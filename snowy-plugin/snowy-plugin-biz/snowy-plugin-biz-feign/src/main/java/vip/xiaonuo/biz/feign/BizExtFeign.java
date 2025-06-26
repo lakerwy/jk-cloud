@@ -26,6 +26,9 @@ public interface BizExtFeign {
     @RequestMapping(value = "/feign/biz/ext/orgPerf/updateCompanyGoal", method = RequestMethod.POST)
     void updateCompanyGoal(@RequestBody JSONObject jsonObject);
 
+    @RequestMapping(value = "/feign/biz/ext/orgPerf/updateOrgGoal", method = RequestMethod.POST)
+    void updateOrgGoal(@RequestBody JSONObject jsonObject);
+
     @RequestMapping(value = "/feign/biz/ext/por/doWarn")
     void doWarn(@RequestParam(value = "warnType",required = false) String warnType);
 

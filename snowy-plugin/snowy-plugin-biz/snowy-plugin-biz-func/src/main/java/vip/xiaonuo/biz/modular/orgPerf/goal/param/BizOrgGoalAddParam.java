@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 组织绩效考核-目标登记添加参数
+ * 子公司及生产部门绩效考核-目标登记添加参数
  *
  * @author pzh
  * @date  2025/06/24 16:33
@@ -25,9 +25,9 @@ public class BizOrgGoalAddParam {
     @NotBlank(message = "考核部门assOrg必填")
     private String assOrg;
 
-    /** 考核时段（季度考核|年度考核） */
-    @ApiModelProperty(value = "考核时段（季度考核|年度考核）", required = true, position = 3)
-    @NotBlank(message = "考核时段assPeriod必填")
+    /** 考核维度（季度考核|年度考核） */
+    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", required = true, position = 3)
+    @NotBlank(message = "考核维度assPeriod必填")
     private String assPeriod;
 
     /** 部门名称 */
@@ -45,10 +45,6 @@ public class BizOrgGoalAddParam {
     /** 责任人ID */
     @ApiModelProperty(value = "责任人ID", position = 7)
     private String ownerId;
-
-    /** 考核类型 */
-    @ApiModelProperty(value = "考核类型", position = 8)
-    private String assType;
 
     /** 考核周期-年份（例如：2025） */
     @ApiModelProperty(value = "考核周期-年份（例如：2025）", position = 9)

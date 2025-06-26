@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 组织绩效考核-考核指标编辑参数
+ * 子公司及生产部门绩效考核-考核指标编辑参数
  *
  * @author pzh
  * @date  2025/06/24 16:45

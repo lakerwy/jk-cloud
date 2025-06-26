@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  **/
 @Service
 @DS("slave_1")
-public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
+public class BizGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
 
     @Resource
     private BizCompanyGoalKpiService bizCompanyGoalKpiService;
@@ -199,7 +199,7 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
     }
 
     @Override
-    public BizCompanyGoalVo getByAssYear(BizCompanyGoalParam bizCompanyGoalParam) {
+    public BizCompanyGoalVo getByCondition(BizCompanyGoalParam bizCompanyGoalParam) {
         LambdaQueryWrapper<BizCompanyGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizCompanyGoal>()
                 .orderByDesc(BizCompanyGoal::getCreateTime).last("limit 1");
         if(ObjectUtil.isNotEmpty(bizCompanyGoalParam.getAssType())){

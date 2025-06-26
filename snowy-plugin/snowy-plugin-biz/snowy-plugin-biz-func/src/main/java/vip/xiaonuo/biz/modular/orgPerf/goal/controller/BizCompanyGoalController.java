@@ -116,16 +116,16 @@ public class BizCompanyGoalController {
     }
 
     /**
-     * 查询指定目标登记详情
+     * 条件查询公司绩效考核-目标登记详情
      *
      * @author pzh
      * @date  2025/06/18 14:24
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("查询指定目标登记详情")
-    // @SaCheckPermission("/biz/orgPerf/companyGoal/detail")
-    @GetMapping("/biz/orgPerf/companyGoal/getByAssYear")
+    @ApiOperation("条件查询公司绩效考核-目标登记详情")
+    // @SaCheckPermission("/biz/orgPerf/companyGoal/getByCondition")
+    @GetMapping("/biz/orgPerf/companyGoal/getByCondition")
     public CommonResult<BizCompanyGoalVo> getByAssYear(@Valid BizCompanyGoalParam bizCompanyGoalParam) {
-        return CommonResult.data(bizCompanyGoalService.getByAssYear(bizCompanyGoalParam));
+        return CommonResult.data(bizCompanyGoalService.getByCondition(bizCompanyGoalParam));
     }
 }

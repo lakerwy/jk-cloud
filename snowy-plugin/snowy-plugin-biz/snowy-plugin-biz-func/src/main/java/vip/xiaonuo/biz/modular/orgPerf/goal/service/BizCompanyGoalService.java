@@ -75,7 +75,7 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @author pzh
      * @date 2025/06/18 14:24
      */
-    BizCompanyGoalVo getByAssYear(BizCompanyGoalParam bizCompanyGoalParam);
+    BizCompanyGoalVo getByCondition(BizCompanyGoalParam bizCompanyGoalParam);
 
     /**
      * 更新公司绩效考核-目标登记

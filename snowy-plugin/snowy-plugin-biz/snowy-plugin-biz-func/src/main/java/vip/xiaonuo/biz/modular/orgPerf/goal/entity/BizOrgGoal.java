@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 组织绩效考核-目标登记实体
+ * 子公司及生产部门绩效考核-目标登记实体
  *
  * @author pzh
  * @date  2025/06/24 16:33
@@ -27,8 +27,8 @@ public class BizOrgGoal {
     @ApiModelProperty(value = "考核部门（子公司|生产部门）", position = 2)
     private String assOrg;
 
-    /** 考核时段（季度考核|年度考核） */
-    @ApiModelProperty(value = "考核时段（季度考核|年度考核）", position = 3)
+    /** 考核维度（季度考核|年度考核） */
+    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", position = 3)
     private String assPeriod;
 
     /** 部门名称 */
@@ -46,10 +46,6 @@ public class BizOrgGoal {
     /** 责任人ID */
     @ApiModelProperty(value = "责任人ID", position = 7)
     private String ownerId;
-
-    /** 考核类型 */
-    @ApiModelProperty(value = "考核类型", position = 8)
-    private String assType;
 
     /** 考核周期-年份（例如：2025） */
     @ApiModelProperty(value = "考核周期-年份（例如：2025）", position = 9)

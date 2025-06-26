@@ -1,7 +1,7 @@
 package vip.xiaonuo.biz.modular.orgPerf.goal.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalModify;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizGoalModify;
 
 /**
  * 公司绩效考核-目标调整Mapper接口
@@ -9,5 +9,5 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalModify;
  * @author pzh
  * @date  2025/06/18 14:24
  **/
-public interface BizCompanyGoalModifyMapper extends BaseMapper<BizCompanyGoalModify> {
+public interface BizGoalModifyMapper extends BaseMapper<BizGoalModify> {
 }

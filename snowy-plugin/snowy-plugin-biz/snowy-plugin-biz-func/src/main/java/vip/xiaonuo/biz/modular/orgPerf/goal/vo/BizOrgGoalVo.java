@@ -3,19 +3,20 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
 
 import java.util.List;
 
 /**
- * 组织绩效考核-详情vo
+ * 子公司及生产部门绩效考核-详情vo
  *
  * @author pzh
  * @date  2025/06/24 17:15
  **/
 @Getter
 @Setter
-public class BizOrgGoalVo {
+public class BizOrgGoalVo extends BizOrgGoal {
 
     /** 基本项指标 */
     @ApiModelProperty(value = "基本项指标-集合", position = 15)

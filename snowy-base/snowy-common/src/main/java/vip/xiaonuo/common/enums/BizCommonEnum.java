@@ -106,7 +106,9 @@ public enum BizCommonEnum {
     BIZ_CRM_SUBCONTRACT_SETTLEMENT("BIZ_CRM_SUBCONTRACT_SETTLEMENT","BIZ_CRM_SUBCONTRACT_SETTLEMENT","SubcontractSettlementServiceImpl"),    // 分包合同结算审批
     BIZ_PRJ_VALUE_ALLOCATION("BIZ_PRJ_VALUE_ALLOCATION","BIZ_PRJ_VALUE_ALLOCATION","PrjValueAllocationServiceImpl"),    // 项目产值划分
 
-    BIZ_COMPANY_GOAL_MODIFY("BIZ_COMPANY_GOAL_MODIFY","BIZ_COMPANY_GOAL_MODIFY","BizCompanyGoalModifyServiceImpl"),    // 公司绩效考核-目标调整
+    BIZ_GOAL_MODIFY("BIZ_GOAL_MODIFY","BIZ_GOAL_MODIFY","BizGoalModifyServiceImpl"),    // 绩效考核-目标调整
+
+    BIZ_ORG_PERF_ASS("BIZ_ORG_PERF_ASS","BIZ_ORG_PERF_ASS","BizOrgPerfAssServiceImpl"),    // 子公司及生产部门-绩效评估
     ;
 
     String bizModel;

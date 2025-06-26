@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import vip.xiaonuo.biz.api.BizExtApi;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizCompanyGoalKpi;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
+import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalService;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorProject;
 import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
@@ -35,6 +37,9 @@ public class BizExtApiProvider implements BizExtApi {
 
     @Resource
     private BizCompanyGoalService bizCompanyGoalService;
+
+    @Resource
+    private BizOrgGoalService bizOrgGoalService;
 
     @Resource
     private PorProjectService porProjectService;
@@ -57,8 +62,23 @@ public class BizExtApiProvider implements BizExtApi {
             log.error("更新-绩效考核-目标登记时,参数转换异常");
         }
         List<BizCompanyGoalKpi> kpiList = JSONUtil.toList(jsonArray, BizCompanyGoalKpi.class);
-        log.info("更新-绩效考核-目标登记，参数值 goalId:{}，kpiList:{}", goalId, kpiList);
         bizCompanyGoalService.updateCompanyGoal(goalId, kpiList);
+    }
+
+
+    @Override
+    public void updateOrgGoal(JSONObject jsonObject) {
+        log.info("更新-子公司及生产部门绩效考核-目标登记，参数值 jsonObject:{}", jsonObject);
+        JSONArray jsonArray = new JSONArray();
+        String goalId = null;
+        try {
+            goalId = jsonObject.getStr("goalId");
+            jsonArray = jsonObject.getJSONArray("itemList");
+        } catch (Exception e){
+            log.error("更新-绩效考核-目标登记时,参数转换异常");
+        }
+        List<BizOrgGoalItem> itemList = JSONUtil.toList(jsonArray, BizOrgGoalItem.class);
+        bizOrgGoalService.updateOrgGoal(goalId, itemList);
     }
 
     @Override
