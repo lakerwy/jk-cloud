@@ -37,6 +37,11 @@ public class BizExtApiContextBean implements BizExtApi {
     }
 
     @Override
+    public void updateFunDeptGoal(JSONObject jsonObject) {
+        bizExtFeign.updateFunDeptGoal(jsonObject);
+    }
+
+    @Override
     public void doWarn(String warnType) {
         bizExtFeign.doWarn(warnType);
     }
