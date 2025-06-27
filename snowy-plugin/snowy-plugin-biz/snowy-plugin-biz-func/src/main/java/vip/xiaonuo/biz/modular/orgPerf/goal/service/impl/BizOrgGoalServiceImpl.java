@@ -18,7 +18,7 @@ import vip.xiaonuo.biz.modular.orgPerf.business.service.BizBusinessService;
 import vip.xiaonuo.biz.modular.orgPerf.finance.entity.BizFinance;
 import vip.xiaonuo.biz.modular.orgPerf.finance.service.BizFinanceService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
-import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizOrgAssPeriodlEnum;
+import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalItemService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
@@ -77,7 +77,7 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     public Page<BizOrgGoal> page(BizOrgGoalPageParam bizOrgGoalPageParam) {
         QueryWrapper<BizOrgGoal> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(BizOrgGoal::getAssOrg, bizOrgGoalPageParam.getAssOrg());
-        queryWrapper.lambda().eq(BizOrgGoal::getAssPeriod, bizOrgGoalPageParam.getAssPeriod());
+        queryWrapper.lambda().eq(BizOrgGoal::getAssType, bizOrgGoalPageParam.getAssType());
         if(ObjectUtil.isNotEmpty(bizOrgGoalPageParam.getSearchKey())){
             queryWrapper.lambda().like(BizOrgGoal::getOrgName, bizOrgGoalPageParam.getSearchKey());
         }
@@ -111,19 +111,19 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
         // 部门、考核周期同时唯一
         LambdaQueryWrapper<BizOrgGoal> queryWrapper = new LambdaQueryWrapper<BizOrgGoal>()
                 .eq(BizOrgGoal::getAssOrg, bizOrgGoalAddParam.getAssOrg())
-                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalAddParam.getAssPeriod())
+                .eq(BizOrgGoal::getAssType, bizOrgGoalAddParam.getAssType())
                 .eq(BizOrgGoal::getOrgId, bizOrgGoalAddParam.getOrgId());
-        if(BizOrgAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalAddParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalAddParam.getAssType())){
             queryWrapper.eq(BizOrgGoal::getAssYear, bizOrgGoalAddParam.getAssYear());
         }
-        if(BizOrgAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalAddParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalAddParam.getAssType())){
             queryWrapper.eq(BizOrgGoal::getAssSeason, bizOrgGoalAddParam.getAssSeason());
         }
         long count = this.count(queryWrapper);
         if(count > 0){
-            String assPeriod = ObjectUtil.isEmpty(bizOrgGoalAddParam.getAssSeason()) ? bizOrgGoalAddParam.getAssYear().toString()
+            String assType = ObjectUtil.isEmpty(bizOrgGoalAddParam.getAssSeason()) ? bizOrgGoalAddParam.getAssYear().toString()
                     : bizOrgGoalAddParam.getAssYear()+"-Q"+bizOrgGoalAddParam.getAssSeason();
-            throw new CommonException("子公司/部门【{}】考核周期{}已存在", bizOrgGoalAddParam.getOrgName(), assPeriod);
+            throw new CommonException("子公司/部门【{}】考核周期{}已存在", bizOrgGoalAddParam.getOrgName(), assType);
         }
         BizOrgGoal bizOrgGoal = BeanUtil.toBean(bizOrgGoalAddParam, BizOrgGoal.class);
         this.save(bizOrgGoal);
@@ -147,13 +147,13 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
         // 部门、考核周期同时唯一
         LambdaQueryWrapper<BizOrgGoal> queryWrapper = new LambdaQueryWrapper<BizOrgGoal>()
                 .eq(BizOrgGoal::getAssOrg, bizOrgGoalEditParam.getAssOrg())
-                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalEditParam.getAssPeriod())
+                .eq(BizOrgGoal::getAssType, bizOrgGoalEditParam.getAssType())
                 .eq(BizOrgGoal::getOrgId, bizOrgGoalEditParam.getOrgId())
                 .ne(BizOrgGoal::getId, bizOrgGoalEditParam.getId());
-        if(BizOrgAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalEditParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalEditParam.getAssType())){
             queryWrapper.eq(BizOrgGoal::getAssYear, bizOrgGoalEditParam.getAssYear());
         }
-        if(BizOrgAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalEditParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalEditParam.getAssType())){
             queryWrapper.eq(BizOrgGoal::getAssSeason, bizOrgGoalEditParam.getAssSeason());
         }
         long count = this.count(queryWrapper);
@@ -231,13 +231,13 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     public BizOrgGoalVo getByCondition(BizOrgGoalParam bizOrgGoalParam) {
         LambdaQueryWrapper<BizOrgGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizOrgGoal>()
                 .eq(BizOrgGoal::getAssOrg, bizOrgGoalParam.getAssOrg())
-                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalParam.getAssPeriod())
+                .eq(BizOrgGoal::getAssType, bizOrgGoalParam.getAssType())
                 .eq(BizOrgGoal::getOrgId, bizOrgGoalParam.getOrgId())
                 .orderByDesc(BizOrgGoal::getCreateTime).last("limit 1");
-        if(BizOrgAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoalParam.getAssType())){
             lambdaQueryWrapper.eq(BizOrgGoal::getAssYear, bizOrgGoalParam.getAssYear());
         }
-        if(BizOrgAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalParam.getAssPeriod())){
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoalParam.getAssType())){
             lambdaQueryWrapper.eq(BizOrgGoal::getAssSeason, bizOrgGoalParam.getAssSeason());
         }
         BizOrgGoal bizOrgGoal = this.getOne(lambdaQueryWrapper);
@@ -255,7 +255,7 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     @Override
     public void editOwner(BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
         this.update(new LambdaUpdateWrapper<BizOrgGoal>().eq(BizOrgGoal::getAssOrg, bizOrgGoalEditOwnerParam.getAssOrg())
-                .eq(BizOrgGoal::getAssPeriod, bizOrgGoalEditOwnerParam.getAssPeriod())
+                .eq(BizOrgGoal::getAssType, bizOrgGoalEditOwnerParam.getAssType())
                 .eq(BizOrgGoal::getOrgId, bizOrgGoalEditOwnerParam.getOrgId())
                 .set(BizOrgGoal::getOwner, bizOrgGoalEditOwnerParam.getOwner())
                 .set(BizOrgGoal::getOwnerId, bizOrgGoalEditOwnerParam.getOwnerId()));
@@ -377,13 +377,13 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
                         BigDecimal season2 = list3.stream().filter(x -> x.getSeason() == 2).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
                         BigDecimal season3 = list3.stream().filter(x -> x.getSeason() == 3).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
                         BigDecimal season4 = list3.stream().filter(x -> x.getSeason() == 4).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
-                        if(month == 3 && season1.compareTo(BigDecimal.ZERO) != 0){
+                        if(month == 3){
                             vo.setCompValueTotal(season1);
-                        } else if(month == 6 && season2.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 6){
                             vo.setCompValueTotal(season1.add(season2));
-                        } else if(month == 9 && season3.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 9){
                             vo.setCompValueTotal(season1.add(season2).add(season3));
-                        } else if(month == 12  && season4.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 12){
                             vo.setCompValueTotal(season1.add(season2).add(season3).add(season4));
                         }
                     }

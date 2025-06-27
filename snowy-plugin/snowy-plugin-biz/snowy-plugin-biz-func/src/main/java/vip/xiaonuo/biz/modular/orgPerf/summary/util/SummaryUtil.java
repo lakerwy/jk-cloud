@@ -88,7 +88,7 @@ public class SummaryUtil {
             score = BigDecimal.ZERO;
         } else {
             // 100 + (1-(-50/-100))*20 = 80
-            score = new BigDecimal(100).add((BigDecimal.ONE.subtract(compValue.divide(goalValue,2, RoundingMode.FLOOR))).multiply(new BigDecimal(20)));
+            score = new BigDecimal(100).add((BigDecimal.ONE.subtract(compValue.divide(goalValue,6, RoundingMode.FLOOR))).multiply(new BigDecimal(20)));
         }
         score = score.multiply(weight).divide(new BigDecimal(100), 2, RoundingMode.FLOOR);
         return score;

@@ -6,11 +6,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.entity.BizOrgPerfAss;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.service.BizOrgPerfAssService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -48,6 +51,9 @@ public class BizGoalModifyServiceImpl extends ServiceImpl<BizGoalModifyMapper, B
     @Resource
     private FlwCommonApi flwCommonApi;
 
+    @Resource
+    private BizOrgPerfAssService bizOrgPerfAssService;
+
     @Override
     public Page<BizGoalModify> page(BizCompanyGoalModifyPageParam bizCompanyGoalModifyPageParam) {
         QueryWrapper<BizGoalModify> queryWrapper = new QueryWrapper<>();
@@ -65,10 +71,15 @@ public class BizGoalModifyServiceImpl extends ServiceImpl<BizGoalModifyMapper, B
     @Override
     public void add(BizGoalModifyAddParam bizGoalModifyAddParam) {
         String goalId = bizGoalModifyAddParam.getGoalId();
-        long count = this.count(new QueryWrapper<BizGoalModify>().lambda().eq(BizGoalModify::getGoalId, goalId)
+        long modifyCount = this.count(new LambdaQueryWrapper<BizGoalModify>().eq(BizGoalModify::getGoalId, goalId)
                 .eq(BizGoalModify::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue()));
-        if(count > 0) {
+        if(modifyCount > 0) {
             throw new CommonException("存在审批中的目标调整流程，不能再次发起此流程");
+        }
+        long assCount = bizOrgPerfAssService.count(new LambdaQueryWrapper<BizOrgPerfAss>().eq(BizOrgPerfAss::getGoalId, goalId)
+                .in(BizOrgPerfAss::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(), FlwStatusEnum.COMPLETED_STATUS.getValue()));
+        if(assCount > 0) {
+            throw new CommonException("存在审批中或已完成的绩效评估流程，不能发起此流程");
         }
         BizGoalModify bizGoalModify = BeanUtil.toBean(bizGoalModifyAddParam, BizGoalModify.class);
         //走审批流程

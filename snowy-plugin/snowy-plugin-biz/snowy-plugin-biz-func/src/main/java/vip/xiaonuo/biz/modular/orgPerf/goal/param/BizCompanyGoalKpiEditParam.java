@@ -20,7 +20,7 @@ import java.util.Date;
 public class BizCompanyGoalKpiEditParam {
 
     /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true, position = 1)
+    @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
     /** 关联-目标登记主键ID */

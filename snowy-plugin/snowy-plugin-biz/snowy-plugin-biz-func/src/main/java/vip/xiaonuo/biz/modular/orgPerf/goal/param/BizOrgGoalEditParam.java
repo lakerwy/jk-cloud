@@ -30,10 +30,10 @@ public class BizOrgGoalEditParam {
     @NotBlank(message = "考核部门assOrg必填")
     private String assOrg;
 
-    /** 考核维度（季度考核|年度考核） */
-    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", required = true, position = 3)
-    @NotBlank(message = "考核维度assPeriod必填")
-    private String assPeriod;
+    /** 考核类型（季度考核|年度考核） */
+    @ApiModelProperty(value = "考核类型（季度考核|年度考核）", required = true, position = 3)
+    @NotBlank(message = "考核类型assType必填")
+    private String assType;
 
     /** 部门名称 */
     @ApiModelProperty(value = "部门名称", position = 4)

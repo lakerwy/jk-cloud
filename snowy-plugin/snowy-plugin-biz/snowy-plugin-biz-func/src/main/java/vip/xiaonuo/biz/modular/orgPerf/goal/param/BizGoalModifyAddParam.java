@@ -31,8 +31,8 @@ public class BizGoalModifyAddParam {
     private String perfAssType;
 
     /** 目标登记主键ID */
-    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", position = 7)
-    private String assPeriod;
+    @ApiModelProperty(value = "考核类型（季度考核|年度考核）", position = 7)
+    private String assType;
 
     /** 流程表单数据JSON */
     @ApiModelProperty(value = "流程表单数据JSON", position = 9)

@@ -23,7 +23,7 @@
         WHERE
             a.DELETE_FLAG = 'NOT_DELETE'
             AND a.ASS_ORG = #{param.assOrg}
-            AND a.ASS_PERIOD = #{param.assPeriod}
+            AND a.ASS_PERIOD = #{param.assType}
             <if test="param.orgId != null and param.orgId != ''">
                 AND a.ORG_ID = #{param.orgId}
             </if>

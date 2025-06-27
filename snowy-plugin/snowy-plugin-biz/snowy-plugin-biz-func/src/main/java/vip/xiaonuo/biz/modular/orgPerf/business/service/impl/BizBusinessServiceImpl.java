@@ -8,6 +8,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -80,6 +81,14 @@ public class BizBusinessServiceImpl extends ServiceImpl<BizBusinessMapper, BizBu
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizBusinessAddParam bizBusinessAddParam) {
+        //  部门+月份+年度唯一
+        long count = this.count(new LambdaQueryWrapper<BizBusiness>().eq(BizBusiness::getOrgId, bizBusinessAddParam.getOrgId())
+                .eq(BizBusiness::getYear, bizBusinessAddParam.getYear())
+                .eq(BizBusiness::getMonth, bizBusinessAddParam.getMonth()));
+        if(count > 0){
+            throw new CommonException("部门【{}】{}数据已存在！",
+                    bizBusinessAddParam.getOrgName(), bizBusinessAddParam.getYear()+"年"+bizBusinessAddParam.getMonth()+"月");
+        }
         BizBusiness bizBusiness = BeanUtil.toBean(bizBusinessAddParam, BizBusiness.class);
         this.save(bizBusiness);
     }
@@ -87,6 +96,15 @@ public class BizBusinessServiceImpl extends ServiceImpl<BizBusinessMapper, BizBu
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizBusinessEditParam bizBusinessEditParam) {
+        //  部门+月份+年度唯一
+        long count = this.count(new LambdaQueryWrapper<BizBusiness>().eq(BizBusiness::getOrgId, bizBusinessEditParam.getOrgId())
+                .eq(BizBusiness::getYear, bizBusinessEditParam.getYear())
+                .eq(BizBusiness::getMonth, bizBusinessEditParam.getMonth())
+                .ne(BizBusiness::getId, bizBusinessEditParam.getId()));
+        if(count > 0){
+            throw new CommonException("部门【{}】{}数据已存在！",
+                    bizBusinessEditParam.getOrgName(), bizBusinessEditParam.getYear()+"年"+bizBusinessEditParam.getMonth()+"月");
+        }
         BizBusiness bizBusiness = this.queryEntity(bizBusinessEditParam.getId());
         BeanUtil.copyProperties(bizBusinessEditParam, bizBusiness);
         this.updateById(bizBusiness);
@@ -160,7 +178,7 @@ public class BizBusinessServiceImpl extends ServiceImpl<BizBusinessMapper, BizBu
 
         List<BizBusiness> oldList = this.list();
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-            List<BizBusiness> tmpList = oldList.stream().filter(obj -> item.getOrgName().equals(obj.getOrgName())
+            List<BizBusiness> tmpList = oldList.stream().filter(obj -> item.getOrgId().equals(obj.getOrgId())
                     && item.getYear().equals(obj.getYear()) && item.getMonth().equals(obj.getMonth())).collect(Collectors.toList());
             if(!tmpList.isEmpty()){
                 item.setErrorMsg(String.format("部门【%s】%s数据已存在；", item.getOrgName(), item.getYear()+"年"+item.getMonth()+"月"));
