@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 /**
- * 组织绩效考核-汇总列表参数
+ * 子公司及生产部门考核-汇总列表参数
  *
  * @author pzh
  * @date  2025/06/25 15:42
@@ -63,5 +63,9 @@ public class OrgSummaryListVo {
     /** 评定系数 */
     @ApiModelProperty(value = "评定系数", position = 25)
     private String assFactor;
+
+    /** 绩效评估-流程实例id */
+    @ApiModelProperty(value = "绩效评估-流程实例id", position = 27)
+    private String assProcessInstanceId;
 
 }

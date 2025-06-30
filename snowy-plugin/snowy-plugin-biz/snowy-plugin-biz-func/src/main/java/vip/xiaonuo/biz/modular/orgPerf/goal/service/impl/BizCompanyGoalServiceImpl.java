@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  **/
 @Service
 @DS("slave_1")
-public class BizGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
+public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCompanyGoal> implements BizCompanyGoalService {
 
     @Resource
     private BizCompanyGoalKpiService bizCompanyGoalKpiService;
@@ -276,7 +276,7 @@ public class BizGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCom
         List<BizCompanyGoalKpi> kpiList = bizCompanyGoalKpiService.list(new LambdaQueryWrapper<BizCompanyGoalKpi>()
                 .in(BizCompanyGoalKpi::getGoalId, goalIdList));
         // 获取目标值
-        for(CompanySummaryListVo vo: voList){
+        for(CompanySummaryListVo vo : voList){
             // 总分
             BigDecimal totalScore = BigDecimal.ZERO;
             // 当前目标下的kpi
@@ -407,13 +407,13 @@ public class BizGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper, BizCom
                         BigDecimal season2 = list3.stream().filter(x -> x.getSeason() == 2).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
                         BigDecimal season3 = list3.stream().filter(x -> x.getSeason() == 3).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
                         BigDecimal season4 = list3.stream().filter(x -> x.getSeason() == 4).findFirst().map(BizProduct::getProductAmount).orElse(BigDecimal.ZERO);
-                        if(month == 3 && season1.compareTo(BigDecimal.ZERO) != 0){
+                        if(month == 3){
                             vo.setCompValueTotal(season1);
-                        } else if(month == 6 && season2.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 6){
                             vo.setCompValueTotal(season1.add(season2));
-                        } else if(month == 9 && season3.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 9){
                             vo.setCompValueTotal(season1.add(season2).add(season3));
-                        } else if(month == 12  && season4.compareTo(BigDecimal.ZERO) != 0){
+                        } else if(month == 12){
                             vo.setCompValueTotal(season1.add(season2).add(season3).add(season4));
                         }
                     }

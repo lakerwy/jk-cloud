@@ -27,9 +27,9 @@ public class BizOrgGoal {
     @ApiModelProperty(value = "考核部门（子公司|生产部门）", position = 2)
     private String assOrg;
 
-    /** 考核维度（季度考核|年度考核） */
-    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", position = 3)
-    private String assPeriod;
+    /** 考核类型（季度考核|年度考核） */
+    @ApiModelProperty(value = "考核类型（季度考核|年度考核）", position = 3)
+    private String assType;
 
     /** 部门名称 */
     @ApiModelProperty(value = "部门名称", position = 4)

@@ -52,17 +52,15 @@
             t2.REC_AMOUNT_ACC AS incomeTotalComp,
             t2.PROFIT_AMOUNT_ACC AS profitTotalComp,
             t3.PRODUCT_AMOUNT_TOTAL AS proValueTotalComp,
-            t4.ID AS id,
-            t5.STATUS AS goalModifyStatus
+            t4.STATUS AS goalModifyStatus
         FROM
             t0
             LEFT JOIN t1 ON t0.ASS_YEAR = t1.YEAR
             LEFT JOIN t2 ON t0.ASS_YEAR = t2.YEAR
             LEFT JOIN t3 ON t0.ASS_YEAR = t3.YEAR
-            LEFT JOIN BIZ_COMPANY_GOAL t4 ON t0.ASS_YEAR = t4.ASS_YEAR
-            LEFT JOIN BIZ_COMPANY_GOAL_MODIFY t5 ON t4.ID = t5.GOAL_ID AND t5.CREATE_TIME = (SELECT MAX(CREATE_TIME) FROM BIZ_COMPANY_GOAL_MODIFY WHERE t4.ID = GOAL_ID AND DELETE_FLAG = 'NOT_DELETE')
-        WHERE t4.DELETE_FLAG = 'NOT_DELETE'
-            AND t5.DELETE_FLAG = 'NOT_DELETE'
+            LEFT JOIN BIZ_GOAL_MODIFY t4 ON t0.ID = t4.GOAL_ID
+                AND t4.CREATE_TIME = (SELECT MAX(CREATE_TIME) FROM BIZ_GOAL_MODIFY WHERE t0.ID = GOAL_ID AND DELETE_FLAG = 'NOT_DELETE')
+                AND t4.DELETE_FLAG = 'NOT_DELETE'
         ORDER BY
             t1.YEAR DESC
     </select>

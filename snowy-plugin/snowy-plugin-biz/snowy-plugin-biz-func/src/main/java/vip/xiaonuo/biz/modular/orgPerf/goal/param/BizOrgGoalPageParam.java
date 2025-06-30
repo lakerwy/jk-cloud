@@ -43,10 +43,10 @@ public class BizOrgGoalPageParam {
     @NotBlank(message = "考核部门assOrg必填")
     private String assOrg;
 
-    /** 考核维度（季度考核|年度考核） */
-    @ApiModelProperty(value = "考核维度（季度考核|年度考核）", required = true)
-    @NotBlank(message = "考核维度assPeriod必填")
-    private String assPeriod;
+    /** 考核类型（季度考核|年度考核） */
+    @ApiModelProperty(value = "考核类型（季度考核|年度考核）", required = true)
+    @NotBlank(message = "考核类型assType必填")
+    private String assType;
 
     /** 部门ID */
     @ApiModelProperty(value = "部门ID")

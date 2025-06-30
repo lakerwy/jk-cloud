@@ -170,7 +170,7 @@ public class BizProductServiceImpl extends ServiceImpl<BizProductMapper, BizProd
 
         List<BizProduct> oldList = this.list();
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-            List<BizProduct> tmpList = oldList.stream().filter(obj -> item.getOrgName().equals(obj.getOrgName())
+            List<BizProduct> tmpList = oldList.stream().filter(obj -> item.getOrgId().equals(obj.getOrgId())
                     && item.getYear().equals(obj.getYear()) && item.getSeason().equals(obj.getSeason())).collect(Collectors.toList());
             if(!tmpList.isEmpty()){
                 item.setErrorMsg(String.format("部门【%s】%s数据已存在；", item.getOrgName(), item.getYear()+"-Q"+item.getSeason()));

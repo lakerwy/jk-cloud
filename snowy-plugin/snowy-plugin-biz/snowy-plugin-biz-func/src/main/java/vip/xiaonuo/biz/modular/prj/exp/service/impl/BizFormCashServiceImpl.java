@@ -411,6 +411,7 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
 
         List<MergeCell> mergeList = new ArrayList<>(); //合并单元格设置
+        List<MergeCell> mergeList2 = new ArrayList<>(); //合并单元格设置
         int firstRow_Item = 7;  //第8行 模版行（行号-1）  excel中行列都是从0开始
         int itemList_Size = CollUtil.isNotEmpty(excelData.getItemList()) ? excelData.getItemList().size()-1 : 0 ;
         int lastRow_Item = firstRow_Item + itemList_Size ;
@@ -419,6 +420,11 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
         mergeList.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 10));
 
+        mergeList2.add(new MergeCell(firstRow_Item, lastRow_Item, 0, 1)); //A + B 列
+        mergeList2.add(new MergeCell(firstRow_Item, lastRow_Item, 2, 6));
+        mergeList2.add(new MergeCell(firstRow_Item, lastRow_Item, 7, 8));
+        mergeList2.add(new MergeCell(firstRow_Item, lastRow_Item, 9, 11));
+
         int firstRow_commentList = lastRow_Item + 6 ;  // 模版行（行号-1）
         int commentList_Size = CollUtil.isNotEmpty(excelData.getCommentList()) ? excelData.getCommentList().size()-1 : 0 ;
         int lastRow_commentList = firstRow_commentList + commentList_Size ;
@@ -426,10 +432,20 @@ public class BizFormCashServiceImpl extends ServiceImpl<BizFormCashMapper, BizFo
         mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
         mergeList.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
 
+        mergeList2.add(new MergeCell(firstRow_commentList, lastRow_commentList, 0, 3)); //A + B 列
+        mergeList2.add(new MergeCell(firstRow_commentList, lastRow_commentList, 4, 5));
+        mergeList2.add(new MergeCell(firstRow_commentList, lastRow_commentList, 6, 11));
+
         WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(mergeList)).build();
         excelWriter.fill(excelData, sheet1);
         excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet1);
         excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet1);
+
+        WriteSheet sheet2 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(mergeList2)).build();
+        excelWriter.fill(excelData, sheet2);
+        excelWriter.fill(new FillWrapper("item", excelData.getItemList()),fillConfig, sheet2);
+        excelWriter.fill(new FillWrapper("commentList", excelData.getCommentList()),fillConfig, sheet2);
+
         excelWriter.finish();
     }
 

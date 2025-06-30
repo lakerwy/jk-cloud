@@ -3,13 +3,13 @@ package vip.xiaonuo.biz.modular.orgPerf.goal.enums;
 import lombok.Getter;
 
 /**
- * 子公司及生产部门绩效考核-考核时段枚举
+ * 组织绩效考核-考核时段枚举
  *
  * @author pzh
  * @date  2025/06/24 16:33
  **/
 @Getter
-public enum BizOrgAssPeriodlEnum {
+public enum BizAssPeriodlEnum {
 
     SEASON("季度考核"),
 
@@ -18,7 +18,7 @@ public enum BizOrgAssPeriodlEnum {
 
     private final String value;
 
-    BizOrgAssPeriodlEnum(String value) {
+    BizAssPeriodlEnum(String value) {
         this.value = value;
     }
 }

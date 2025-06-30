@@ -184,7 +184,7 @@ public class BizFinanceServiceImpl extends ServiceImpl<BizFinanceMapper, BizFina
         // 校验数据是否已存在
         List<BizFinance> oldList = this.list();
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-            List<BizFinance> tmpList = oldList.stream().filter(obj -> item.getOrgName().equals(obj.getOrgName())
+            List<BizFinance> tmpList = oldList.stream().filter(obj -> item.getOrgId().equals(obj.getOrgId())
                     && item.getYear().equals(obj.getYear()) && item.getMonth().equals(obj.getMonth())).collect(Collectors.toList());
             if(!tmpList.isEmpty()){
                 item.setErrorMsg(String.format("部门【%s】%s数据已存在；", item.getOrgName(), item.getYear()+"年"+item.getMonth()+"月"));

@@ -6,7 +6,9 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoalItem;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryListVo;
 
 import java.util.List;
@@ -91,12 +93,19 @@ public interface BizOrgGoalService extends IService<BizOrgGoal> {
      */
     void updateOrgGoal(String goalId, List<BizOrgGoalItem> itemList);
 
-
     /**
      * 获取子公司及生产部门绩效汇总列表
      *
      * @author pzh
      * @date 2025/06/25 15:39
      */
-    List<OrgSummaryListVo> orgSummaryList(OrgSummaryListParam orgSummaryListParam);
+    List<OrgSummaryListVo> orgSummaryList(OrgSummaryListParam param);
+
+    /**
+     * 获取子公司及生产部门绩效-汇总详情
+     *
+     * @author pzh
+     * @date  2025/06/26 09:00
+     */
+    List<OrgSummaryDetailVo> orgSummaryDetail(OrgSummaryDetailParam param);
 }
