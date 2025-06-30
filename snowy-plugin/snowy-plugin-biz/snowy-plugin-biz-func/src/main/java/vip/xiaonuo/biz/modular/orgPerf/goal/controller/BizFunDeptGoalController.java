@@ -11,15 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizFunDeptGoalVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizFunDeptGoal;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalPageParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizFunDeptGoalService;
 
 import javax.annotation.Resource;
@@ -116,5 +113,22 @@ public class BizFunDeptGoalController {
     @GetMapping("/biz/orgPerf/funDept/detail")
     public CommonResult<BizFunDeptGoalVo> detail(@Valid BizFunDeptGoalIdParam bizFunDeptGoalIdParam) {
         return CommonResult.data(bizFunDeptGoalService.detail(bizFunDeptGoalIdParam));
+    }
+
+
+    /**
+     * 编辑职能部门目标登记-部分字段
+     *
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("编辑职能部门目标登记-部分字段）")
+    @CommonLog("编辑职能部门目标登记-部分字段")
+    // @SaCheckPermission("/biz/orgPerf/funDept/editPart")
+    @PostMapping("/biz/orgPerf/funDept/editPart")
+    public CommonResult<String> editPart(@RequestBody @Valid BizFunDeptGoalKpiEditPartParam bizFunDeptGoalEditParam) {
+        bizFunDeptGoalService.editPart(bizFunDeptGoalEditParam);
+        return CommonResult.ok();
     }
 }

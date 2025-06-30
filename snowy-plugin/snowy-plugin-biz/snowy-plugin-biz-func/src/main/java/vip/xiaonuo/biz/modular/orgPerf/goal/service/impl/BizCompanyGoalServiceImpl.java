@@ -202,9 +202,6 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
     public BizCompanyGoalVo getByCondition(BizCompanyGoalParam bizCompanyGoalParam) {
         LambdaQueryWrapper<BizCompanyGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizCompanyGoal>()
                 .orderByDesc(BizCompanyGoal::getCreateTime).last("limit 1");
-        if(ObjectUtil.isNotEmpty(bizCompanyGoalParam.getAssType())){
-            lambdaQueryWrapper.eq(BizCompanyGoal::getAssType, bizCompanyGoalParam.getAssType());
-        }
         if(ObjectUtil.isNotEmpty(bizCompanyGoalParam.getAssYear())){
             lambdaQueryWrapper.eq(BizCompanyGoal::getAssYear, bizCompanyGoalParam.getAssYear());
         }
@@ -382,7 +379,7 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
                 BizCompanyGoalKpi kpi = kpiList.stream().filter(x -> assName.equals(x.getAssName())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(kpi)){
                     CompanySummaryDetailVo vo = new CompanySummaryDetailVo();
-                    vo.setId(param.getId());
+//                    vo.setId(param.getId());
                     vo.setAssYear(param.getAssYear());
                     vo.setMonth(month);
                     vo.setAssName(assName);

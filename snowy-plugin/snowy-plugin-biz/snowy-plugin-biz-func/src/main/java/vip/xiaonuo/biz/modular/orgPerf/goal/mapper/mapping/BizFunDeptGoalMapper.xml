@@ -2,4 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.orgPerf.goal.mapper.BizFunDeptGoalMapper">
 
+    <select id="funDeptList" resultType="vip.xiaonuo.biz.modular.orgPerf.summary.vo.FunDeptSummaryListVo">
+        SELECT
+        a.ID id,
+        a.ORG_NAME orgName,
+        a.ASS_YEAR assYear,
+        a.ASS_SEASON assSeason,
+        b.STATUS assStatus,
+        b.PROCESS_INSTANCE_ID assProcessInstanceId,
+        IF(b.STATUS = '1', b.KPI_SCORE_TOTAL, null) kpiScoreTotal,
+        IF(b.STATUS = '1', b.BUDGET_EXEC_SCORE, null) budgetExecScore,
+        IF(b.STATUS = '1', b.GROUP_SCORE, null) groupScore,
+        IF(b.STATUS = '1', b.ORG_DUTY_SCORE, null) orgDutyScore,
+        IF(b.STATUS = '1', b.ADD_SCORE_TOTAL, null) addScoreTotal,
+        IF(b.STATUS = '1', b.MINUS_SCORE_TOTAL, null) minusScoreTotal,
+        IF(b.STATUS = '1', b.TOTAL_SCORE, null) totalScore,
+        IF(b.STATUS = '1', b.ASS_LEVEL, null) assLevel,
+        IF(b.STATUS = '1', b.ASS_FACTOR, null) assFactor
+        FROM BIZ_FUN_DEPT_GOAL a
+        LEFT JOIN (SELECT * FROM BIZ_FUN_DEPT_PERF_ASS WHERE DELETE_FLAG = 'NOT_DELETE' ORDER BY CREATE_TIME DESC LIMIT 1) b
+        ON a.ID = b.GOAL_ID
+        WHERE
+        a.DELETE_FLAG = 'NOT_DELETE'
+        AND a.ASS_TYPE = #{param.assType}
+        <if test="param.orgId != null and param.orgId != ''">
+            AND a.ORG_ID = #{param.orgId}
+        </if>
+        <if test="param.assYear != null and param.assYear != ''">
+            AND a.ASS_YEAR = #{param.assYear}
+        </if>
+        <if test="param.assSeason != null and param.assSeason != ''">
+            AND a.ASS_SEASON = #{param.assSeason}
+        </if>
+        <if test='param.isAss == "是"'>
+            AND b.STATUS = '1'
+        </if>
+        <if test='param.isAss == "否"'>
+            AND (b.STATUS is null or b.STATUS != '1')
+        </if>
+        ORDER BY a.ASS_YEAR DESC, a.ASS_SEASON DESC
+    </select>
 </mapper>

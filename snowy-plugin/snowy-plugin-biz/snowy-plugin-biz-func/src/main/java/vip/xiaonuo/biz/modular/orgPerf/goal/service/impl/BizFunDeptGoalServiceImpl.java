@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,10 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizFunDeptGoalKpiService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizFunDeptGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptDetailParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptSummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.*;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.FunDeptSummaryListVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -39,6 +44,9 @@ public class BizFunDeptGoalServiceImpl extends ServiceImpl<BizFunDeptGoalMapper,
 
     @Resource
     private BizFunDeptGoalKpiService bizFunDeptGoalKpiService;
+
+    @Resource
+    private BizFunDeptGoalMapper bizFunDeptGoalMapper;
 
     @Override
     public Page<BizFunDeptGoal> page(BizFunDeptGoalPageParam bizFunDeptGoalPageParam) {
@@ -212,6 +220,30 @@ public class BizFunDeptGoalServiceImpl extends ServiceImpl<BizFunDeptGoalMapper,
         }else{
             bizFunDeptGoalKpiService.remove(new QueryWrapper<BizFunDeptGoalKpi>().lambda().eq(BizFunDeptGoalKpi::getGoalId,goalId));
         }
+    }
+
+    @Override
+    public List<FunDeptSummaryListVo> funDeptList(FunDeptSummaryListParam param) {
+        return bizFunDeptGoalMapper.funDeptList(param);
+    }
+
+    @Override
+    public List<FunDeptSummaryDetailVo> funDeptDetail(FunDeptDetailParam param) {
+        List<BizFunDeptGoalKpi> kpiList = bizFunDeptGoalKpiService.list(new LambdaQueryWrapper<BizFunDeptGoalKpi>().eq(BizFunDeptGoalKpi::getGoalId, param.getId()));
+        List<FunDeptSummaryDetailVo> voList = BeanUtil.copyToList(kpiList, FunDeptSummaryDetailVo.class);
+        if(CollUtil.isEmpty(kpiList)){
+            return voList;
+        }
+        // TODO 查询考评得分、状态
+        return voList;
+    }
+
+    @Override
+    public void editPart(BizFunDeptGoalKpiEditPartParam bizFunDeptGoalEditParam) {
+        bizFunDeptGoalKpiService.update(new LambdaUpdateWrapper<BizFunDeptGoalKpi>().eq(BizFunDeptGoalKpi::getId, bizFunDeptGoalEditParam.getId())
+                .set(BizFunDeptGoalKpi::getActualCompDesc, bizFunDeptGoalEditParam.getActualCompDesc())
+                .set(BizFunDeptGoalKpi::getActualCompDesc, bizFunDeptGoalEditParam.getAttach())
+                .set(BizFunDeptGoalKpi::getProgress, bizFunDeptGoalEditParam.getProgress()));
     }
 
 }

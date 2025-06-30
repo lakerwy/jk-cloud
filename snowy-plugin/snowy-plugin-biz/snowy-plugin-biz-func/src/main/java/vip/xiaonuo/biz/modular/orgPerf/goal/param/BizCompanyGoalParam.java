@@ -16,10 +16,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class BizCompanyGoalParam {
 
-    /** 考核类型 */
-    @ApiModelProperty(value = "考核类型", position = 1)
-    private String assType;
-
     /** 考核周期（例如：2025） */
     @ApiModelProperty(value = "考核周期（例如：2025）", position = 2)
     private Integer assYear;

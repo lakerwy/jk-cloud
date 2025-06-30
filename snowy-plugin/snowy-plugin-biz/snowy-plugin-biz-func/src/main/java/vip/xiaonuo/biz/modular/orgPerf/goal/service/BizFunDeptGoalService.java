@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizFunDeptGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizFunDeptGoalKpi;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalAddParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalEditParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalIdParam;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizFunDeptGoalPageParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizFunDeptGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptDetailParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptSummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.FunDeptSummaryDetailVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.FunDeptSummaryListVo;
 
 import java.util.List;
 
@@ -75,4 +76,28 @@ public interface BizFunDeptGoalService extends IService<BizFunDeptGoal> {
      * @date  2025/06/26 16:25
      */
     void updateFunDeptGoal(String goalId, List<BizFunDeptGoalKpi> kpiList);
+
+    /**
+     * 职能部门绩效-汇总列表
+     *
+     * @author pzh
+     * @date  2025/06/25 15:35
+     */
+    List<FunDeptSummaryListVo> funDeptList(FunDeptSummaryListParam param);
+
+    /**
+     * 职能部门绩效-汇总详情
+     *
+     * @author pzh
+     * @date  2025/06/25 15:35
+     */
+    List<FunDeptSummaryDetailVo> funDeptDetail(FunDeptDetailParam param);
+
+    /**
+     * 编辑职能部门目标登记-部分字段
+     *
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
+    void editPart(BizFunDeptGoalKpiEditPartParam bizFunDeptGoalEditParam);
 }

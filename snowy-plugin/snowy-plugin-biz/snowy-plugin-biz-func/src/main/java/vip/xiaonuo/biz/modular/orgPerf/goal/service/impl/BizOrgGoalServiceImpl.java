@@ -346,7 +346,7 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
                 BizOrgGoalItem item = itemList.stream().filter(x -> assName.equals(x.getAssName())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(item)){
                     OrgSummaryDetailVo vo = new OrgSummaryDetailVo();
-                    vo.setId(param.getId());
+//                    vo.setId(param.getId());
                     vo.setAssYear(bizOrgGoal.getAssYear());
                     vo.setMonth(month);
                     vo.setAssName(assName);

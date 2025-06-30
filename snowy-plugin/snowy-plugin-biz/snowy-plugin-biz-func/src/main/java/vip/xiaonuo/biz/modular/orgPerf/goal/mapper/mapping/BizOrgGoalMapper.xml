@@ -23,12 +23,9 @@
         WHERE
             a.DELETE_FLAG = 'NOT_DELETE'
             AND a.ASS_ORG = #{param.assOrg}
-            AND a.ASS_PERIOD = #{param.assType}
+            AND a.ASS_TYPE = #{param.assType}
             <if test="param.orgId != null and param.orgId != ''">
                 AND a.ORG_ID = #{param.orgId}
-            </if>
-            <if test="param.orgName != null and param.orgName != ''">
-                AND a.ORG_NAME LIKE CONCAT('%', #{param.orgName}, '%')
             </if>
             <if test="param.assYear != null and param.assYear != ''">
                 AND a.ASS_YEAR = #{param.assYear}

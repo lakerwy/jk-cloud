@@ -109,6 +109,8 @@ public enum BizCommonEnum {
     BIZ_GOAL_MODIFY("BIZ_GOAL_MODIFY","BIZ_GOAL_MODIFY","BizGoalModifyServiceImpl"),    // 绩效考核-目标调整
 
     BIZ_ORG_PERF_ASS("BIZ_ORG_PERF_ASS","BIZ_ORG_PERF_ASS","BizOrgPerfAssServiceImpl"),    // 子公司及生产部门-绩效评估
+
+    BIZ_FUN_DEPT_PERF_ASS("BIZ_FUN_DEPT_PERF_ASS","BIZ_FUN_DEPT_PERF_ASS","BizFunDeptPerfAssServiceImpl"),    // 子公司及生产部门-绩效评估
     ;
 
     String bizModel;

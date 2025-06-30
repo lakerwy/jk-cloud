@@ -48,8 +48,8 @@ public class BizOrgPerfAssController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取子公司及生产部门-绩效评估分页")
-    // @SaCheckPermission("/biz/orgPerf/ass/page")
-    @GetMapping("/biz/orgPerf/ass/page")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/page")
+    @GetMapping("/biz/orgPerf/orgAss/page")
     public CommonResult<Page<BizOrgPerfAss>> page(BizOrgPerfAssPageParam bizOrgPerfAssPageParam) {
         return CommonResult.data(bizOrgPerfAssService.page(bizOrgPerfAssPageParam));
     }
@@ -63,8 +63,8 @@ public class BizOrgPerfAssController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加子公司及生产部门-绩效评估")
     @CommonLog("添加子公司及生产部门-绩效评估")
-    // @SaCheckPermission("/biz/orgPerf/ass/add")
-    @PostMapping("/biz/orgPerf/ass/add")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/add")
+    @PostMapping("/biz/orgPerf/orgAss/add")
     public CommonResult<String> add(@RequestBody @Valid BizOrgPerfAssAddParam bizOrgPerfAssAddParam) {
         bizOrgPerfAssService.add(bizOrgPerfAssAddParam);
         return CommonResult.ok();
@@ -79,8 +79,8 @@ public class BizOrgPerfAssController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑子公司及生产部门-绩效评估")
     @CommonLog("编辑子公司及生产部门-绩效评估")
-    // @SaCheckPermission("/biz/orgPerf/ass/edit")
-    @PostMapping("/biz/orgPerf/ass/edit")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/edit")
+    @PostMapping("/biz/orgPerf/orgAss/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizOrgPerfAssEditParam bizOrgPerfAssEditParam) {
         bizOrgPerfAssService.edit(bizOrgPerfAssEditParam);
         return CommonResult.ok();
@@ -95,8 +95,8 @@ public class BizOrgPerfAssController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除子公司及生产部门-绩效评估")
     @CommonLog("删除子公司及生产部门-绩效评估")
-    // @SaCheckPermission("/biz/orgPerf/ass/delete")
-    @PostMapping("/biz/orgPerf/ass/delete")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/delete")
+    @PostMapping("/biz/orgPerf/orgAss/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizOrgPerfAssIdParam> bizOrgPerfAssIdParamList) {
         bizOrgPerfAssService.delete(bizOrgPerfAssIdParamList);
@@ -111,8 +111,8 @@ public class BizOrgPerfAssController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取子公司及生产部门-绩效评估详情")
-    // @SaCheckPermission("/biz/orgPerf/ass/detail")
-    @GetMapping("/biz/orgPerf/ass/detail")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/detail")
+    @GetMapping("/biz/orgPerf/orgAss/detail")
     public CommonResult<BizOrgPerfAss> detail(@Valid BizOrgPerfAssIdParam bizOrgPerfAssIdParam) {
         return CommonResult.data(bizOrgPerfAssService.detail(bizOrgPerfAssIdParam));
     }

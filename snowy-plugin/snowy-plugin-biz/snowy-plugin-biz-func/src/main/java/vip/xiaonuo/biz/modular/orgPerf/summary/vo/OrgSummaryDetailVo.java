@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 @Setter
 public class OrgSummaryDetailVo {
 
-    /** 目标登记主键ID */
-    @ApiModelProperty(value = "目标登记主键ID", position = 1)
-    private String id;
+//    /** 目标登记主键ID */
+//    @ApiModelProperty(value = "目标登记主键ID", position = 1)
+//    private String id;
 
     /** 考核年度（例如：2025） */
     @ApiModelProperty(value = "考核年度（例如：2025）", position = 3)

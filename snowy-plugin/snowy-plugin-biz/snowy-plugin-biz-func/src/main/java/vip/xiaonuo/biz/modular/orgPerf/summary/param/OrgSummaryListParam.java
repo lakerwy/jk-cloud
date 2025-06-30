@@ -30,10 +30,6 @@ public class OrgSummaryListParam {
     @ApiModelProperty(value = "部门ID", position = 5)
     private String orgId;
 
-    /** 部门ID */
-    @ApiModelProperty(value = "部门名称", position = 7)
-    private String orgName;
-
     /** 考核周期-年份（例如：2025） */
     @ApiModelProperty(value = "考核周期-年份（例如：2025）", position = 9)
     private Integer assYear;
