@@ -1287,15 +1287,18 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwTaskInfoResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
             flwTaskInfoResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
             flwTaskInfoResult.setTenantId(task.getTenantId());
-            flwTaskInfoResult.setIdType(0);
+            flwTaskInfoResult.setIdType(0);//待办
             return flwTaskInfoResult;
         }else {
+            // task为null
             List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
                     .orderByHistoricTaskInstanceEndTime().desc().list();
             if(CollUtil.isNotEmpty(list)){
                 FlwDoneTaskResult doneTaskResult = getDoneTaskResult(list.get(0));
                 flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
-                flwTaskInfoResult.setIdType(1);
+                flwTaskInfoResult.setIdType(1);//已办
+            } else {
+                flwTaskInfoResult.setIdType(2);
             }
         }
         //return new FlwTodoTaskResult();

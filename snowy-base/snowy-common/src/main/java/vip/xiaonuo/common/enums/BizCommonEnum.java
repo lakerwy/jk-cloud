@@ -110,7 +110,9 @@ public enum BizCommonEnum {
 
     BIZ_ORG_PERF_ASS("BIZ_ORG_PERF_ASS","BIZ_ORG_PERF_ASS","BizOrgPerfAssServiceImpl"),    // 子公司及生产部门-绩效评估
 
-    BIZ_FUN_DEPT_PERF_ASS("BIZ_FUN_DEPT_PERF_ASS","BIZ_FUN_DEPT_PERF_ASS","BizFunDeptPerfAssServiceImpl"),    // 子公司及生产部门-绩效评估
+    BIZ_FUN_DEPT_PERF_ASS("BIZ_FUN_DEPT_PERF_ASS","BIZ_FUN_DEPT_PERF_ASS","BizFunDeptPerfAssServiceImpl"),    // 职能部门-绩效评估
+
+    BIZ_FUN_DEPT_RATING("BIZ_FUN_DEPT_RATING","BIZ_FUN_DEPT_RATING","BizFunDeptPerfAssServiceImpl"),    // 职能部门-绩效评分
     ;
 
     String bizModel;

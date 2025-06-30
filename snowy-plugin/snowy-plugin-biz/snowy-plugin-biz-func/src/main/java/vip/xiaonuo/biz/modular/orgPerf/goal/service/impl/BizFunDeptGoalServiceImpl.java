@@ -18,6 +18,8 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
 import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizFunDeptGoalKpiService;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizFunDeptGoalVo;
+import vip.xiaonuo.biz.modular.orgPerf.rating.entity.BizFunDeptRating;
+import vip.xiaonuo.biz.modular.orgPerf.rating.service.BizFunDeptRatingService;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptSummaryListParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.*;
@@ -44,6 +46,9 @@ public class BizFunDeptGoalServiceImpl extends ServiceImpl<BizFunDeptGoalMapper,
 
     @Resource
     private BizFunDeptGoalKpiService bizFunDeptGoalKpiService;
+
+    @Resource
+    private BizFunDeptRatingService bizFunDeptRatingService;
 
     @Resource
     private BizFunDeptGoalMapper bizFunDeptGoalMapper;
@@ -231,10 +236,19 @@ public class BizFunDeptGoalServiceImpl extends ServiceImpl<BizFunDeptGoalMapper,
     public List<FunDeptSummaryDetailVo> funDeptDetail(FunDeptDetailParam param) {
         List<BizFunDeptGoalKpi> kpiList = bizFunDeptGoalKpiService.list(new LambdaQueryWrapper<BizFunDeptGoalKpi>().eq(BizFunDeptGoalKpi::getGoalId, param.getId()));
         List<FunDeptSummaryDetailVo> voList = BeanUtil.copyToList(kpiList, FunDeptSummaryDetailVo.class);
-        if(CollUtil.isEmpty(kpiList)){
+        if(CollUtil.isEmpty(voList)){
             return voList;
         }
-        // TODO 查询考评得分、状态
+        List<String> kpiIdList = kpiList.stream().map(BizFunDeptGoalKpi::getId).collect(Collectors.toList());
+        // 查询考评得分、流程状态
+        List<BizFunDeptRating> ratingList = bizFunDeptRatingService.list(new LambdaQueryWrapper<BizFunDeptRating>().in(BizFunDeptRating::getKpiId, kpiIdList));
+        voList.forEach(vo -> {
+            BizFunDeptRating bizFunDeptRating = ratingList.stream().filter(x -> vo.getId().equals(x.getKpiId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(bizFunDeptRating)){
+                vo.setScore(bizFunDeptRating.getLeaderAssScore());
+                vo.setRatingStatus(bizFunDeptRating.getStatus());
+            }
+        });
         return voList;
     }
 

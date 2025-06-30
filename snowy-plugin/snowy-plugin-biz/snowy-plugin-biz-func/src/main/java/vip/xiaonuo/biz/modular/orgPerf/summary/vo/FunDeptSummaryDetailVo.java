@@ -17,10 +17,6 @@ import java.util.Date;
 @Setter
 public class FunDeptSummaryDetailVo {
 
-    /** 目标登记主键ID */
-//    @ApiModelProperty(value = "目标登记主键ID", position = 1)
-//    private String id;
-
     @ApiModelProperty(value = "kpi主键ID", position = 1)
     private String id;
 
@@ -76,7 +72,7 @@ public class FunDeptSummaryDetailVo {
     private BigDecimal score;
 
     /** 评定等级 */
-    @ApiModelProperty(value = "评分流程-状态", position = 23)
+    @ApiModelProperty(value = "评分流程-状态（null代表进行中）", position = 23)
     private String ratingStatus;
 
     /** 绩效评估-流程实例id */
