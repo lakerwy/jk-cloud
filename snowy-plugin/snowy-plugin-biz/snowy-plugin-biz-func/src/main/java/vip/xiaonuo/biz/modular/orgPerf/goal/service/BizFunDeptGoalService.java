@@ -100,4 +100,20 @@ public interface BizFunDeptGoalService extends IService<BizFunDeptGoal> {
      * @date  2025/06/30 16:02
      */
     void editPart(BizFunDeptGoalKpiEditPartParam bizFunDeptGoalEditParam);
+
+    /**
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
+    void editOwner(BizFunDeptGoalEditOwnerParam bizOrgGoalEditOwnerParam);
+
+    /**
+     * 查询已有目标
+     * 用于目标调整回显
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
+    BizFunDeptGoalVo getByCondition(BizFunDeptGoalParam bizFunDeptGoalParam);
 }

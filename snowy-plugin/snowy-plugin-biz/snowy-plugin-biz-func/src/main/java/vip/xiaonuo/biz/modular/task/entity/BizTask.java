@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.task.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -52,7 +55,7 @@ public class BizTask {
     private String year;
 
     /** 年度重点/专项工作任务 */
-    @ApiModelProperty(value = "年度重点/专项工作任务", position = 4)
+    @ApiModelProperty(value = "年度重点/专项工作任务/计划名称", position = 4)
     private String taskName;
 
     /** 开始时间 */
@@ -170,4 +173,41 @@ public class BizTask {
     @ApiModelProperty(value = "绩效评估流程实例Id - 绩效评估 BIZ_TASK_RATING.processInstanceId", position = 100)
     @TableField(exist = false)
     private String taskRatingProcessInstanceId;
+
+    /** =================组织绩效需求-新增的字段================= */
+
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 200)
+    private BigDecimal indexNum;
+
+    /** 职能模块 */
+    @ApiModelProperty(value = "职能模块", position = 201)
+    private String funModule;
+
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 201)
+    private String level;
+
+    /** 计划说明及完成标准 */
+    @ApiModelProperty(value = "计划说明及完成标准", position = 202)
+    private String taskDesc;
+
+    /** 计划说明及完成标准 */
+    @ApiModelProperty(value = "计划前置条件", position = 203)
+    private String taskCondition;
+
+    /** 配合部门 */
+    @ApiModelProperty(value = "配合部门", position = 203)
+    private String coopDept;
+
+    /** 配合部门 */
+    @ApiModelProperty(value = "配合部门ID", position = 204)
+    private String coopDeptId;
+
+    /** 实际完成日期 */
+    @ApiModelProperty(value = "实际完成日期（格式：yyyy-MM-dd）", position = 205)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date actualFinishDate;
+
 }
