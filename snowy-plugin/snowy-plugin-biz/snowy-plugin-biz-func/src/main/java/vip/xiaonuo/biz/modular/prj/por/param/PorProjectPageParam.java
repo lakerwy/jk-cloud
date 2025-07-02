@@ -47,4 +47,9 @@ public class PorProjectPageParam {
     /** 项目类型（BizProject.type） */
     @ApiModelProperty(value = "项目类型（BizProject.type）")
     private String bizPrjType;
+
+
+    /** 已作废、已结项、已完工，这三个状态的项目默认不显示  1 默认不展示  0 不做限制 */
+    @ApiModelProperty(value = "已作废、已结项、已完工，这三个状态的项目默认不显示  1 默认不展示  0 不做限制 ")
+    private String isHidden;
 }

@@ -123,7 +123,7 @@ public class BizExtApiProvider implements BizExtApi {
         porProject.setDutyDeptName(dept);
         porProject.setDutyId(areaLeaderId);
         porProject.setDutyName(areaLeader);
-        porProject.setProjectStatus("未开始");
+        porProject.setProjectStatus("未开工");
         porProject.setMemo("立项审批通过-系统自动同步");
         porProjectService.save(porProject);
     }
