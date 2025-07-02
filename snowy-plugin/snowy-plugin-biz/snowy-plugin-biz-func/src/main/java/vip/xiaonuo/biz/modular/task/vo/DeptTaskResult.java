@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.biz.modular.task.entity.BizTask;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,8 +36,20 @@ public class DeptTaskResult {
 //    @ApiModelProperty(value = "年度", position = 3)
 //    private String year;
 
+    /** 已完成任务数 */
+    @ApiModelProperty(value = "已完成任务数", position = 5)
+    private Integer finishTaskNum;
+
+    /** 总任务数 */
+    @ApiModelProperty(value = "总任务数", position = 6)
+    private Integer totalTaskNum;
+
+    /** 进度 */
+    @ApiModelProperty(value = "进度", position = 7)
+    private BigDecimal progress;
+
     /** 部门任务集合 */
-    @ApiModelProperty(value = "部门任务集合", position = 3)
+    @ApiModelProperty(value = "部门任务集合", position = 10)
     private List<BizTask> taskList;
 
 }

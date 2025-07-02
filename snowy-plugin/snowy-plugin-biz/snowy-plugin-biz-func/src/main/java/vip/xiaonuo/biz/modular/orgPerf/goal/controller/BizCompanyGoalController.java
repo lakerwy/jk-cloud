@@ -116,8 +116,9 @@ public class BizCompanyGoalController {
     }
 
     /**
-     * 条件查询公司绩效考核-目标登记详情
-     *
+     * TODO
+     * 查询公司绩效考核-已有目标
+     * 用于目标调整回显
      * @author pzh
      * @date  2025/06/18 14:24
      */
@@ -128,4 +129,12 @@ public class BizCompanyGoalController {
 //    public CommonResult<BizCompanyGoalVo> getByAssYear(@Valid BizCompanyGoalParam bizCompanyGoalParam) {
 //        return CommonResult.data(bizCompanyGoalService.getByCondition(bizCompanyGoalParam));
 //    }
+
+    /**
+     * TODO
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/06/25 10:01
+     */
 }

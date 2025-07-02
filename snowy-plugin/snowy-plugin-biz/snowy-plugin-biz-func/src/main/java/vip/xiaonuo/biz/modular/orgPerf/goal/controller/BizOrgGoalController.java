@@ -116,7 +116,8 @@ public class BizOrgGoalController {
     }
 
     /**
-     * 条件查询子公司及生产部门绩效考核-目标登记详情
+     * TODO
+     * 查询子公司及生产部门绩效-已有目标
      *
      * @author pzh
      * @date  2025/06/25 10:01
@@ -130,6 +131,7 @@ public class BizOrgGoalController {
     }
 
     /**
+     * TODO
      * 组织责任人变更
      *
      * @author pzh

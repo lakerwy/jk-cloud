@@ -20,6 +20,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
@@ -51,9 +52,9 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -166,6 +167,13 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             }
             deptTaskResultList = tmpResult;
         }
+        for(DeptTaskResult item : deptTaskResultList){
+            if(ObjectUtil.isNotEmpty(item.getTaskList())){
+                item.setTotalTaskNum(item.getTaskList().size());
+                item.setFinishTaskNum((int) item.getTaskList().stream().filter(x -> x.getFinishStatus() != null && x.getFinishStatus() >= 100).count());
+                item.setProgress(new BigDecimal(item.getFinishTaskNum()).multiply(new BigDecimal(100)).divide(new BigDecimal(item.getTotalTaskNum()), 2, RoundingMode.FLOOR));
+            }
+        }
         return deptTaskResultList;
     }
 
@@ -218,6 +226,38 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     }
 
     /***
+     * 【 进度分】进度分占总体分数的50%，进度分的计算规则如下：
+     * 进度分=单项分值*完成进度*50%，单项分值为百分制，即100分；根据完成进度实时计算
+     *
+     * 【成效分】
+     * 计算规则：成效分=成效评分/5*单项分值*50%，单项分值为百分制，即100分
+     * 成效分占总体分数的50%，成效评分采用星级制评分，每项单项工作设五星（☆☆☆☆☆），从单项工作完成后的效果和满意度从高到底依次为五星到零星，可进行半星打分。
+     ***/
+    public DeptTaskScore getDeptTotalScore2(List<BizTask> bizTaskList){
+        //返回结果
+        DeptTaskScore deptTaskScore = new DeptTaskScore();
+        double total = 0;      //部门年度任务最后得分
+        //统计逻辑
+        if(CollUtil.isNotEmpty(bizTaskList)){
+            for (BizTask item:bizTaskList) {
+                // 进度分
+                if(item.getFinishStatus() != null){
+                    item.setProgressScore(item.getFinishStatus() * 0.5);
+                    total += item.getProgressScore();
+                }
+                // 成效分
+                if(item.getBoosScore() != null){
+                    item.setEffectScore(item.getBoosScore() / 5 * 100 * 0.5);
+                    total += item.getEffectScore();
+                }
+            }
+        }
+        deptTaskScore.setTotalScore(total);
+        deptTaskScore.setBizTaskList(bizTaskList);
+        return deptTaskScore;
+    }
+
+    /***
      * 根据考核年度，获取各部门的 年度任务分
      * @param assYear
      * @return
@@ -246,6 +286,18 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     @Override
     public void add(TaskFlwParam taskFlwParam) {
         List<BizTask> bizTaskList = BeanUtil.copyToList(taskFlwParam.getFlwParamList(),BizTask.class);
+        // 校验 一级任务不能重复
+        List<String> level1TaskNameList = bizTaskList.stream().map(BizTask::getTaskName).filter("一级"::equals).collect(Collectors.toList());
+        Set<String> level1TaskSetList = new HashSet<>(level1TaskNameList);
+        if(level1TaskNameList.size() != level1TaskSetList.size()){
+            throw new CommonException("一级任务“职能模块”不可重复");
+        }
+        level1TaskSetList.forEach(taskName->{
+            long count = this.count(new LambdaQueryWrapper<BizTask>().eq(BizTask::getLevel, "一级").eq(BizTask::getTaskName, taskName));
+            if(count > 0){
+                throw new CommonException("一级任务{}已存在", taskName);
+            }
+        });
         bizTaskList.forEach(x->{
             x.setOrgId(taskFlwParam.getOrgId());
             x.setOwer(taskFlwParam.getOwer());

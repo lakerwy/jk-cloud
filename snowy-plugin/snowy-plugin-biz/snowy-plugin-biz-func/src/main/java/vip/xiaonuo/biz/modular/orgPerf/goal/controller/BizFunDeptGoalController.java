@@ -115,6 +115,21 @@ public class BizFunDeptGoalController {
         return CommonResult.data(bizFunDeptGoalService.detail(bizFunDeptGoalIdParam));
     }
 
+    /**
+     * TODO
+     * 查询职能部门绩效-已有目标
+     * 用于目标调整回显
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
+
+    /**
+     * TODO
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/06/30 16:02
+     */
 
     /**
      * 编辑职能部门目标登记-部分字段
