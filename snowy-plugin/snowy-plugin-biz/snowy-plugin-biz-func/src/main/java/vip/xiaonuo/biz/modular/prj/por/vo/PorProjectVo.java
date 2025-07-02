@@ -37,6 +37,10 @@ public class PorProjectVo extends PorProject {
     @ApiModelProperty(value = "项目属性（BizProject.source）", position = 205)
     private String bizPrjSource;
 
+    /** 立项 - 创建时间 */
+    @ApiModelProperty(value = "立项 - 创建时间", position = 206)
+    private Date bizCreateTime;
+
 
     /*********************************** 来源-计算或统计 ******************************************/
 

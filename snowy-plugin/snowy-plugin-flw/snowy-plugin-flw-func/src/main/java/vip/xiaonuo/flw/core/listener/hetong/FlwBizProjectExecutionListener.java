@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.biz.api.BizExtApi;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 立项完成 - 数据同步到 项目管理
@@ -30,21 +32,37 @@ public class FlwBizProjectExecutionListener implements ExecutionListener {
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             String businessKey = processInstance.getBusinessKey();   //主键(立项)
 
-            //我方负责人
-            Object obj_areaLeader = execution.getVariable("areaLeader");
-            Object obj_areaLeaderId = execution.getVariable("areaLeaderId");
-            Object obj_dept = execution.getVariable("dept");
-            Object obj_deptId = execution.getVariable("_deptId");
+            //立项主体
+            Object obj_IsHead = execution.getVariable("isHead");
+            //项目类型
+            Object obj_Type = execution.getVariable("type");
+            String isHead = ObjectUtil.isNotEmpty(obj_IsHead) ? String.valueOf(obj_IsHead) : "";
+            String type = ObjectUtil.isNotEmpty(obj_Type) ? String.valueOf(obj_Type) : "";
+            List<String> typeList = Arrays.asList(type.split(","));
 
-            String areaLeader = ObjectUtil.isNotEmpty(obj_areaLeader) ? String.valueOf(obj_areaLeader) : null ;
-            String areaLeaderId = ObjectUtil.isNotEmpty(obj_areaLeaderId) ? String.valueOf(obj_areaLeaderId) : null ;
-            //责任部门
-            String dept = ObjectUtil.isNotEmpty(obj_dept) ? String.valueOf(obj_dept) : null ;
-            String deptId = ObjectUtil.isNotEmpty(obj_deptId) ? String.valueOf(obj_deptId) : null ;
+            log.info("立项相关参数：【isHead】= " + isHead + "【type】= " + type);
 
-            bizExtApi.savePorProject(businessKey,areaLeader,areaLeaderId,dept,deptId);
+            //总部+（分公司+施工）
+            if("1".equals(isHead) || "总部".equals(isHead)
+                    || (("2".equals(isHead) || "分公司".equals(isHead)) && typeList.contains("施工") ))
+            {
+                //我方负责人
+                Object obj_areaLeader = execution.getVariable("areaLeader");
+                Object obj_areaLeaderId = execution.getVariable("areaLeaderId");
+                Object obj_dept = execution.getVariable("dept");
+                Object obj_deptId = execution.getVariable("_deptId");
 
-            log.info("立项审批通过-系统自动同步-完成");
+                String areaLeader = ObjectUtil.isNotEmpty(obj_areaLeader) ? String.valueOf(obj_areaLeader) : null ;
+                String areaLeaderId = ObjectUtil.isNotEmpty(obj_areaLeaderId) ? String.valueOf(obj_areaLeaderId) : null ;
+                //责任部门
+                String dept = ObjectUtil.isNotEmpty(obj_dept) ? String.valueOf(obj_dept) : null ;
+                String deptId = ObjectUtil.isNotEmpty(obj_deptId) ? String.valueOf(obj_deptId) : null ;
+
+                bizExtApi.savePorProject(businessKey,areaLeader,areaLeaderId,dept,deptId);
+
+                log.info("立项审批通过-系统自动同步-完成");
+            }
+
         }catch (Exception e){
             log.info("立项审批通过-系统自动同步-异常-----" + e.getMessage());
         }
