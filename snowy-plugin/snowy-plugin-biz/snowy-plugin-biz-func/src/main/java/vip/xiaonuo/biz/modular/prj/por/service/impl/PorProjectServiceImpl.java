@@ -190,9 +190,13 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         if(ObjectUtil.isNotEmpty(porProjectPageParam.getBizPrjType())){
             List<String> prjTypes = Arrays.asList(porProjectPageParam.getBizPrjType().split(","));
             if(CollUtil.isNotEmpty(prjTypes)){
-                queryWrapper.and(q->{
-                    for (String prjType : prjTypes) {
-                        q.or().apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+                queryWrapper.and(q -> {
+                    for (int i = 0; i < prjTypes.size(); i++) {
+                        String type = prjTypes.get(i);
+                        q.apply("FIND_IN_SET({0}, b.TYPE) > 0", type);
+                        if (i < prjTypes.size() - 1) {
+                            q.or(); // 多个类型之间用 OR 连接
+                        }
                     }
                 });
             }
@@ -661,9 +665,13 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         queryWrapper.in("a.PROJECT_STATUS","进行中","已完工","已结项");
         List<String> prjTypes = Arrays.asList("设计","勘察","咨询");
         if(CollUtil.isNotEmpty(prjTypes)){
-            queryWrapper.and(q->{
-                for (String prjType : prjTypes) {
-                    q.or().apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+            queryWrapper.and(q -> {
+                for (int i = 0; i < prjTypes.size(); i++) {
+                    String type = prjTypes.get(i);
+                    q.apply("FIND_IN_SET({0}, b.TYPE) > 0", type);
+                    if (i < prjTypes.size() - 1) {
+                        q.or(); // 多个类型之间用 OR 连接
+                    }
                 }
             });
         }
