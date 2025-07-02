@@ -30,6 +30,7 @@ import vip.xiaonuo.biz.modular.pis.entity.PisAllotment;
 import vip.xiaonuo.biz.modular.pis.service.PisAllotmentService;
 import vip.xiaonuo.biz.modular.prj.fin.entity.FinDataPpc;
 import vip.xiaonuo.biz.modular.prj.por.entity.*;
+import vip.xiaonuo.biz.modular.prj.por.enums.ExpenseNatureEnum;
 import vip.xiaonuo.biz.modular.prj.por.enums.PorWarnEnum;
 import vip.xiaonuo.biz.modular.prj.por.mapper.*;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
@@ -398,7 +399,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         subcontractLambdaQueryWrapper.in(Subcontract::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         subcontractLambdaQueryWrapper.in(Subcontract::getHetongId,htIds);
         if(CollUtil.isNotEmpty(natureList)){
-            subcontractLambdaQueryWrapper.in(Subcontract::getExpenseNature,natureList.toArray(new String[0]));
+            subcontractLambdaQueryWrapper.in(Subcontract::getExpenseNature,natureList);
         }
         List<Subcontract> subcontractList = subcontractService.list(subcontractLambdaQueryWrapper);
 
@@ -551,7 +552,7 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             List<PorOemVo> oemData = porOemMapper.getOemListByPrjId(prj.getProjectId());
 
             //[拨付- 审批通过]
-            List<PisData> oemPisDataList = getPisData(htIds, CollectionUtil.toList("经营费","居间费"),FlwStatusEnum.COMPLETED_STATUS.getValue());
+            List<PisData> oemPisDataList = getPisData(htIds, CollectionUtil.toList(ExpenseNatureEnum.JYF.getValue(),ExpenseNatureEnum.JJF.getValue()),FlwStatusEnum.COMPLETED_STATUS.getValue());
             BigDecimal prjOemYfSum = oemData.stream().map(x->x.getOemTotalAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal prjOemHfSum = oemPisDataList.stream().map(x->x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjOemHfRate = calculatePercentage(prjOemHfSum,prjOemYfSum);
@@ -566,15 +567,15 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             BigDecimal prjSubYfSum = BigDecimal.ZERO;
             if(prjTypeList.contains("施工") || prjTypeList.contains("EPC") || prjTypeList.contains("PPP") || prjTypeList.contains("EPC+F")) {
                 List<PorSubSettleVo> subSettleData = porSubSettleMapper.getSubSettleListByPrjId(prj.getProjectId());
-                List<PorSubSettleVo> subSettleDataList = subSettleData.stream().filter(x->CollectionUtil.toList("分包","其他").contains(x.getSubContractExpenseNature())).collect(Collectors.toList());
+                List<PorSubSettleVo> subSettleDataList = subSettleData.stream().filter(x->CollectionUtil.toList(ExpenseNatureEnum.FBF.getValue(),ExpenseNatureEnum.QT.getValue()).contains(x.getSubContractExpenseNature())).collect(Collectors.toList());
                 prjSubYfSum = subSettleDataList.stream().map(x -> x.getReviewAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             }else{
-                List<Subcontract> subSettleSubContractList = subcontractList.stream().filter(x->CollectionUtil.toList("分包","其他").contains(x.getExpenseNature())).collect(Collectors.toList());
+                List<Subcontract> subSettleSubContractList = subcontractList.stream().filter(x->CollectionUtil.toList(ExpenseNatureEnum.FBF.getValue(),ExpenseNatureEnum.QT.getValue()).contains(x.getExpenseNature())).collect(Collectors.toList());
                 prjSubYfSum = subSettleSubContractList.stream().map(x -> x.getContractAmount()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             }
 
             // [拨付 - 审批通过]
-            List<PisData> subSettlePisDataList = getPisData(htIds, CollectionUtil.toList("分包","其他"),FlwStatusEnum.COMPLETED_STATUS.getValue());
+            List<PisData> subSettlePisDataList = getPisData(htIds, CollectionUtil.toList(ExpenseNatureEnum.FBF.getValue(),ExpenseNatureEnum.QT.getValue()),FlwStatusEnum.COMPLETED_STATUS.getValue());
             BigDecimal prjSubHfSum = subSettlePisDataList.stream().map(x -> x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
             Double prjSubHfRate = calculatePercentage(prjSubHfSum,prjSubYfSum);
 

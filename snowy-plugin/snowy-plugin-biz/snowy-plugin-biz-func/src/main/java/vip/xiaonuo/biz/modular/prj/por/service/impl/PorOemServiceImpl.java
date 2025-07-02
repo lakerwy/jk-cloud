@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.por.enums.ExpenseNatureEnum;
 import vip.xiaonuo.biz.modular.prj.por.param.*;
 import vip.xiaonuo.biz.modular.prj.por.service.PorProjectService;
 import vip.xiaonuo.biz.modular.prj.por.vo.PisData;
@@ -110,7 +111,7 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
     @Override
     public List<PisData> getPisListByHtId(ContractParam param) {
         List<String> htIds = CollectionUtil.toList(param.getHetongId());
-        List<String> natureList = CollectionUtil.toList("经营费","居间费");
+        List<String> natureList = CollectionUtil.toList(ExpenseNatureEnum.JYF.getValue(),ExpenseNatureEnum.JJF.getValue());
         return porProjectService.getPisData(htIds,natureList,null);
     }
 
@@ -121,7 +122,7 @@ public class PorOemServiceImpl extends ServiceImpl<PorOemMapper, PorOem> impleme
      */
     public BigDecimal sumPayable(PorOemVo param){
         List<String> htIds = CollectionUtil.toList(param.getHetongId());
-        List<String> natureList = CollectionUtil.toList("经营费","居间费");
+        List<String> natureList = CollectionUtil.toList(ExpenseNatureEnum.JYF.getValue(),ExpenseNatureEnum.JJF.getValue());
         List<PisData> pisDataList = porProjectService.getPisData(htIds,natureList, FlwStatusEnum.COMPLETED_STATUS.getValue());
         return pisDataList.stream().map(x->x.getPayable()).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
