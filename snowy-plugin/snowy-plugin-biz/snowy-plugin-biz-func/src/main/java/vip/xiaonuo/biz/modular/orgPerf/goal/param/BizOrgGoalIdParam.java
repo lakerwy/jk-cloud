@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 public class BizOrgGoalIdParam {
 
     /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true)
+    @ApiModelProperty(value = "目标登记-主键ID", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
 }

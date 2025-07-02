@@ -2,11 +2,13 @@ package vip.xiaonuo.biz.modular.orgPerf.perfAss.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.entity.BizOrgPerfAss;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssAddParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssEditParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssPageParam;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgPerfAssDataVo;
 
 import java.util.List;
 
@@ -65,4 +67,12 @@ public interface BizOrgPerfAssService extends IService<BizOrgPerfAss> {
      * @date  2025/06/25 15:01
      **/
     BizOrgPerfAss queryEntity(String id);
+
+    /**
+     * 获取绩效评估-指标数据
+     *
+     * @author pzh
+     * @date  2025/07/02 15:35
+     */
+    BizOrgPerfAssDataVo getData(BizOrgGoalIdParam bizOrgGoalIdParam);
 }
