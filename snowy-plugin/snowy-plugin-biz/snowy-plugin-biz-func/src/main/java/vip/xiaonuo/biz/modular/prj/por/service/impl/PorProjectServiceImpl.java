@@ -184,7 +184,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
             queryWrapper.eq("a.PROJECT_STATUS", porProjectPageParam.getProjectStatus());
         }
         if("1".equals(porProjectPageParam.getIsHidden())){
-            queryWrapper.notIn("a.PROJECT_STATUS","已作废","已结项","已完工");
+            queryWrapper.and(q->q.notIn("a.PROJECT_STATUS","已作废","已结项","已完工")
+                    .or().isNull("a.PROJECT_STATUS")
+                    .or().eq("a.PROJECT_STATUS",""));
         }
         if(ObjectUtil.isNotEmpty(porProjectPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("b.NAME",porProjectPageParam.getSearchKey())
