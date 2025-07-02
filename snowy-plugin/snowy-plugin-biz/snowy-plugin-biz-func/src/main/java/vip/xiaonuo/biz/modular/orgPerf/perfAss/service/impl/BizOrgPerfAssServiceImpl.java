@@ -7,10 +7,26 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
+import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalService;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgAssRecordVo;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgPerfAssDataVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryDetailParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryDetailVo;
+import vip.xiaonuo.biz.modular.task.entity.BizTask;
+import vip.xiaonuo.biz.modular.task.param.BizDeptAssRecordsPageParam;
+import vip.xiaonuo.biz.modular.task.param.BizTaskPageParam;
+import vip.xiaonuo.biz.modular.task.service.BizDeptAssRecordsService;
+import vip.xiaonuo.biz.modular.task.service.BizTaskService;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptTaskResult;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -30,6 +46,8 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -47,6 +65,15 @@ public class BizOrgPerfAssServiceImpl extends ServiceImpl<BizOrgPerfAssMapper, B
 
     @Resource
     private FlwCommonApi flwCommonApi;
+
+    @Resource
+    private BizOrgGoalService bizOrgGoalService;
+
+    @Resource
+    private BizTaskService bizTaskService;
+
+    @Resource
+    private BizDeptAssRecordsService bizDeptAssRecordsService;
 
     @Override
     public Page<BizOrgPerfAss> page(BizOrgPerfAssPageParam bizOrgPerfAssPageParam) {
@@ -127,5 +154,61 @@ public class BizOrgPerfAssServiceImpl extends ServiceImpl<BizOrgPerfAssMapper, B
             throw new CommonException("子公司及生产部门绩效考核-绩效评估不存在，id值为：{}", id);
         }
         return bizOrgPerfAss;
+    }
+
+    @Override
+    public BizOrgPerfAssDataVo getData(BizOrgGoalIdParam bizOrgGoalIdParam) {
+        BizOrgPerfAssDataVo vo = new BizOrgPerfAssDataVo();
+        BizOrgGoal bizOrgGoal = bizOrgGoalService.getById(bizOrgGoalIdParam.getId());
+        // 年度考核(年度考核取对应指标12月份实际完成值)
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoal.getAssType())){
+            // 基本项指标查询
+            OrgSummaryDetailParam param = new OrgSummaryDetailParam();
+            param.setId(bizOrgGoal.getId());
+            param.setAssYear(bizOrgGoal.getAssYear());
+            param.setMonth(12);
+            List<OrgSummaryDetailVo> orgSummaryDetailVoList = bizOrgGoalService.orgSummaryDetail(param);
+            vo.setItemList(orgSummaryDetailVoList);
+            // 部门履职情况查询
+            BizTaskPageParam paramPage = new BizTaskPageParam();
+            paramPage.setOrgId(bizOrgGoal.getOrgId());
+            paramPage.setYear(bizOrgGoal.getAssYear().toString());
+            List<DeptTaskResult> list = bizTaskService.page(paramPage);
+            if(ObjectUtil.isNotEmpty(list)){
+                List<BizTask> taskList = list.get(0).getTaskList();
+                // 完成值：进度100%条数/总条数*100%
+                long finishNum = taskList.stream().filter(x -> x.getFinishStatus() >= 100).count();
+                vo.setOrgDutyFinishValue(new BigDecimal(finishNum).multiply(new BigDecimal(100)).divide(new BigDecimal(taskList.size()), 2, RoundingMode.FLOOR).doubleValue());
+                // 得分=∑[（进度分+成效分）*任务权重]*部门履职情况权重10%
+                double sumScore = taskList.stream().mapToDouble(task -> (task.getProgressScore() + task.getEffectScore()) * task.getRate()).sum();
+                vo.setOrgDutyScore(sumScore * 0.1);
+            }
+            // 加减分记录查询
+            BizDeptAssRecordsPageParam pageParam = new BizDeptAssRecordsPageParam();
+            pageParam.setOrgId(bizOrgGoal.getOrgId());
+            pageParam.setAssYear(bizOrgGoal.getAssYear().toString());
+            IPage<DeptAssRecordVo> page = bizDeptAssRecordsService.page(pageParam);
+            List<BizOrgAssRecordVo> bizOrgAssRecordVoList = BeanUtil.copyToList(page.getRecords(), BizOrgAssRecordVo.class);
+            bizOrgAssRecordVoList.forEach(x -> {
+                if("1".equals(x.getDictType())){
+                    x.setAddScore(x.getDictScore());
+                }
+                if("2".equals(x.getDictType())){
+                    x.setMinusScore(x.getDictScore());
+                }
+            });
+            vo.setBizOrgAssRecordVoList(bizOrgAssRecordVoList);
+        }
+        // 季度考核(季度考核取对应季度最后一个月份实际完成值)
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoal.getAssType())){
+            // 基本项指标查询
+            OrgSummaryDetailParam param = new OrgSummaryDetailParam();
+            param.setId(bizOrgGoal.getId());
+            param.setAssYear(bizOrgGoal.getAssYear());
+            param.setMonth(bizOrgGoal.getAssSeason() * 3);
+            List<OrgSummaryDetailVo> orgSummaryDetailVoList = bizOrgGoalService.orgSummaryDetail(param);
+            vo.setItemList(orgSummaryDetailVoList);
+        }
+        return vo;
     }
 }

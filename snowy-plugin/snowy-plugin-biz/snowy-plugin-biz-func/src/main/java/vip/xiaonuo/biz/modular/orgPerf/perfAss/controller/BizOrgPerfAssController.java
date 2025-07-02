@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgPerfAssDataVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -115,5 +117,19 @@ public class BizOrgPerfAssController {
     @GetMapping("/biz/orgPerf/orgAss/detail")
     public CommonResult<BizOrgPerfAss> detail(@Valid BizOrgPerfAssIdParam bizOrgPerfAssIdParam) {
         return CommonResult.data(bizOrgPerfAssService.detail(bizOrgPerfAssIdParam));
+    }
+
+    /**
+     * 获取绩效评估-指标数据
+     *
+     * @author pzh
+     * @date  2025/07/02 15:35
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取绩效评估-指标数据")
+    // @SaCheckPermission("/biz/orgPerf/orgAss/getData")
+    @GetMapping("/biz/orgPerf/orgAss/getData")
+    public CommonResult<BizOrgPerfAssDataVo> getData(@Valid BizOrgGoalIdParam bizOrgGoalIdParam) {
+        return CommonResult.data(bizOrgPerfAssService.getData(bizOrgGoalIdParam));
     }
 }
