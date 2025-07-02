@@ -94,7 +94,9 @@ public class PorMsgServiceImpl extends ServiceImpl<PorMsgMapper, PorMsg> impleme
             jsonObject.put("taskMap",null);
             devDictApi.sendMessageWithContent(jsonObject);
             // 发送钉钉提醒
-            dingDingService.batchSend(String.format("【%s】%s", porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent()),porMsgAddParam.getUserIdList());
+            if("是".equals(porMsgAddParam.getIsDing())) {
+                dingDingService.batchSend(String.format("【%s】%s", porMsgAddParam.getSubjectTitle(), porMsgAddParam.getContent()), porMsgAddParam.getUserIdList());
+            }
         }
         this.save(porMsg);
     }
