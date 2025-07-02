@@ -116,25 +116,17 @@ public class BizCompanyGoalController {
     }
 
     /**
-     * TODO
      * 查询公司绩效考核-已有目标
      * 用于目标调整回显
      * @author pzh
      * @date  2025/06/18 14:24
      */
-//    @ApiOperationSupport(order = 6)
-//    @ApiOperation("条件查询公司绩效考核-目标登记详情")
-//    // @SaCheckPermission("/biz/orgPerf/companyGoal/getByCondition")
-//    @GetMapping("/biz/orgPerf/companyGoal/getByCondition")
-//    public CommonResult<BizCompanyGoalVo> getByAssYear(@Valid BizCompanyGoalParam bizCompanyGoalParam) {
-//        return CommonResult.data(bizCompanyGoalService.getByCondition(bizCompanyGoalParam));
-//    }
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("查询已有目标")
+    // @SaCheckPermission("/biz/orgPerf/companyGoal/getByCondition")
+    @GetMapping("/biz/orgPerf/companyGoal/getByCondition")
+    public CommonResult<BizCompanyGoalVo> getByCondition(@Valid BizCompanyGoalParam bizCompanyGoalParam) {
+        return CommonResult.data(bizCompanyGoalService.getByCondition(bizCompanyGoalParam));
+    }
 
-    /**
-     * TODO
-     * 组织责任人变更
-     *
-     * @author pzh
-     * @date  2025/06/25 10:01
-     */
 }

@@ -116,20 +116,34 @@ public class BizFunDeptGoalController {
     }
 
     /**
-     * TODO
-     * 查询职能部门绩效-已有目标
+     * 查询已有目标
      * 用于目标调整回显
      * @author pzh
      * @date  2025/06/30 16:02
      */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("查询已有目标")
+    // @SaCheckPermission("/biz/orgPerf/funDept/getByCondition")
+    @GetMapping("/biz/orgPerf/funDept/getByCondition")
+    public CommonResult<BizFunDeptGoalVo> getByCondition(@Valid BizFunDeptGoalParam bizFunDeptGoalParam) {
+        return CommonResult.data(bizFunDeptGoalService.getByCondition(bizFunDeptGoalParam));
+    }
 
     /**
-     * TODO
      * 组织责任人变更
      *
      * @author pzh
      * @date  2025/06/30 16:02
      */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("组织责任人变更")
+    @CommonLog("组织责任人变更")
+    // @SaCheckPermission("/biz/orgPerf/funDept/editOwner")
+    @PostMapping("/biz/orgPerf/funDept/editOwner")
+    public CommonResult<String> editOwner(@RequestBody @Valid BizFunDeptGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
+        bizFunDeptGoalService.editOwner(bizOrgGoalEditOwnerParam);
+        return CommonResult.ok();
+    }
 
     /**
      * 编辑职能部门目标登记-部分字段

@@ -116,14 +116,13 @@ public class BizOrgGoalController {
     }
 
     /**
-     * TODO
      * 查询子公司及生产部门绩效-已有目标
-     *
+     * 用于目标调整回显
      * @author pzh
      * @date  2025/06/25 10:01
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("条件查询子公司及生产部门绩效考核-目标登记详情")
+    @ApiOperation("查询已有目标")
     // @SaCheckPermission("/biz/orgPerf/orgGoal/getByCondition")
     @GetMapping("/biz/orgPerf/orgGoal/getByCondition")
     public CommonResult<BizOrgGoalVo> getByCondition(@Valid BizOrgGoalParam bizOrgGoalParam) {
@@ -131,20 +130,19 @@ public class BizOrgGoalController {
     }
 
     /**
-     * TODO
      * 组织责任人变更
      *
      * @author pzh
      * @date  2025/06/25 10:01
      */
-//    @ApiOperationSupport(order = 7)
-//    @ApiOperation("组织责任人变更")
-//    @CommonLog("组织责任人变更")
-//    // @SaCheckPermission("/biz/orgPerf/orgGoal/editOwner")
-//    @PostMapping("/biz/orgPerf/orgGoal/editOwner")
-//    public CommonResult<String> editOwner(@RequestBody @Valid BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
-//        bizOrgGoalService.editOwner(bizOrgGoalEditOwnerParam);
-//        return CommonResult.ok();
-//    }
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("组织责任人变更")
+    @CommonLog("组织责任人变更")
+    // @SaCheckPermission("/biz/orgPerf/orgGoal/editOwner")
+    @PostMapping("/biz/orgPerf/orgGoal/editOwner")
+    public CommonResult<String> editOwner(@RequestBody @Valid BizOrgGoalEditOwnerParam bizOrgGoalEditOwnerParam) {
+        bizOrgGoalService.editOwner(bizOrgGoalEditOwnerParam);
+        return CommonResult.ok();
+    }
 
 }

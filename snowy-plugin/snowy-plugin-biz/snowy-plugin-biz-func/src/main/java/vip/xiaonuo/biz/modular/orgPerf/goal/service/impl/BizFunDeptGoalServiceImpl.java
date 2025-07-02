@@ -260,4 +260,43 @@ public class BizFunDeptGoalServiceImpl extends ServiceImpl<BizFunDeptGoalMapper,
                 .set(BizFunDeptGoalKpi::getProgress, bizFunDeptGoalEditParam.getProgress()));
     }
 
+    @Override
+    public void editOwner(BizFunDeptGoalEditOwnerParam param) {
+        LambdaUpdateWrapper<BizFunDeptGoal> updateWrapper = new LambdaUpdateWrapper<BizFunDeptGoal>().eq(BizFunDeptGoal::getAssType, param.getAssType())
+                .eq(BizFunDeptGoal::getOrgId, param.getOrgId())
+                .set(BizFunDeptGoal::getOwner, param.getOwner())
+                .set(BizFunDeptGoal::getOwnerId, param.getOwnerId());
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(param.getAssType())){
+            updateWrapper.eq(BizFunDeptGoal::getAssYear, param.getAssYear());
+        }
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(param.getAssType())){
+            updateWrapper.eq(BizFunDeptGoal::getAssYear, param.getAssSeason());
+        }
+        this.update(updateWrapper);
+    }
+
+    @Override
+    public BizFunDeptGoalVo getByCondition(BizFunDeptGoalParam param) {
+        LambdaQueryWrapper<BizFunDeptGoal> lambdaQueryWrapper = new LambdaQueryWrapper<BizFunDeptGoal>()
+                .eq(BizFunDeptGoal::getAssType, param.getAssType())
+                .eq(BizFunDeptGoal::getOrgId, param.getOrgId())
+                .orderByDesc(BizFunDeptGoal::getCreateTime).last("limit 1");
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(param.getAssType())){
+            lambdaQueryWrapper.eq(BizFunDeptGoal::getAssYear, param.getAssYear());
+        }
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(param.getAssType())){
+            lambdaQueryWrapper.eq(BizFunDeptGoal::getAssYear, param.getAssSeason());
+        }
+        BizFunDeptGoal BizFunDeptGoal = this.getOne(lambdaQueryWrapper);
+        if(ObjectUtil.isEmpty(BizFunDeptGoal)){
+            throw new CommonException("未找到对应的目标登记信息");
+        }
+        BizFunDeptGoalVo vo = BeanUtil.copyProperties(BizFunDeptGoal, BizFunDeptGoalVo.class);
+        // 查询明细
+        List<BizFunDeptGoalKpi> kpiList = bizFunDeptGoalKpiService.list(new LambdaQueryWrapper<BizFunDeptGoalKpi>()
+                .eq(BizFunDeptGoalKpi::getGoalId, BizFunDeptGoal.getId()));
+        vo.setKpiList(kpiList);
+        return vo;
+    }
+
 }
