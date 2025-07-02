@@ -399,7 +399,14 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
 
         //构建结果
         for (PisAllotment pis : pisAllotmentList) {
-            List<PisData> hJsonList = JSONUtil.toList(pis.getHJson(), PisData.class);
+            List<PisData> hJsonList = new ArrayList<>();
+            try {
+                JSONObject jsonObject = JSONUtil.parseObj(pis.getHJson());
+                hJsonList = JSONUtil.toList(jsonObject.getJSONArray("tableListH"), PisData.class);
+            }catch (Exception e){
+                log.warn("资产财务中心审定信息（H） - JSON : " + pis.getHJson());
+                log.error( "资产财务中心审定信息（H） - JSON 异常：{}",e);
+            }
             for (PisData hJson : hJsonList) {
                 PisData tmpObj = BeanUtil.copyProperties(hJson, PisData.class);
                 Subcontract tmpSubcontract = subcontractList.stream().filter(x -> x.getContractNo().equals(hJson.getSubcontractNumber())).findFirst().orElse(null);
