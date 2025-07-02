@@ -311,4 +311,9 @@ public class HetongDetailVo {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date effectiveDate;
+
+
+    /** 项目来源 （BizProject.head）*/
+    @ApiModelProperty(value = "项目来源（BizProject.head）", position = 203)
+    private String bizPrjHead;
 }

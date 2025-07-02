@@ -15,7 +15,8 @@
         select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
                b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
                b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
-               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,
+               b.HEAD as bizPrjHead
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID  ${ew.customSqlSegment}
     </select>
 
@@ -23,7 +24,8 @@
         select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
                b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
                b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
-               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,b.MANAGE_DEPT as manageDept
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation,
+               b.MANAGE_DEPT as manageDept,b.HEAD as bizPrjHead
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
         where a.ID = ${id}
     </select>
