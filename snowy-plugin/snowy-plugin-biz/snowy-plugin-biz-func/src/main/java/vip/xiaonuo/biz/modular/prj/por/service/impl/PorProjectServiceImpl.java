@@ -190,9 +190,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         if(ObjectUtil.isNotEmpty(porProjectPageParam.getBizPrjType())){
             List<String> prjTypes = Arrays.asList(porProjectPageParam.getBizPrjType().split(","));
             if(CollUtil.isNotEmpty(prjTypes)){
-                queryWrapper.or(q->{
+                queryWrapper.and(q->{
                     for (String prjType : prjTypes) {
-                        q.apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+                        q.or().apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
                     }
                 });
             }
@@ -661,9 +661,9 @@ public class PorProjectServiceImpl extends ServiceImpl<PorProjectMapper, PorProj
         queryWrapper.in("a.PROJECT_STATUS","进行中","已完工","已结项");
         List<String> prjTypes = Arrays.asList("设计","勘察","咨询");
         if(CollUtil.isNotEmpty(prjTypes)){
-            queryWrapper.or(q->{
+            queryWrapper.and(q->{
                 for (String prjType : prjTypes) {
-                    q.apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
+                    q.or().apply("FIND_IN_SET({0}, b.TYPE) > 0", prjType);
                 }
             });
         }

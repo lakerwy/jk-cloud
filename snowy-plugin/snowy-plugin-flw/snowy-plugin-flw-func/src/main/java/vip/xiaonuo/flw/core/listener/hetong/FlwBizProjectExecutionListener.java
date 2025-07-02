@@ -1,5 +1,6 @@
 package vip.xiaonuo.flw.core.listener.hetong;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
@@ -30,11 +31,16 @@ public class FlwBizProjectExecutionListener implements ExecutionListener {
             String businessKey = processInstance.getBusinessKey();   //主键(立项)
 
             //我方负责人
-            String areaLeader = String.valueOf(execution.getVariable("areaLeader"));
-            String areaLeaderId = String.valueOf(execution.getVariable("areaLeaderId"));
+            Object obj_areaLeader = execution.getVariable("areaLeader");
+            Object obj_areaLeaderId = execution.getVariable("areaLeaderId");
+            Object obj_dept = execution.getVariable("dept");
+            Object obj_deptId = execution.getVariable("_deptId");
+
+            String areaLeader = ObjectUtil.isNotEmpty(obj_areaLeader) ? String.valueOf(obj_areaLeader) : null ;
+            String areaLeaderId = ObjectUtil.isNotEmpty(obj_areaLeaderId) ? String.valueOf(obj_areaLeaderId) : null ;
             //责任部门
-            String dept = String.valueOf(execution.getVariable("dept"));
-            String deptId = String.valueOf(execution.getVariable("_deptId"));
+            String dept = ObjectUtil.isNotEmpty(obj_dept) ? String.valueOf(obj_dept) : null ;
+            String deptId = ObjectUtil.isNotEmpty(obj_deptId) ? String.valueOf(obj_deptId) : null ;
 
             bizExtApi.savePorProject(businessKey,areaLeader,areaLeaderId,dept,deptId);
 
