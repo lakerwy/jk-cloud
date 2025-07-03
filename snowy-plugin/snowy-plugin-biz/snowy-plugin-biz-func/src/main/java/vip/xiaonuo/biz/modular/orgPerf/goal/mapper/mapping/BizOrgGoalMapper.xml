@@ -6,6 +6,7 @@
         SELECT
             a.ID id,
             a.ORG_NAME orgName,
+            a.ORG_ID orgId,
             a.ASS_YEAR assYear,
             a.ASS_SEASON assSeason,
             b.STATUS assStatus,

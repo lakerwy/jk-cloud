@@ -10,6 +10,7 @@ import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.DataUpdateTimeVo;
 
 import java.util.List;
 
@@ -100,4 +101,12 @@ public interface BizCompanyGoalService extends IService<BizCompanyGoal> {
      * @date  2025/06/20 16:33
      */
     List<CompanySummaryDetailVo> companySummaryDetail(CompanySummaryDetailParam param);
+
+    /**
+     * 公司绩效-数据更新时间查询
+     *
+     * @author pzh
+     * @date 2025/07/03 15:10
+     */
+    DataUpdateTimeVo companyDataUpdateTime(CompanySummaryDetailParam param);
 }

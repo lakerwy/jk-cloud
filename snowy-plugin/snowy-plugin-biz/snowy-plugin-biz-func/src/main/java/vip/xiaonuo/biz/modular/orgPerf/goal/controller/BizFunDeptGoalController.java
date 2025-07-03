@@ -146,14 +146,14 @@ public class BizFunDeptGoalController {
     }
 
     /**
-     * 编辑职能部门目标登记-部分字段
+     * 职能部门目标-字段编辑
      *
      * @author pzh
      * @date  2025/06/30 16:02
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("编辑职能部门目标登记-部分字段）")
-    @CommonLog("编辑职能部门目标登记-部分字段")
+    @ApiOperation("职能部门目标-字段编辑")
+    @CommonLog("职能部门目标-字段编辑")
     // @SaCheckPermission("/biz/orgPerf/funDept/editPart")
     @PostMapping("/biz/orgPerf/funDept/editPart")
     public CommonResult<String> editPart(@RequestBody @Valid BizFunDeptGoalKpiEditPartParam bizFunDeptGoalEditParam) {

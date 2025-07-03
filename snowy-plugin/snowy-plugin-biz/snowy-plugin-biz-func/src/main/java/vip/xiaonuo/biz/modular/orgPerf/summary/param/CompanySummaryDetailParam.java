@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 公司绩效汇总列表参数
@@ -26,7 +27,7 @@ public class CompanySummaryDetailParam {
 
     /** 考核年度（例如：2025） */
     @ApiModelProperty(value = "考核年度（例如：2025）", required = true,  position = 3)
-    @NotBlank(message = "考核年度不能为空")
+    @NotNull(message = "考核年度assYear不能为空")
     private Integer assYear;
 
     /** 月份（例如：1） */

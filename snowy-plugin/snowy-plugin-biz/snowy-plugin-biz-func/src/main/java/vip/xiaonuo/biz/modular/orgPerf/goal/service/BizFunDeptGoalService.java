@@ -94,7 +94,7 @@ public interface BizFunDeptGoalService extends IService<BizFunDeptGoal> {
     List<FunDeptSummaryDetailVo> funDeptDetail(FunDeptDetailParam param);
 
     /**
-     * 编辑职能部门目标登记-部分字段
+     * 职能部门目标-字段编辑
      *
      * @author pzh
      * @date  2025/06/30 16:02

@@ -24,6 +24,10 @@ public class OrgSummaryListVo {
     @ApiModelProperty(value = "部门名称", position = 3)
     private String orgName;
 
+    /** 部门ID */
+    @ApiModelProperty(value = "部门ID", position = 4)
+    private String orgId;
+
     /** 考核年度（例如：2025） */
     @ApiModelProperty(value = "考核年度（例如：2025）", position = 5)
     private Integer assYear;

@@ -29,6 +29,7 @@ import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.util.SummaryUtil;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.DataUpdateTimeVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -283,7 +284,7 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
                 // 新签合同总额-目标值
                 vo.setNewContractTotalGoal(kpi1.getGoalValue());
                 // 新签合同总额-完成进度
-                vo.setProValueTotalCompProgress(SummaryUtil.calcProgress(vo.getNewContractTotalComp(), vo.getNewContractTotalGoal()));
+                vo.setNewContractTotalCompProgress(SummaryUtil.calcProgress(vo.getNewContractTotalComp(), vo.getNewContractTotalGoal()));
                 // 得分
                 BigDecimal score = SummaryUtil.calcScore(vo.getNewContractTotalComp(), vo.getNewContractTotalGoal(), kpi1.getWeight());
                 // 计入总分
@@ -294,7 +295,7 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
                 // 收入总额-目标值
                 vo.setIncomeTotalGoal(kpi2.getGoalValue());
                 // 收入总额-完成进度
-                vo.setProValueTotalCompProgress(SummaryUtil.calcProgress(vo.getIncomeTotalComp(), vo.getIncomeTotalGoal()));
+                vo.setIncomeTotalCompProgress(SummaryUtil.calcProgress(vo.getIncomeTotalComp(), vo.getIncomeTotalGoal()));
                 // 得分
                 BigDecimal score = SummaryUtil.calcScore(vo.getIncomeTotalComp(), vo.getIncomeTotalGoal(), kpi2.getWeight());
                 // 计入总分
@@ -435,5 +436,34 @@ public class BizCompanyGoalServiceImpl extends ServiceImpl<BizCompanyGoalMapper,
             }
         }
         return voList;
+    }
+
+    @Override
+    public DataUpdateTimeVo companyDataUpdateTime(CompanySummaryDetailParam param) {
+        DataUpdateTimeVo vo = new DataUpdateTimeVo();
+        List<String> descList = CollUtil.newArrayList();
+        BizBusiness bizBusiness = bizBusinessService.getOne(new LambdaQueryWrapper<BizBusiness>()
+                .eq(BizBusiness::getYear, param.getAssYear()).orderByDesc(BizBusiness::getMonth).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizBusiness)){
+            descList.add(StrUtil.format("新签合同总额指标数据更新至{}年{}月", bizBusiness.getYear(), bizBusiness.getMonth()));
+        }else {
+            descList.add("新签合同总额暂无数据");
+        }
+        BizFinance bizFinance = bizFinanceService.getOne(new LambdaQueryWrapper<BizFinance>()
+                .eq(BizFinance::getYear, param.getAssYear()).orderByDesc(BizFinance::getMonth).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizFinance)){
+            descList.add(StrUtil.format("收入总额、利润总额指标数据更新至{}年{}月", bizFinance.getYear(), bizFinance.getMonth()));
+        }else {
+            descList.add("收入总额、利润总额暂无数据");
+        }
+        BizProduct bizProduct = bizProductService.getOne(new LambdaQueryWrapper<BizProduct>()
+                .eq(BizProduct::getYear, param.getAssYear()).orderByDesc(BizProduct::getSeason).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizProduct)){
+            descList.add(StrUtil.format("产值指标数据更新至{}年{}月", bizProduct.getYear(), bizProduct.getSeason()*3));
+        }else {
+            descList.add("产值指标暂无数据");
+        }
+        vo.setDesc(StrUtil.join("，",descList));
+        return vo;
     }
 }

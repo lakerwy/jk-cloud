@@ -30,6 +30,7 @@ import vip.xiaonuo.biz.modular.orgPerf.summary.enums.OrgAssEnum;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryListParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.util.SummaryUtil;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.DataUpdateTimeVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryListVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -422,5 +423,37 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
             }
         }
         return voList;
+    }
+
+    @Override
+    public DataUpdateTimeVo orgDataUpdateTime(OrgSummaryDetailParam param) {
+        DataUpdateTimeVo vo = new DataUpdateTimeVo();
+        List<String> descList = CollUtil.newArrayList();
+        BizBusiness bizBusiness = bizBusinessService.getOne(new LambdaQueryWrapper<BizBusiness>()
+                .eq(BizBusiness::getOrgId, param.getOrgId())
+                .eq(BizBusiness::getYear, param.getAssYear()).orderByDesc(BizBusiness::getMonth).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizBusiness)){
+            descList.add(StrUtil.format("新签合同（自拓）指标数据更新至{}年{}月", bizBusiness.getYear(), bizBusiness.getMonth()));
+        }else {
+            descList.add("新签合同（自拓）暂无数据");
+        }
+        BizFinance bizFinance = bizFinanceService.getOne(new LambdaQueryWrapper<BizFinance>()
+                .eq(BizFinance::getOrgId, param.getOrgId())
+                .eq(BizFinance::getYear, param.getAssYear()).orderByDesc(BizFinance::getMonth).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizFinance)){
+            descList.add(StrUtil.format("回款指标、净利润、预算执行率指标数据更新至{}年{}月", bizFinance.getYear(), bizFinance.getMonth()));
+        }else {
+            descList.add("回款指标、净利润、预算执行率暂无数据");
+        }
+        BizProduct bizProduct = bizProductService.getOne(new LambdaQueryWrapper<BizProduct>()
+                .eq(BizProduct::getOrgId, param.getOrgId())
+                .eq(BizProduct::getYear, param.getAssYear()).orderByDesc(BizProduct::getSeason).last("limit 1"));
+        if(ObjectUtil.isNotEmpty(bizProduct)){
+            descList.add(StrUtil.format("当年产值金额指标数据更新至{}年{}月", bizProduct.getYear(), bizProduct.getSeason()*3));
+        }else {
+            descList.add("当年产值金额暂无数据");
+        }
+        vo.setDesc(StrUtil.join("，",descList));
+        return vo;
     }
 }

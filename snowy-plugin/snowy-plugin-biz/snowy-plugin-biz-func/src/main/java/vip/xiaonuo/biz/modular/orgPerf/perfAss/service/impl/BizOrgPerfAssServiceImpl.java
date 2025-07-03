@@ -159,7 +159,7 @@ public class BizOrgPerfAssServiceImpl extends ServiceImpl<BizOrgPerfAssMapper, B
     @Override
     public BizOrgPerfAssDataVo getData(BizGoalIdParam bizGoalIdParam) {
         BizOrgPerfAssDataVo vo = new BizOrgPerfAssDataVo();
-        BizOrgGoal bizOrgGoal = bizOrgGoalService.getById(bizGoalIdParam.getId());
+        BizOrgGoal bizOrgGoal = bizOrgGoalService.queryEntity(bizGoalIdParam.getId());
         // 年度考核(年度考核取对应指标12月份实际完成值)
         if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoal.getAssType())){
             // 基本项指标查询（占比90%）

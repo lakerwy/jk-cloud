@@ -49,7 +49,7 @@ public class PerfSummaryController {
     @ApiOperation("公司绩效-汇总列表")
     // @SaCheckPermission("/biz/orgPerf/summary/company/list")
     @GetMapping("/biz/orgPerf/summary/company/list")
-    public CommonResult<List<CompanySummaryListVo>> companySummaryList(CompanySummaryListParam param) {
+    public CommonResult<List<CompanySummaryListVo>> companySummaryList(@Valid CompanySummaryListParam param) {
         return CommonResult.data(bizCompanyGoalService.companySummaryList(param));
     }
 
@@ -63,10 +63,23 @@ public class PerfSummaryController {
     @ApiOperation("公司绩效-汇总详情")
     // @SaCheckPermission("/biz/orgPerf/summary/company/detail")
     @GetMapping("/biz/orgPerf/summary/company/detail")
-    public CommonResult<List<CompanySummaryDetailVo>> companySummaryDetail(CompanySummaryDetailParam param) {
+    public CommonResult<List<CompanySummaryDetailVo>> companySummaryDetail(@Valid CompanySummaryDetailParam param) {
         return CommonResult.data(bizCompanyGoalService.companySummaryDetail(param));
     }
 
+    /**
+     * 公司绩效-数据更新时间查询
+     *
+     * @author pzh
+     * @date  2025/07/03 15:10
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("公司绩效-数据更新时间查询")
+    // @SaCheckPermission("/biz/orgPerf/summary/company/dataUpdateTime")
+    @GetMapping("/biz/orgPerf/summary/company/dataUpdateTime")
+    public CommonResult<DataUpdateTimeVo> companyDataUpdateTime(@Valid CompanySummaryDetailParam param) {
+        return CommonResult.data(bizCompanyGoalService.companyDataUpdateTime(param));
+    }
 
     /**
      * 子公司及生产部门绩效-汇总列表
@@ -74,7 +87,7 @@ public class PerfSummaryController {
      * @author pzh
      * @date  2025/06/25 15:35
      */
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 4)
     @ApiOperation("子公司及生产部门绩效-汇总列表")
     // @SaCheckPermission("/biz/orgPerf/summary/org/list")
     @GetMapping("/biz/orgPerf/summary/org/list")
@@ -89,7 +102,7 @@ public class PerfSummaryController {
      * @author pzh
      * @date  2025/06/26 09:00
      */
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 5)
     @ApiOperation("子公司及生产部门绩效-汇总详情")
     // @SaCheckPermission("/biz/orgPerf/summary/org/detail")
     @GetMapping("/biz/orgPerf/summary/org/detail")
@@ -97,6 +110,19 @@ public class PerfSummaryController {
         return CommonResult.data(bizOrgGoalService.orgSummaryDetail(param));
     }
 
+    /**
+     * 子公司及生产部门绩效-数据更新时间查询
+     *
+     * @author pzh
+     * @date  2025/07/03 15:10
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("子公司及生产部门绩效-数据更新时间查询")
+    // @SaCheckPermission("/biz/orgPerf/summary/org/dataUpdateTime")
+    @GetMapping("/biz/orgPerf/summary/org/dataUpdateTime")
+    public CommonResult<DataUpdateTimeVo> orgDataUpdateTime(@Valid OrgSummaryDetailParam param) {
+        return CommonResult.data(bizOrgGoalService.orgDataUpdateTime(param));
+    }
 
     /**
      * 职能部门绩效-汇总列表
@@ -104,7 +130,7 @@ public class PerfSummaryController {
      * @author pzh
      * @date  2025/06/25 15:35
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("职能部门绩效-汇总列表")
     // @SaCheckPermission("/biz/orgPerf/summary/funDept/list")
     @GetMapping("/biz/orgPerf/summary/funDept/list")
@@ -119,8 +145,8 @@ public class PerfSummaryController {
      * @author pzh
      * @date  2025/06/25 15:35
      */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("子公司及生产部门绩效-汇总详情")
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("职能部门绩效-汇总详情")
     // @SaCheckPermission("/biz/orgPerf/summary/funDept/detail")
     @GetMapping("/biz/orgPerf/summary/funDept/detail")
     public CommonResult<List<FunDeptSummaryDetailVo>> funDeptDetail(@Valid FunDeptDetailParam param) {

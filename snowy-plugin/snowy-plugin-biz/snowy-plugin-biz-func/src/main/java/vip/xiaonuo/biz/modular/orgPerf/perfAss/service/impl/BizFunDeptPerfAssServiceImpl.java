@@ -172,7 +172,7 @@ public class BizFunDeptPerfAssServiceImpl extends ServiceImpl<BizFunDeptPerfAssM
     @Override
     public BizFunDeptPerfAssDataVo getData(BizGoalIdParam bizGoalIdParam) {
         BizFunDeptPerfAssDataVo vo = new BizFunDeptPerfAssDataVo();
-        BizFunDeptGoal bizFunDeptGoal = bizFunDeptGoalService.getById(bizGoalIdParam.getId());
+        BizFunDeptGoal bizFunDeptGoal = bizFunDeptGoalService.queryEntity(bizGoalIdParam.getId());
         // 年度考核(年度目标明细表数据)
         if(BizAssPeriodlEnum.YEAR.getValue().equals(bizFunDeptGoal.getAssType())){
             // kpi指标查询（占比60%）

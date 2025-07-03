@@ -8,6 +8,7 @@ import vip.xiaonuo.biz.modular.orgPerf.goal.param.*;
 import vip.xiaonuo.biz.modular.orgPerf.goal.vo.BizOrgGoalVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryDetailParam;
 import vip.xiaonuo.biz.modular.orgPerf.summary.param.OrgSummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.DataUpdateTimeVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryDetailVo;
 import vip.xiaonuo.biz.modular.orgPerf.summary.vo.OrgSummaryListVo;
 
@@ -108,4 +109,12 @@ public interface BizOrgGoalService extends IService<BizOrgGoal> {
      * @date  2025/06/26 09:00
      */
     List<OrgSummaryDetailVo> orgSummaryDetail(OrgSummaryDetailParam param);
+
+    /**
+     * 子公司及生产部门绩效-数据更新时间查询
+     *
+     * @author pzh
+     * @date  2025/07/03 15:10
+     */
+    DataUpdateTimeVo orgDataUpdateTime(OrgSummaryDetailParam param);
 }
