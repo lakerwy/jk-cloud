@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -67,7 +68,7 @@ public class ConferenceRezController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取会议模块-预约会议分页")
-    //@SaCheckPermission("/sys/rez/page")
+    @SaCheckPermission("/sys/rez/page")
     @GetMapping("/sys/rez/page")
     public CommonResult<Page<ConferenceRez>> page(ConferenceRezPageParam conferenceRezPageParam) {
         return CommonResult.data(conferenceRezService.page(conferenceRezPageParam));

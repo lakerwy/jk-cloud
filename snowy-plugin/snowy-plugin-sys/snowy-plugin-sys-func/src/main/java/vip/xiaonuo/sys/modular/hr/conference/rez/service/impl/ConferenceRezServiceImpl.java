@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
@@ -149,12 +150,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().like(ConferenceRez::getTheme,conferenceRezPageParam.getSearchKey());
         }
         // 校验数据范围
-       /* List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+       List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             queryWrapper.lambda().in(ConferenceRez::getDataScopeId, loginUserDataScope);
         } else {
             queryWrapper.lambda().eq(ConferenceRez::getCreateUser, StpUtil.getLoginIdAsString());
-        }*/
+        }
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getLimitUserId())){
             queryWrapper.lambda().and(q->q.eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId())
                     .or().apply(" FIND_IN_SET({0},JOIN_USER)>0 ",conferenceRezPageParam.getLimitUserId()));
@@ -718,9 +719,13 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     public void process(com.alibaba.fastjson2.JSONObject bizData, String bookId) throws Exception{
         String eventType = ObjectUtil.isNotEmpty(bizData.get(EVENT_SUB_TYPE)) ? bizData.get(EVENT_SUB_TYPE).toString() : "";
         String userId = "";
+        String dataScopeId = "";
         if(ObjectUtil.isNotEmpty(bizData.get("userName"))){
             List<SysUser> sysUsers = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getName,bizData.get("userName").toString()));
-            if(ObjectUtil.isNotEmpty(sysUsers)){ userId = sysUsers.get(0).getId(); }
+            if(ObjectUtil.isNotEmpty(sysUsers)){
+                userId = sysUsers.get(0).getId();
+                dataScopeId = sysUsers.get(0).getOrgId();
+            }
         }
         String conferenceConfigId = "";
         if(ObjectUtil.isNotEmpty(bizData.get("roomName"))){ conferenceConfigId = conferenceConfigService.getIdForName(bizData.get("roomName").toString()); }
@@ -751,6 +756,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 conferenceRez.setCreateUser(userId);
                 conferenceRez.setJoinUser(ObjectUtil.isNotEmpty(bizData.get("joinUser")) ? bizData.get("joinUser").toString() : "");
                 conferenceRez.setJoinSize(ObjectUtil.isNotEmpty(bizData.get("joinSize")) ? Integer.valueOf(bizData.get("joinSize").toString()) : 0);
+                conferenceRez.setDataScopeId(dataScopeId);
                 this.save(conferenceRez);
                 break;
             case BOOK_CANCEL://取消会议
