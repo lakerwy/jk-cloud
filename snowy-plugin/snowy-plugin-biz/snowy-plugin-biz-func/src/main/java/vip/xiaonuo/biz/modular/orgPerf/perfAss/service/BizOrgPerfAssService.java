@@ -2,7 +2,7 @@ package vip.xiaonuo.biz.modular.orgPerf.perfAss.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.entity.BizOrgPerfAss;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssAddParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.param.BizOrgPerfAssEditParam;
@@ -74,5 +74,5 @@ public interface BizOrgPerfAssService extends IService<BizOrgPerfAss> {
      * @author pzh
      * @date  2025/07/02 15:35
      */
-    BizOrgPerfAssDataVo getData(BizOrgGoalIdParam bizOrgGoalIdParam);
+    BizOrgPerfAssDataVo getData(BizGoalIdParam bizGoalIdParam);
 }

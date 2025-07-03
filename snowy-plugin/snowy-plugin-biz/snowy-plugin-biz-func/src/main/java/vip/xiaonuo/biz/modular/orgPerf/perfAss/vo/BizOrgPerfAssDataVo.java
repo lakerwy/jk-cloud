@@ -27,11 +27,11 @@ public class BizOrgPerfAssDataVo {
 
     /** 部门履职情况-完成值 */
     @ApiModelProperty(value = "部门履职情况-完成值", position = 5)
-    private Double orgDutyFinishValue;
+    private BigDecimal orgDutyFinishValue;
 
     /** 部门履职情况-完成值 */
     @ApiModelProperty(value = "部门履职情况-得分", position = 7)
-    private Double orgDutyScore;
+    private BigDecimal orgDutyScore;
 
     /** 基本项指标 */
     @ApiModelProperty(value = "加减分项-集合", position = 9)

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizOrgGoal;
 import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizOrgGoalService;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgAssRecordVo;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgPerfAssDataVo;
@@ -157,31 +157,39 @@ public class BizOrgPerfAssServiceImpl extends ServiceImpl<BizOrgPerfAssMapper, B
     }
 
     @Override
-    public BizOrgPerfAssDataVo getData(BizOrgGoalIdParam bizOrgGoalIdParam) {
+    public BizOrgPerfAssDataVo getData(BizGoalIdParam bizGoalIdParam) {
         BizOrgPerfAssDataVo vo = new BizOrgPerfAssDataVo();
-        BizOrgGoal bizOrgGoal = bizOrgGoalService.getById(bizOrgGoalIdParam.getId());
+        BizOrgGoal bizOrgGoal = bizOrgGoalService.getById(bizGoalIdParam.getId());
         // 年度考核(年度考核取对应指标12月份实际完成值)
         if(BizAssPeriodlEnum.YEAR.getValue().equals(bizOrgGoal.getAssType())){
-            // 基本项指标查询
+            // 基本项指标查询（占比90%）
             OrgSummaryDetailParam param = new OrgSummaryDetailParam();
             param.setId(bizOrgGoal.getId());
             param.setAssYear(bizOrgGoal.getAssYear());
             param.setMonth(12);
             List<OrgSummaryDetailVo> orgSummaryDetailVoList = bizOrgGoalService.orgSummaryDetail(param);
             vo.setItemList(orgSummaryDetailVoList);
-            // 部门履职情况查询
+            // 部门履职情况查询（占比10%）
             BizTaskPageParam paramPage = new BizTaskPageParam();
             paramPage.setOrgId(bizOrgGoal.getOrgId());
             paramPage.setYear(bizOrgGoal.getAssYear().toString());
             List<DeptTaskResult> list = bizTaskService.page(paramPage);
             if(ObjectUtil.isNotEmpty(list)){
                 List<BizTask> taskList = list.get(0).getTaskList();
-                // 完成值：进度100%条数/总条数*100%
-                long finishNum = taskList.stream().filter(x -> x.getFinishStatus() >= 100).count();
-                vo.setOrgDutyFinishValue(new BigDecimal(finishNum).multiply(new BigDecimal(100)).divide(new BigDecimal(taskList.size()), 2, RoundingMode.FLOOR).doubleValue());
-                // 得分=∑[（进度分+成效分）*任务权重]*部门履职情况权重10%
-                double sumScore = taskList.stream().mapToDouble(task -> (task.getProgressScore() + task.getEffectScore()) * task.getRate()).sum();
-                vo.setOrgDutyScore(sumScore * 0.1);
+                if(ObjectUtil.isNotEmpty(taskList)){
+                    // 完成值：进度100%条数/总条数*100%
+                    long finishNum = taskList.stream().filter(x -> x.getFinishStatus() >= 100).count();
+                    vo.setOrgDutyFinishValue(new BigDecimal(finishNum).multiply(new BigDecimal(100)).divide(new BigDecimal(taskList.size()), 2, RoundingMode.FLOOR));
+                    // 得分=∑[（进度分+成效分）*任务权重]*部门履职情况权重10%
+                    BigDecimal orgDutyScore = BigDecimal.ZERO;
+                    for(BizTask task : taskList){
+                        BigDecimal progressScore = task.getProgressScore()==null?BigDecimal.ZERO:BigDecimal.valueOf(task.getProgressScore());
+                        BigDecimal effectScore = task.getEffectScore()==null?BigDecimal.ZERO:BigDecimal.valueOf(task.getEffectScore());
+                        BigDecimal weight = task.getRate()==null?BigDecimal.ZERO:BigDecimal.valueOf(task.getRate());
+                        orgDutyScore = orgDutyScore.add(progressScore.add(effectScore).multiply(weight));
+                    }
+                    vo.setOrgDutyScore(orgDutyScore.multiply(new BigDecimal("0.1")).setScale(2, RoundingMode.FLOOR));
+                }
             }
             // 加减分记录查询
             BizDeptAssRecordsPageParam pageParam = new BizDeptAssRecordsPageParam();
@@ -201,7 +209,7 @@ public class BizOrgPerfAssServiceImpl extends ServiceImpl<BizOrgPerfAssMapper, B
         }
         // 季度考核(季度考核取对应季度最后一个月份实际完成值)
         if(BizAssPeriodlEnum.SEASON.getValue().equals(bizOrgGoal.getAssType())){
-            // 基本项指标查询
+            // 基本项指标查询（占比100%）
             OrgSummaryDetailParam param = new OrgSummaryDetailParam();
             param.setId(bizOrgGoal.getId());
             param.setAssYear(bizOrgGoal.getAssYear());

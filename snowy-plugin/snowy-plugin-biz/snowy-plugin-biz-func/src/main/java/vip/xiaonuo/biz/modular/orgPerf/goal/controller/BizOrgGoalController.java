@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.orgPerf.goal.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -96,8 +95,8 @@ public class BizOrgGoalController {
     // @SaCheckPermission("/biz/orgPerf/orgGoal/delete")
     @PostMapping("/biz/orgPerf/orgGoal/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<BizOrgGoalIdParam> bizOrgGoalIdParamList) {
-        bizOrgGoalService.delete(bizOrgGoalIdParamList);
+                                                   CommonValidList<BizGoalIdParam> bizGoalIdParamList) {
+        bizOrgGoalService.delete(bizGoalIdParamList);
         return CommonResult.ok();
     }
 
@@ -111,8 +110,8 @@ public class BizOrgGoalController {
     @ApiOperation("获取子公司及生产部门绩效考核-目标登记详情")
     // @SaCheckPermission("/biz/orgPerf/orgGoal/detail")
     @GetMapping("/biz/orgPerf/orgGoal/detail")
-    public CommonResult<BizOrgGoalVo> detail(@Valid BizOrgGoalIdParam bizOrgGoalIdParam) {
-        return CommonResult.data(bizOrgGoalService.detail(bizOrgGoalIdParam));
+    public CommonResult<BizOrgGoalVo> detail(@Valid BizGoalIdParam bizGoalIdParam) {
+        return CommonResult.data(bizOrgGoalService.detail(bizGoalIdParam));
     }
 
     /**

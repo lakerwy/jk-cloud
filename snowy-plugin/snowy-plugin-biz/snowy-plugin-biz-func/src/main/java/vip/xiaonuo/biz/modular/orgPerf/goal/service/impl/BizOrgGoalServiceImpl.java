@@ -198,8 +198,8 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(List<BizOrgGoalIdParam> bizOrgGoalIdParamList) {
-        List<String> ids = CollStreamUtil.toList(bizOrgGoalIdParamList, BizOrgGoalIdParam::getId);
+    public void delete(List<BizGoalIdParam> bizGoalIdParamList) {
+        List<String> ids = CollStreamUtil.toList(bizGoalIdParamList, BizGoalIdParam::getId);
         // 执行删除
         this.removeByIds(ids);
         if(CollUtil.isNotEmpty(ids)){
@@ -208,12 +208,12 @@ public class BizOrgGoalServiceImpl extends ServiceImpl<BizOrgGoalMapper, BizOrgG
     }
 
     @Override
-    public BizOrgGoalVo detail(BizOrgGoalIdParam bizOrgGoalIdParam) {
-        BizOrgGoal bizOrgGoal = this.queryEntity(bizOrgGoalIdParam.getId());
+    public BizOrgGoalVo detail(BizGoalIdParam bizGoalIdParam) {
+        BizOrgGoal bizOrgGoal = this.queryEntity(bizGoalIdParam.getId());
         BizOrgGoalVo bizOrgGoalVo = BeanUtil.copyProperties(bizOrgGoal, BizOrgGoalVo.class);
         // 查询明细
         List<BizOrgGoalItem> itemList = bizOrgGoalItemService.list(new LambdaQueryWrapper<BizOrgGoalItem>()
-                .eq(BizOrgGoalItem::getGoalId, bizOrgGoalIdParam.getId()));
+                .eq(BizOrgGoalItem::getGoalId, bizGoalIdParam.getId()));
         bizOrgGoalVo.setItemList(itemList);
         return bizOrgGoalVo;
     }

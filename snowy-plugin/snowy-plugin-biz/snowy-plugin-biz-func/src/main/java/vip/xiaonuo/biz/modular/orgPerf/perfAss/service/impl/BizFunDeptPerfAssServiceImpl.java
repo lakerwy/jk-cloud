@@ -6,12 +6,35 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.orgPerf.finance.entity.BizFinance;
+import vip.xiaonuo.biz.modular.orgPerf.finance.service.BizFinanceService;
+import vip.xiaonuo.biz.modular.orgPerf.goal.entity.BizFunDeptGoal;
+import vip.xiaonuo.biz.modular.orgPerf.goal.enums.BizAssPeriodlEnum;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizCompanyGoalService;
+import vip.xiaonuo.biz.modular.orgPerf.goal.service.BizFunDeptGoalService;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.entity.BizFunDeptPerfAss;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizFunDeptPerfAssDataVo;
+import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgAssRecordVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.CompanySummaryListParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.param.FunDeptDetailParam;
+import vip.xiaonuo.biz.modular.orgPerf.summary.util.SummaryUtil;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.CompanySummaryListVo;
+import vip.xiaonuo.biz.modular.orgPerf.summary.vo.FunDeptSummaryDetailVo;
+import vip.xiaonuo.biz.modular.task.entity.BizTask;
+import vip.xiaonuo.biz.modular.task.param.BizDeptAssRecordsPageParam;
+import vip.xiaonuo.biz.modular.task.param.BizTaskPageParam;
+import vip.xiaonuo.biz.modular.task.service.BizDeptAssRecordsService;
+import vip.xiaonuo.biz.modular.task.service.BizTaskService;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptTaskResult;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -30,6 +53,8 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -47,6 +72,21 @@ public class BizFunDeptPerfAssServiceImpl extends ServiceImpl<BizFunDeptPerfAssM
 
     @Resource
     private FlwCommonApi flwCommonApi;
+
+    @Resource
+    private BizFunDeptGoalService bizFunDeptGoalService;
+
+    @Resource
+    private BizCompanyGoalService bizCompanyGoalService;
+
+    @Resource
+    private BizTaskService bizTaskService;
+
+    @Resource
+    private BizDeptAssRecordsService bizDeptAssRecordsService;
+
+    @Resource
+    private BizFinanceService bizFinanceService;
 
     @Override
     public Page<BizFunDeptPerfAss> page(BizFunDeptPerfAssPageParam bizFunDeptPerfAssPageParam) {
@@ -127,5 +167,90 @@ public class BizFunDeptPerfAssServiceImpl extends ServiceImpl<BizFunDeptPerfAssM
             throw new CommonException("职能部门-绩效评估不存在，id值为：{}", id);
         }
         return bizFunDeptPerfAss;
+    }
+
+    @Override
+    public BizFunDeptPerfAssDataVo getData(BizGoalIdParam bizGoalIdParam) {
+        BizFunDeptPerfAssDataVo vo = new BizFunDeptPerfAssDataVo();
+        BizFunDeptGoal bizFunDeptGoal = bizFunDeptGoalService.getById(bizGoalIdParam.getId());
+        // 年度考核(年度目标明细表数据)
+        if(BizAssPeriodlEnum.YEAR.getValue().equals(bizFunDeptGoal.getAssType())){
+            // kpi指标查询（占比60%）
+            FunDeptDetailParam param = new FunDeptDetailParam();
+            param.setId(bizFunDeptGoal.getId());
+            List<FunDeptSummaryDetailVo> orgSummaryDetailVoList = bizFunDeptGoalService.funDeptDetail(param);
+            vo.setKpiList(orgSummaryDetailVoList);
+            // 预算执行查询（占比10%）
+            LambdaQueryWrapper<BizFinance> qw = new LambdaQueryWrapper<BizFinance>().eq(BizFinance::getOrgId, bizFunDeptGoal.getOrgId())
+                    .eq(BizFinance::getYear, bizFunDeptGoal.getAssYear()).eq(BizFinance::getMonth, 12);
+            List<BizFinance> financeList = bizFinanceService.list(qw);
+            BigDecimal compValueTotal = financeList.stream().findFirst().map(BizFinance::getBudgetExecRate).orElse(null);
+            BigDecimal budgetExecScore = SummaryUtil.calcBudgetExecRateScore(compValueTotal, new BigDecimal(100), new BigDecimal(10));
+            vo.setBudgetExecRate(compValueTotal);
+            vo.setBudgetExecScore(budgetExecScore);
+            // 部门履职情况查询（占比15%）
+            BizTaskPageParam paramPage = new BizTaskPageParam();
+            paramPage.setOrgId(bizFunDeptGoal.getOrgId());
+            paramPage.setYear(bizFunDeptGoal.getAssYear().toString());
+            List<DeptTaskResult> list = bizTaskService.page(paramPage);
+            if(ObjectUtil.isNotEmpty(list)){
+                List<BizTask> taskList = list.get(0).getTaskList();
+                if(ObjectUtil.isNotEmpty(taskList)){
+                    // 完成值：进度100%条数/总条数*100%
+                    long finishNum = taskList.stream().filter(x -> x.getFinishStatus() >= 100).count();
+                    vo.setOrgDutyFinishValue(new BigDecimal(finishNum).multiply(new BigDecimal(100)).divide(new BigDecimal(taskList.size()), 2, RoundingMode.FLOOR));
+                    // 得分=∑[（进度分+成效分）*任务权重]*部门履职情况权重10%
+                    BigDecimal orgDutyScore = BigDecimal.ZERO;
+                    for(BizTask task : taskList){
+                        BigDecimal progressScore = task.getProgressScore() == null?BigDecimal.ZERO: BigDecimal.valueOf(task.getProgressScore());
+                        BigDecimal effectScore = task.getEffectScore() == null?BigDecimal.ZERO: BigDecimal.valueOf(task.getEffectScore());
+                        BigDecimal weight = task.getRate() == null?BigDecimal.ZERO: BigDecimal.valueOf(task.getRate());
+                        orgDutyScore = orgDutyScore.add(progressScore.add(effectScore).multiply(weight));
+                    }
+                    vo.setOrgDutyScore(orgDutyScore.multiply(new BigDecimal("0.15")).setScale(2, RoundingMode.FLOOR));
+                }
+            }
+            // 集团经营业绩查询（占比15%）
+            CompanySummaryListParam companySummaryListParam = new CompanySummaryListParam();
+            companySummaryListParam.setAssYear(bizFunDeptGoal.getAssYear());
+            List<CompanySummaryListVo> companySummaryListVoList = bizCompanyGoalService.companySummaryList(companySummaryListParam);
+            if(ObjectUtil.isNotEmpty(companySummaryListVoList)){
+                CompanySummaryListVo companySummaryListVo = companySummaryListVoList.get(0);
+                vo.setCompanyComp(companySummaryListVo.getTotalScore());
+                vo.setCompanyScore(companySummaryListVo.getTotalScore().multiply(new BigDecimal("0.15")).setScale(2, RoundingMode.FLOOR));
+            }
+            // 加减分记录查询
+            BizDeptAssRecordsPageParam pageParam = new BizDeptAssRecordsPageParam();
+            pageParam.setOrgId(bizFunDeptGoal.getOrgId());
+            pageParam.setAssYear(bizFunDeptGoal.getAssYear().toString());
+            IPage<DeptAssRecordVo> page = bizDeptAssRecordsService.page(pageParam);
+            List<BizOrgAssRecordVo> bizOrgAssRecordVoList = BeanUtil.copyToList(page.getRecords(), BizOrgAssRecordVo.class);
+            bizOrgAssRecordVoList.forEach(x -> {
+                if("1".equals(x.getDictType())){
+                    x.setAddScore(x.getDictScore());
+                }
+                if("2".equals(x.getDictType())){
+                    x.setMinusScore(x.getDictScore());
+                }
+            });
+            vo.setBizOrgAssRecordVoList(bizOrgAssRecordVoList);
+        }
+        // 季度考核(季度考核取对应季度最后一个月份实际完成值)
+        if(BizAssPeriodlEnum.SEASON.getValue().equals(bizFunDeptGoal.getAssType())){
+            // kpi指标查询（占比90%）
+            FunDeptDetailParam param = new FunDeptDetailParam();
+            param.setId(bizFunDeptGoal.getId());
+            List<FunDeptSummaryDetailVo> orgSummaryDetailVoList = bizFunDeptGoalService.funDeptDetail(param);
+            vo.setKpiList(orgSummaryDetailVoList);
+            // 预算执行查询（占比10%）
+            LambdaQueryWrapper<BizFinance> qw = new LambdaQueryWrapper<BizFinance>().eq(BizFinance::getOrgId, bizFunDeptGoal.getOrgId())
+                    .eq(BizFinance::getYear, bizFunDeptGoal.getAssYear()).eq(BizFinance::getMonth, 12);
+            List<BizFinance> financeList = bizFinanceService.list(qw);
+            BigDecimal compValueTotal = financeList.stream().findFirst().map(BizFinance::getBudgetExecRate).orElse(null);
+            BigDecimal budgetExecScore = SummaryUtil.calcBudgetExecRateScore(compValueTotal, new BigDecimal(100), new BigDecimal(10));
+            vo.setBudgetExecRate(compValueTotal);
+            vo.setBudgetExecScore(budgetExecScore);
+        }
+        return vo;
     }
 }

@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.orgPerf.perfAss.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizOrgGoalIdParam;
+import vip.xiaonuo.biz.modular.orgPerf.goal.param.BizGoalIdParam;
 import vip.xiaonuo.biz.modular.orgPerf.perfAss.vo.BizOrgPerfAssDataVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -129,7 +128,7 @@ public class BizOrgPerfAssController {
     @ApiOperation("获取绩效评估-指标数据")
     // @SaCheckPermission("/biz/orgPerf/orgAss/getData")
     @GetMapping("/biz/orgPerf/orgAss/getData")
-    public CommonResult<BizOrgPerfAssDataVo> getData(@Valid BizOrgGoalIdParam bizOrgGoalIdParam) {
-        return CommonResult.data(bizOrgPerfAssService.getData(bizOrgGoalIdParam));
+    public CommonResult<BizOrgPerfAssDataVo> getData(@Valid BizGoalIdParam bizGoalIdParam) {
+        return CommonResult.data(bizOrgPerfAssService.getData(bizGoalIdParam));
     }
 }

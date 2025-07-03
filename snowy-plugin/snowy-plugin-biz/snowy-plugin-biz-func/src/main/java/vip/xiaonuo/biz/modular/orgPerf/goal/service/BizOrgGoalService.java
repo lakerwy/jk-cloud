@@ -51,7 +51,7 @@ public interface BizOrgGoalService extends IService<BizOrgGoal> {
      * @author pzh
      * @date  2025/06/24 16:33
      */
-    void delete(List<BizOrgGoalIdParam> bizOrgGoalIdParamList);
+    void delete(List<BizGoalIdParam> bizGoalIdParamList);
 
     /**
      * 获取子公司及生产部门绩效考核-目标登记详情
@@ -59,7 +59,7 @@ public interface BizOrgGoalService extends IService<BizOrgGoal> {
      * @author pzh
      * @date 2025/06/24 16:33
      */
-    BizOrgGoalVo detail(BizOrgGoalIdParam bizOrgGoalIdParam);
+    BizOrgGoalVo detail(BizGoalIdParam bizGoalIdParam);
 
     /**
      * 获取子公司及生产部门绩效考核-目标登记详情
