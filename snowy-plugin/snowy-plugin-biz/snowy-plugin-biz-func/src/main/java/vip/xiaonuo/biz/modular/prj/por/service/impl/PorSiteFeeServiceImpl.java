@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.prj.por.entity.PorSiteFeeItem;
 import vip.xiaonuo.biz.modular.prj.por.service.PorSiteFeeItemService;
 import vip.xiaonuo.biz.modular.prj.por.vo.PorSiteFeeVo;
@@ -27,6 +28,7 @@ import vip.xiaonuo.biz.modular.prj.por.param.PorSiteFeePageParam;
 import vip.xiaonuo.biz.modular.prj.por.service.PorSiteFeeService;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,6 +86,9 @@ public class PorSiteFeeServiceImpl extends ServiceImpl<PorSiteFeeMapper, PorSite
     @Override
     public void add(PorSiteFeeAddParam porSiteFeeAddParam) {
         PorSiteFee porSiteFee = BeanUtil.toBean(porSiteFeeAddParam, PorSiteFee.class);
+        porSiteFee.setFeeOptId(StpLoginUserUtil.getLoginUser().getId());
+        porSiteFee.setFeeOptName(StpLoginUserUtil.getLoginUser().getName());
+        porSiteFee.setFeeOptTime(new Date());
         this.save(porSiteFee);
 
         if(CollUtil.isNotEmpty(porSiteFeeAddParam.getItemList())){
