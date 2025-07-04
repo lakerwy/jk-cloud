@@ -112,4 +112,12 @@ public interface BizTaskService extends IService<BizTask> {
      * 系统自动计算 部门绩效考核 - 任务分 - 完成进度分系数
      */
     void autoUpdateProgressRate();
+
+    /**
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/07/04 11:38
+     */
+    void editOwner(BizTaskEditOwnerParam bizTaskEditOwnerParam);
 }

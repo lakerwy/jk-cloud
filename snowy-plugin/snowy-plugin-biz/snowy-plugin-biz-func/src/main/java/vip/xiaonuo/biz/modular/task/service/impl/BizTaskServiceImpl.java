@@ -22,6 +22,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
@@ -485,5 +486,15 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
          bizTaskMapper.firstAuto();
          bizTaskMapper.secondAuto();
          bizTaskMapper.thirdAuto();
+    }
+
+    @Override
+    public void editOwner(BizTaskEditOwnerParam param) {
+        LambdaUpdateWrapper<BizTask> updateWrapper = new LambdaUpdateWrapper<BizTask>()
+                .eq(BizTask::getOrgId, param.getOrgId())
+                .eq(BizTask::getYear, param.getYear())
+                .set(BizTask::getOwer, param.getOwer())
+                .set(BizTask::getOwerId, param.getOwerId());
+        this.update(updateWrapper);
     }
 }

@@ -170,4 +170,20 @@ public class BizTaskController {
         bizTaskService.update(bizTaskUpdateParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 组织责任人变更
+     *
+     * @author pzh
+     * @date  2025/07/04 11:38
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("组织责任人变更")
+    @CommonLog("组织责任人变更")
+    // @SaCheckPermission("/biz/task/editOwner")
+    @PostMapping("/biz/task/editOwner")
+    public CommonResult<String> editOwner(@RequestBody @Valid BizTaskEditOwnerParam bizTaskEditOwnerParam) {
+        bizTaskService.editOwner(bizTaskEditOwnerParam);
+        return CommonResult.ok();
+    }
 }
