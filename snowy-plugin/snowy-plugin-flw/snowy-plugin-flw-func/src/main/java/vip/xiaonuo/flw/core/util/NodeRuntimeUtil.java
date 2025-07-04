@@ -358,41 +358,73 @@ public class NodeRuntimeUtil {
                                                                                         "审批人和发起人是同一个人，审批自动通过", CollectionUtil.newArrayList());
                                                                                 delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
                                                                             }
-                                                                        } else if(processAutoDistinctType.equals("MULTIPLE")){
-                                                                            // 获取上一个节点的审批参与人，如果为一个参与人，且跟当前的参与人一致，则审批自动通过；
-                                                                            List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
-                                                                            if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
-                                                                                FlowNode flowNode = previousNodeList.get(0);
-                                                                                if (flowNode.getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)) {
-                                                                                    /** 当同一审批人在流程中连续多次出现时，自动去重 */
-                                                                                    CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
-                                                                                    commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "MULTIPLE",5*60L);
-
-                                                                                    // 获取上一节点的审批参与人
-                                                                                    AtomicReference<String> previousParticipateInfo = new AtomicReference<>();
-                                                                                    ExtensionElements previousExtensionElements = flowNode.getExtensionElements();
-                                                                                    if (ObjectUtil.isNotEmpty(previousExtensionElements)) {
-                                                                                        previousExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(previousCamundaProperties ->
-                                                                                                previousCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(previousCamundaProperty -> {
-                                                                                                    if (previousCamundaProperty.getCamundaName().equals("participateInfo")) {
-                                                                                                        previousParticipateInfo.set(previousCamundaProperty.getCamundaValue());
-                                                                                                    }
-                                                                                                }));
-                                                                                    }
-                                                                                    if (ObjectUtil.isNotEmpty(previousParticipateInfo.get())) {
-                                                                                        List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), previousParticipateInfo.get(),delegateTask.getTaskDefinitionKey());
-                                                                                        if(ObjectUtil.isNotEmpty(participateInfo) && participateInfo.size() == 1) {
-                                                                                            if(delegateTask.getAssignee().equals(participateInfo.get(0))) {
-                                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                                                                                        "相同审批人连续出现，审批自动通过", CollectionUtil.newArrayList());
-                                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
-                                                                                            }
-                                                                                        }
+                                                                        }
+                                                                        else if(processAutoDistinctType.equals("MULTIPLE")){
+                                                                            boolean hasSameAssignee = false;
+                                                                            // 获取流程实例的所有历史任务
+                                                                            List<HistoricTaskInstance> historicTasks = delegateTask.getProcessEngineServices().getHistoryService().createHistoricTaskInstanceQuery()
+                                                                                    .processInstanceId(delegateTask.getProcessInstanceId()).list();
+                                                                            if(ObjectUtil.isNotEmpty(historicTasks)) {
+                                                                                // 判断当前任务审批人是否和上一个审批人相同
+                                                                                HistoricTaskInstance task = historicTasks.get(historicTasks.size()-1);
+                                                                                if(ObjectUtil.isNotEmpty(task) && task.getAssignee() != null
+                                                                                        && task.getAssignee().equals(assignee) && !"deleted".equals(task.getDeleteReason())){
+                                                                                    hasSameAssignee = true;
+                                                                                }
+                                                                            } else{
+                                                                                // 发起人是否和下一审批人相同
+                                                                                List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
+                                                                                if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
+                                                                                    if (ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator)) {
+                                                                                        hasSameAssignee = true;
                                                                                     }
                                                                                 }
                                                                             }
+                                                                            if(hasSameAssignee){
+                                                                                CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                                                                                commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "MULTIPLE",5*60L);
+                                                                                // 如果找到了相同的审批人，审批自动通过 (审批人设置为对应节点的审批人)
+                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+                                                                                        "相同审批人连续出现，审批自动通过", CollectionUtil.newArrayList(),assignee);
+                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                                                            }
                                                                         }
+//                                                                        else if(processAutoDistinctType.equals("MULTIPLE")){
+//                                                                            // 获取上一个节点的审批参与人，如果为一个参与人，且跟当前的参与人一致，则审批自动通过；
+//                                                                            List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
+//                                                                            if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
+//                                                                                FlowNode flowNode = previousNodeList.get(0);
+//                                                                                if (flowNode.getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)) {
+//                                                                                    /** 当同一审批人在流程中连续多次出现时，自动去重 */
+//                                                                                    CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+//                                                                                    commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "MULTIPLE",5*60L);
+//
+//                                                                                    // 获取上一节点的审批参与人
+//                                                                                    AtomicReference<String> previousParticipateInfo = new AtomicReference<>();
+//                                                                                    ExtensionElements previousExtensionElements = flowNode.getExtensionElements();
+//                                                                                    if (ObjectUtil.isNotEmpty(previousExtensionElements)) {
+//                                                                                        previousExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(previousCamundaProperties ->
+//                                                                                                previousCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(previousCamundaProperty -> {
+//                                                                                                    if (previousCamundaProperty.getCamundaName().equals("participateInfo")) {
+//                                                                                                        previousParticipateInfo.set(previousCamundaProperty.getCamundaValue());
+//                                                                                                    }
+//                                                                                                }));
+//                                                                                    }
+//                                                                                    if (ObjectUtil.isNotEmpty(previousParticipateInfo.get())) {
+//                                                                                        List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), previousParticipateInfo.get(),delegateTask.getTaskDefinitionKey());
+//                                                                                        if(ObjectUtil.isNotEmpty(participateInfo) && participateInfo.size() == 1) {
+//                                                                                            if(delegateTask.getAssignee().equals(participateInfo.get(0))) {
+//                                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
+//                                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+//                                                                                                        "相同审批人连续出现，审批自动通过", CollectionUtil.newArrayList());
+//                                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+//                                                                                            }
+//                                                                                        }
+//                                                                                    }
+//                                                                                }
+//                                                                            }
+//                                                                        }
                                                                         // 审批人全部去重
                                                                         else if(processAutoDistinctType.equals("DEDUP")){
                                                                             // 判断审批人是否与发起人相同
@@ -1984,7 +2016,7 @@ public class NodeRuntimeUtil {
             if(StrUtil.isEmpty(id)){
                 continue;
             }
-            if(!id.equals(userTaskId)){
+            if(!id.equals(userTaskId)){//xne1672e-2357-47a6-a899-d1bb9c58cd04 xn4e7ebb-1bad-4a9a-b82c-0744e9cc6619
                 continue;
             }
             String type = jsonObject.getStr("type");
